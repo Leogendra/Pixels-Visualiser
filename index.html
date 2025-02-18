@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixels Analyser</title>
+    <link rel="icon" href="assets/icon.png" type="image/png">
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📔 Pixels Analyser</h1>
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept=".json">
+            <label for="fileInput" class="button">Choose a Backup file (.json)</label>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="stats-grid" id="statsContainer">
+                <!-- Statistics will be inserted here -->
+            </div>
+
+            <div class="chart-container">
+                <h2>📈 Mood evolution</h2>
+                <canvas id="moodChart"></canvas>
+            </div>
+
+            <div class="grid-2">
+                <div class="chart-container">
+                    <h2>🏷️ tag frequency</h2>
+                    <canvas id="tagChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h2>😊 Average score per tag</h2>
+                    <canvas id="tagScoreChart"></canvas>
+                </div>
+            </div>
+
+            <div class="word-cloud">
+                <h2>📝 Most frequent words</h2>
+                <div id="wordFrequency"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts/script.js"></script>
+</body>
+</html>
