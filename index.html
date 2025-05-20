@@ -25,6 +25,10 @@
 
             <div class="chart-container">
                 <h2>📈 Mood evolution</h2>
+                
+                <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
+                <input type="range" id="rollingSlider" min="1" max="60  " value="1" style="width: 100%; margin-bottom: 1rem;">
+
                 <canvas id="moodChart"></canvas>
             </div>
 

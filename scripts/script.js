@@ -1,5 +1,22 @@
-// Utility functions
-const calculateStats = (data) => {
+const rolling_slider = document.querySelector('#rollingSlider');
+const file_input = document.querySelector('#fileInput');
+const content_container = document.querySelector('#content');
+const stats_container = document.querySelector('#statsContainer');
+const word_freq_container = document.querySelector('#wordFrequency');
+
+const DEV_MODE = true;
+let current_data = [];
+let mood_chart_instance = null;
+
+
+function average(tableau) {
+    if (tableau.length === 0) return 0;
+    const somme = tableau.reduce((acc, val) => acc + val, 0);
+    return somme / tableau.length;
+};
+
+
+function calculateStats(data) {
     const allScores = data.flatMap(entry => entry.scores);
     return {
         'Number of Pixels': data.length,
@@ -7,7 +24,8 @@ const calculateStats = (data) => {
     };
 };
 
-const getAllTags = (data) => {
+
+function getAllTags(data) {
     const tags = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -31,7 +49,10 @@ const stopWords = new Set([
     "the", "a", "an", "and", "or", "but", "if", "then", "this", "that", "these", "those", "on", "in", "at", "with", "without", "by", "for", "from", "to", "of", "about", "above", "below", "between", "after", "before", "under", "over", "which", "what", "who", "whom", "whose", "how", "when", "where", "why", "he", "she", "it", "we", "they", "you", "i"
 ]);
 
-const getWordFrequency = (data) => {
+
+
+
+function get_word_frequency(data) {
     const words = data
         .filter(entry => entry.notes && entry.notes.trim() !== '')
         .flatMap(entry => 
@@ -52,30 +73,34 @@ const getWordFrequency = (data) => {
         .slice(0, 20);
 };
 
-// Chart creation functions
-const createMoodChart = (data) => {
-    // Déterminer le nombre maximum de scores dans les entrées
-    const maxScores = Math.max(...data.map(entry => entry.scores.length));
+
+function create_mood_chart(data, rollingAverage=1) {
     const dates = data.map(entry => entry.date);
+    const rawScores = data.map(entry => average(entry.scores));
 
-    // Créer un tableau de scores pour chaque position
-    const scores = Array.from({ length: maxScores }, (_, index) => 
-        data.map(entry => entry.scores[index] || null)
-    );
+    const scores = rawScores.map((_, i) => {
+        const start = Math.max(0, i - rollingAverage + 1);
+        return average(rawScores.slice(start, i + 1));
+    });
 
-    new Chart(document.getElementById('moodChart'), {
+    if (mood_chart_instance) {
+        mood_chart_instance.destroy();
+    }
+
+    mood_chart_instance = new Chart(document.getElementById('moodChart'), {
         type: 'line',
         data: {
             labels: dates,
-            datasets: scores.map((score, index) => ({
-                label: `Score ${index + 1}`,
-                data: score,
+            datasets: [{
+                label: 'Moyenne des scores',
+                data: scores,
                 borderColor: "rgb(54, 162, 235)",
                 tension: 0.1
-            }))
+            }]
         },
         options: {
             responsive: true,
+            animation: false,
             scales: {
                 y: {
                     beginAtZero: true,
@@ -84,9 +109,11 @@ const createMoodChart = (data) => {
             }
         }
     });
-};
+}
 
-const createTagFrequencyChart = (data) => {
+
+
+function create_tag_frequency_chart(data) {
     const tagCounts = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -129,7 +156,8 @@ const createTagFrequencyChart = (data) => {
     }
 };
 
-const createTagScoreChart = (data) => {
+
+function create_tag_score_chart(data) {
     const tagScores = {};
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
@@ -174,7 +202,8 @@ const createTagScoreChart = (data) => {
                 }
             }
         });
-    } else {
+    } 
+    else {
         document.getElementById('tagScoreChart').parentElement.innerHTML = '<p>No score data per tag available</p>';
     }
 };
@@ -182,7 +211,7 @@ const createTagScoreChart = (data) => {
 
 
 
-async function handleFileUpload(file) {
+async function handle_file_upload(file) {
     if (!file) return;
 
     try {
@@ -200,13 +229,14 @@ async function handleFileUpload(file) {
             throw new Error('Le format du fichier JSON est invalide. Il doit contenir une liste de Pixels.');
         }
 
+        current_data = data;
+
         // Affichage du conteneur principal
-        document.getElementById('content').style.display = 'block';
+        content_container.style.display = 'block';
 
         // Statistiques
         const stats = calculateStats(data);
-        const statsContainer = document.getElementById('statsContainer');
-        statsContainer.innerHTML = Object.entries(stats).map(([key, value]) => `
+        stats_container.innerHTML = Object.entries(stats).map(([key, value]) => `
             <div class="stat-card">
                 <h3>${key}</h3>
                 <p>${value}</p>
@@ -214,14 +244,13 @@ async function handleFileUpload(file) {
         `).join('');
 
         // Graphiques
-        createMoodChart(data);
-        createTagFrequencyChart(data);
-        createTagScoreChart(data);
+        create_mood_chart(data);
+        create_tag_frequency_chart(data);
+        create_tag_score_chart(data);
 
         // Fréquence des mots
-        const wordFreq = getWordFrequency(data);
-        const wordFreqContainer = document.getElementById('wordFrequency');
-        wordFreqContainer.innerHTML = wordFreq.length > 0 ? `
+        const wordFreq = get_word_frequency(data);
+        word_freq_container.innerHTML = wordFreq.length > 0 ? `
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
                 ${wordFreq.map(([word, count]) => `
                     <div class="stat-card">
@@ -238,20 +267,20 @@ async function handleFileUpload(file) {
 }
 
 
-async function autoLoadData(filepath = "../data/backup.json") {
+async function auto_load_data(filepath = "../data/backup.json") {
     try {
         const response = await fetch(filepath);
         if (!response.ok) throw new Error('Fichier introuvable ou inaccessible');
         const data = await response.json();
 
-        // Simulation d'un objet File pour compatibilité avec handleFileUpload
+        // Simulation d'un objet File pour compatibilité avec handle_file_upload
         const file = new Blob([JSON.stringify(data)], { type: 'application/json' });
         file.text = async () => JSON.stringify(data);  // compatibilité pour file.text()
 
-        await handleFileUpload(file);
+        await handle_file_upload(file);
     } 
     catch (error) {
-        console.error('AutoLoadData Error:', error.message);
+        console.error('auto_load_data Error:', error.message);
     }
 }
 
@@ -259,14 +288,20 @@ async function autoLoadData(filepath = "../data/backup.json") {
 // On doc loading
 document.addEventListener('DOMContentLoaded', () => {
     // Auto load data
-    DEV_MODE = true;
-    if (DEV_MODE) {
-        autoLoadData();
+    if (DEV_MODE) { 
+        auto_load_data();
     } 
 
     // Add event listener to the file input
-    document.getElementById('fileInput').addEventListener('change', async (event) => {
+    file_input.addEventListener('change', async (event) => {
         const file = event.target.files[0];
-        await handleFileUpload(file);
+        await handle_file_upload(file);
     });
+
+    rolling_slider.addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        document.getElementById('rollingValue').textContent = value;
+        create_mood_chart(current_data, value);
+    });
+
 });
