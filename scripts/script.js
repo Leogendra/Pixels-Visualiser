@@ -63,14 +63,6 @@ const createMoodChart = (data) => {
         data.map(entry => entry.scores[index] || null)
     );
 
-    const colors = [
-        'rgb(255, 99, 132)',
-        'rgb(75, 192, 192)',
-        'rgb(153, 102, 255)',
-        'rgb(255, 159, 64)',
-        'rgb(54, 162, 235)'
-    ];
-
     new Chart(document.getElementById('moodChart'), {
         type: 'line',
         data: {
@@ -78,7 +70,7 @@ const createMoodChart = (data) => {
             datasets: scores.map((score, index) => ({
                 label: `Score ${index + 1}`,
                 data: score,
-                borderColor: colors[index % colors.length],
+                borderColor: "rgb(54, 162, 235)",
                 tension: 0.1
             }))
         },
@@ -187,64 +179,94 @@ const createTagScoreChart = (data) => {
     }
 };
 
-// Main functionality
-document.getElementById('fileInput').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
 
-            // Validate data structure
-            if (!Array.isArray(data) || !data.every(entry => 
-                entry.date && 
-                Array.isArray(entry.scores) && 
-                entry.scores.length > 0 &&
-                typeof entry.notes === 'string' &&
-                Array.isArray(entry.tags)
-            )) {
-                throw new Error('The JSON file format is not valid. Ensure it contains a list of Pixels.');
-            }
 
-            // Show content container
-            document.getElementById('content').style.display = 'block';
 
-            // Calculate and display stats
-            const stats = calculateStats(data);
-            const statsContainer = document.getElementById('statsContainer');
-            statsContainer.innerHTML = Object.entries(stats)
-                .map(([key, value]) => `
-                    <div class="stat-card">
-                        <h3>${key}</h3>
-                        <p>${value}</p>
-                    </div>
-                `).join('');
+async function handleFileUpload(file) {
+    if (!file) return;
 
-            // Create charts
-            createMoodChart(data);
-            createTagFrequencyChart(data);
-            createTagScoreChart(data);
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text);
 
-            // Display word frequency
-            const wordFreq = getWordFrequency(data);
-            const wordFreqContainer = document.getElementById('wordFrequency');
-            if (wordFreq.length > 0) {
-                wordFreqContainer.innerHTML = `
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
-                        ${wordFreq.map(([word, count]) => `
-                            <div class="stat-card">
-                                <h4>${word}</h4>
-                                <p>${count}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                wordFreqContainer.innerHTML = '<p>No word frequency data available</p>';
-            }
-
-        } catch (error) {
-            alert(`Erreur: ${error.message}`);
+        // Validation du format
+        if (!Array.isArray(data) || !data.every(entry =>
+            entry.date &&
+            Array.isArray(entry.scores) &&
+            entry.scores.length > 0 &&
+            typeof entry.notes === 'string' &&
+            Array.isArray(entry.tags)
+        )) {
+            throw new Error('Le format du fichier JSON est invalide. Il doit contenir une liste de Pixels.');
         }
+
+        // Affichage du conteneur principal
+        document.getElementById('content').style.display = 'block';
+
+        // Statistiques
+        const stats = calculateStats(data);
+        const statsContainer = document.getElementById('statsContainer');
+        statsContainer.innerHTML = Object.entries(stats).map(([key, value]) => `
+            <div class="stat-card">
+                <h3>${key}</h3>
+                <p>${value}</p>
+            </div>
+        `).join('');
+
+        // Graphiques
+        createMoodChart(data);
+        createTagFrequencyChart(data);
+        createTagScoreChart(data);
+
+        // Fréquence des mots
+        const wordFreq = getWordFrequency(data);
+        const wordFreqContainer = document.getElementById('wordFrequency');
+        wordFreqContainer.innerHTML = wordFreq.length > 0 ? `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                ${wordFreq.map(([word, count]) => `
+                    <div class="stat-card">
+                        <h4>${word}</h4>
+                        <p>${count}</p>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '<p>No word frequency data available</p>';
+
+    } catch (error) {
+        alert(`Erreur: ${error.message}`);
     }
+}
+
+
+async function autoLoadData(filepath = "../data/backup.json") {
+    try {
+        const response = await fetch(filepath);
+        if (!response.ok) throw new Error('Fichier introuvable ou inaccessible');
+        const data = await response.json();
+
+        // Simulation d'un objet File pour compatibilité avec handleFileUpload
+        const file = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        file.text = async () => JSON.stringify(data);  // compatibilité pour file.text()
+
+        await handleFileUpload(file);
+    } 
+    catch (error) {
+        console.error('AutoLoadData Error:', error.message);
+    }
+}
+
+
+// On doc loading
+document.addEventListener('DOMContentLoaded', () => {
+    // Auto load data
+    DEV_MODE = true;
+    if (DEV_MODE) {
+        autoLoadData();
+    } 
+
+    // Add event listener to the file input
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        await handleFileUpload(file);
+    });
 });
