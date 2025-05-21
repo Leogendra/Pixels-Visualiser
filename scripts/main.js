@@ -4,9 +4,23 @@ const content_container = document.querySelector("#content");
 const stats_container = document.querySelector("#statsContainer");
 const word_freq_container = document.querySelector("#wordFrequency");
 
+const wordcloud_checkbox = document.querySelector("#wordCloudCheckbox");
+const wordcloud_input = document.querySelector("#maxWordsInput");
+
+// CSS variables
+const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+
+
 const DEV_MODE = true;
 let current_data = [];
 let mood_chart_instance = null;
+
+// Wordcloud
+let full_word_frequency = [];
+let wordcloudPercentage = false;
+let nbMaxWords = 20;
+
 
 
 function average(tableau) {
@@ -14,6 +28,11 @@ function average(tableau) {
     const somme = tableau.reduce((acc, val) => acc + val, 0);
     return somme / tableau.length;
 };
+
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 
 function calculateStats(data) {
@@ -43,21 +62,22 @@ function getAllTags(data) {
 
 const stopWords = new Set([
     // French
-    "le", "la", "les", "un", "une", "des", "du", "de", "dans", "et", "est", "au", "aux", "ce", "ces", "cette", "comme", "en", "sur", "par", "pour", "qui", "que", "quoi", "quand", "avec", "sans", "sous", "ainsi", "donc", "car", "mais", "plus", "moins", "très", "peu", "avant", "après", "chez", "entre", "cela", "celle", "celui", "ceux", "elles", "eux", "nous", "vous", "ils", "elle", "il", "je", "tu", "on",
+    "le", "la", "les", "un", "une", "des", "du", "de", "dans", "et", "est", "au", "aux", "ce", "ces", "cette", "comme", "en", "sur", "par", "pour", "qui", "que", "quoi", "quand", "avec", "sans", "sous", "ainsi", "donc", "car", "mais", "plus", "moins", "très", "peu", "avant", "après", "chez", "entre", "cela", "celle", "celui", "ceux", "elles", "eux", "nous", "vous", "ils", "elle", "il", "je", "tu", "on", "pas",
 
     // English
-    "the", "a", "an", "and", "or", "but", "if", "then", "this", "that", "these", "those", "on", "in", "at", "with", "without", "by", "for", "from", "to", "of", "about", "above", "below", "between", "after", "before", "under", "over", "which", "what", "who", "whom", "whose", "how", "when", "where", "why", "he", "she", "it", "we", "they", "you", "i"
+    "the", "a", "an", "and", "or", "but", "if", "then", "this", "that", "these", "those", "on", "in", "at", "with", "without", "by", "for", "from", "to", "of", "about", "above", "below", "between", "after", "before", "under", "over", "which", "what", "who", "whom", "whose", "how", "when", "where", "why", "he", "she", "it", "we", "they", "you", "i", "not"
 ]);
 
 
 
 
 function get_word_frequency(data) {
+    console.log("Calculating word frequency...");
     const words = data
         .filter(entry => entry.notes && entry.notes.trim() !== "")
         .flatMap(entry =>
             entry.notes.toLowerCase()
-                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+                .replace(/[.,\/#!$%\^&\*;:{}=\"\+\-_`~()]/g, " ")
                 .split(/\s+/)
         );
 
@@ -68,13 +88,12 @@ function get_word_frequency(data) {
         }
     });
 
-    return Object.entries(frequency)
+    full_word_frequency = Object.entries(frequency)
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 20);
 };
 
 
-function create_mood_chart(data, rollingAverage = 1) {
+async function create_mood_chart(data, rollingAverage = 1) {
     const dates = data.map(entry => entry.date);
     const rawScores = data.map(entry => average(entry.scores));
 
@@ -94,16 +113,22 @@ function create_mood_chart(data, rollingAverage = 1) {
             datasets: [{
                 label: "Mood",
                 data: scores,
-                borderColor: "rgb(54, 162, 235)",
+                borderColor: primaryColor,
                 tension: 0.1
             }]
         },
         options: {
             responsive: true,
             animation: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
+                    min: 1,
                     max: 5
                 }
             }
@@ -113,7 +138,7 @@ function create_mood_chart(data, rollingAverage = 1) {
 
 
 
-function create_tag_frequency_chart(data) {
+async function create_tag_frequency_chart(data) {
     const tagCounts = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -157,7 +182,7 @@ function create_tag_frequency_chart(data) {
 };
 
 
-function create_tag_score_chart(data) {
+async function create_tag_score_chart(data) {
     const tagScores = {};
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
@@ -209,6 +234,24 @@ function create_tag_score_chart(data) {
 };
 
 
+async function create_word_frequency_section(data, maxWords, inPercentage = false) {
+    if (full_word_frequency.length === 0) {
+        get_word_frequency(data);
+    }
+    const wordFreq = full_word_frequency.slice(0, maxWords);
+    const nbPixels = data.length;
+    word_freq_container.innerHTML = wordFreq.length > 0 ? `
+            <div class="container-word-frequency">
+                ${wordFreq.map(([word, count]) => `
+                    <div class="word-card">
+                        <h4>${capitalize(word)}</h4>
+                        <p>${inPercentage ? (100 * count / nbPixels).toFixed(1) + "%" : count}</p>
+                    </div>
+                `).join("")}
+            </div>
+        ` : "<p>No word frequency data available</p>";
+}
+
 
 
 async function handle_file_upload(file) {
@@ -231,10 +274,8 @@ async function handle_file_upload(file) {
 
         current_data = data;
 
-        // Affichage du conteneur principal
         content_container.style.display = "block";
 
-        // Statistiques
         const stats = calculateStats(data);
         stats_container.innerHTML = Object.entries(stats).map(([key, value]) => `
             <div class="stat-card">
@@ -248,20 +289,9 @@ async function handle_file_upload(file) {
         create_tag_frequency_chart(data);
         create_tag_score_chart(data);
 
-        // Fréquence des mots
-        const wordFreq = get_word_frequency(data);
-        word_freq_container.innerHTML = wordFreq.length > 0 ? `
-            <div class="container-word-frequency">
-                ${wordFreq.map(([word, count]) => `
-                    <div class="word-card">
-                        <h4>${word}</h4>
-                        <p>${count}</p>
-                    </div>
-                `).join("")}
-            </div>
-        ` : "<p>No word frequency data available</p>";
+        create_word_frequency_section(data, nbMaxWords, wordcloudPercentage);
 
-    } 
+    }
     catch (error) {
         alert(`Error: ${error.message}`);
     }
@@ -298,10 +328,32 @@ document.addEventListener("DOMContentLoaded", () => {
         await handle_file_upload(file);
     });
 
+    // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
         const value = parseInt(e.target.value);
         document.getElementById("rollingValue").textContent = value;
         create_mood_chart(current_data, value);
+    });
+
+    // Averaging slider
+    wordcloud_checkbox.addEventListener("change", (e) => {
+        wordcloudPercentage = e.target.checked;
+        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+    });
+
+    // Word cloud max words input
+    wordcloud_input.addEventListener("input", (e) => {
+        try {
+            const value = parseInt(e.target.value);
+            if (value > 0) {
+                nbMaxWords = value;
+                create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+            }
+        }
+        catch (error) {
+            console.error("Error parsing max words input:", error);
+            alert("Please enter a valid number for max words.");
+        }
     });
 
 });

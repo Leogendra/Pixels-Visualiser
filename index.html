@@ -7,6 +7,7 @@
     <title>Pixels Analyser</title>
     <link rel="icon" href="assets/icon.png" type="image/png">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/slider.css">
 </head>
 
 <body>
@@ -29,7 +30,7 @@
                 <h2>📈 Mood evolution</h2>
 
                 <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
-                <input type="range" id="rollingSlider" class="range-average" min="1" max="60  " value="1">
+                <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
 
                 <canvas id="moodChart"></canvas>
             </div>
@@ -48,6 +49,15 @@
 
             <div class="word-cloud">
                 <h2>📝 Most frequent words</h2>
+
+                <div class="options-wordcloud">
+                    <label for="wordCloudCheckbox">Show in percentage</label>
+                    <input type="checkbox" id="wordCloudCheckbox" class="checkbox-wordcloud">
+
+                    <label for="maxWordsInput">Number of words</label>
+                    <input type="number" id="maxWordsInput" class="input-max-words" min="20" value="20">
+                </div>
+
                 <div id="wordFrequency"></div>
             </div>
         </div>

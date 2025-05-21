@@ -1,8 +1,8 @@
 :root {
-    --primary-color: #FF4B4B;
-    --secondary-color: #76d4ff;
-    --bg-color: #FFFFFF;
-    --secondary-bg: #F0F2F6;
+    --primary-color: #2fa1ff;
+    --secondary-color: #ff4b4b;
+    --bg-color: #ffffff;
+    --secondary-bg: #f0f2f6;
     --text-color: #262730;
 }
 
@@ -61,10 +61,11 @@ body {
 
 .button {
     background-color: var(--primary-color);
-    color: white;
+    color: rgb(0, 0, 0);
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
+    color: #ffffff;
     cursor: pointer;
 }
 
@@ -75,6 +76,9 @@ body {
 #fileInput {
     display: none;
 }
+
+
+/***** Wordcloud *****/
 
 .container-word-frequency {
     display: grid; 
@@ -91,9 +95,10 @@ body {
 }
 
 .word-card {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     border-radius: 8px;
     text-align: center;
+    color: #ffffff;
 }
 
 .range-average {
@@ -101,3 +106,39 @@ body {
     margin-bottom: 1rem;
 }
 
+
+.options-wordcloud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 1rem;
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.options-wordcloud label {
+    font-weight: 500;
+}
+
+.options-wordcloud input {
+    margin-right: 2rem;
+}
+
+.checkbox-wordcloud {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.input-max-words {
+    width: 80px;
+    height: 30px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
