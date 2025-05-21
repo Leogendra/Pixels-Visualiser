@@ -35,14 +35,27 @@ function capitalize(string) {
 }
 
 
-function calculateStats(data) {
+function calculate_stats(data) {
     const allScores = data.flatMap(entry => entry.scores);
-    return {
-        "Number of Pixels": data.length,
-        "Average score": average(allScores).toFixed(2),
-        "1   2   3   4   5": [1, 2, 3, 4, 5]
-    };
-};
+    const moodCounts = {};
+
+    allScores.forEach(score => {
+        moodCounts[score] = (moodCounts[score] || 0) + 1;
+    });
+
+    const total = allScores.length;
+    const moodDistribution = Object.entries(moodCounts)
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+        .map(([_, count]) => `${(100 * count / total).toFixed(1)}%`)
+        .join(" | ");
+
+    return [
+        ["Number of Pixels", data.length],
+        ["Average score", average(allScores).toFixed(2)],
+        ["Score distribution", moodDistribution]
+    ];
+}
+
 
 
 function getAllTags(data) {
@@ -61,19 +74,9 @@ function getAllTags(data) {
 };
 
 
-const stopWords = new Set([
-    // French
-    "le", "la", "les", "un", "une", "des", "du", "de", "dans", "et", "est", "au", "aux", "ce", "ces", "cette", "comme", "en", "sur", "par", "pour", "qui", "que", "quoi", "quand", "avec", "sans", "sous", "ainsi", "donc", "car", "mais", "plus", "moins", "très", "peu", "avant", "après", "chez", "entre", "cela", "celle", "celui", "ceux", "elles", "eux", "nous", "vous", "ils", "elle", "il", "je", "tu", "on", "pas",
-
-    // English
-    "the", "a", "an", "and", "or", "but", "if", "then", "this", "that", "these", "those", "on", "in", "at", "with", "without", "by", "for", "from", "to", "of", "about", "above", "below", "between", "after", "before", "under", "over", "which", "what", "who", "whom", "whose", "how", "when", "where", "why", "he", "she", "it", "we", "they", "you", "i", "not"
-]);
-
-
 
 
 function get_word_frequency(data) {
-    console.log("Calculating word frequency...");
     const words = data
         .filter(entry => entry.notes && entry.notes.trim() !== "")
         .flatMap(entry =>
@@ -84,7 +87,7 @@ function get_word_frequency(data) {
 
     const frequency = {};
     words.forEach(word => {
-        if (word.length > 2 && !stopWords.has(word) && word.replace(/[^a-zA-Z]/g, "").length >= 3) {
+        if (!stop_words.has(word) && word.replace(/[^a-zA-Z]/g, "").length >= 3) {
             frequency[word] = (frequency[word] || 0) + 1;
         }
     });
@@ -277,10 +280,10 @@ async function handle_file_upload(file) {
 
         content_container.style.display = "block";
 
-        const stats = calculateStats(data);
-        stats_container.innerHTML = Object.entries(stats).map(([key, value]) => `
+        const stats = calculate_stats(data);
+        stats_container.innerHTML = stats.map(([title, value]) => `
             <div class="stat-card">
-                <h3>${key}</h3>
+                <h3>${title}</h3>
                 <p>${value}</p>
             </div>
         `).join("");

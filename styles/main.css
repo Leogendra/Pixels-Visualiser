@@ -20,8 +20,18 @@ body {
 }
 
 .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.hero-logo {
+    width: 35px;
+    border-radius: 10px;
 }
 
 .upload-section {

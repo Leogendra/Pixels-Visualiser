@@ -13,7 +13,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📔 Pixels Analyser</h1>
+            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer">
+                <img class="hero-logo" src="assets/old_pixel_icon.png" alt="Logo">
+            </a>
+            <h1>Pixels Analyser</h1>
         </div>
 
         <div class="upload-section">
@@ -37,7 +40,7 @@
 
             <div class="grid-2">
                 <div class="chart-container">
-                    <h2>🏷️ tag frequency</h2>
+                    <h2>🏷️ Tag frequency</h2>
                     <canvas id="tagChart"></canvas>
                 </div>
 
@@ -64,6 +67,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts/stopwords.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 
