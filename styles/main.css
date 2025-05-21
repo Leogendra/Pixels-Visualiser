@@ -77,9 +77,9 @@ body {
 /***** Wordcloud *****/
 
 .container-word-frequency {
-    display: grid; 
-    grid-template-columns: 
-    repeat(auto-fill, minmax(100px, 1fr)); 
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(100px, 1fr));
     gap: 0.3rem;
 }
 
@@ -98,7 +98,7 @@ body {
 }
 
 .range-average {
-    width: 100%; 
+    width: 100%;
     margin-bottom: 1rem;
 }
 
@@ -113,14 +113,14 @@ body {
     background-color: var(--secondary-bg);
     border-radius: 8px;
     margin-bottom: 1rem;
-}
 
-.options-wordcloud label {
-    font-weight: 500;
-}
+    & label {
+        font-weight: 500;
+    }
 
-.options-wordcloud input {
-    margin-right: 2rem;
+    & input {
+        margin-right: 2rem;
+    }
 }
 
 .checkbox-wordcloud {

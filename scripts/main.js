@@ -39,7 +39,8 @@ function calculateStats(data) {
     const allScores = data.flatMap(entry => entry.scores);
     return {
         "Number of Pixels": data.length,
-        "Average score": (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(2),
+        "Average score": average(allScores).toFixed(2),
+        "1   2   3   4   5": [1, 2, 3, 4, 5]
     };
 };
 
