@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixels Analyser</title>
     <link rel="icon" href="assets/icon.png" type="image/png">
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/main.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -25,9 +27,9 @@
 
             <div class="chart-container">
                 <h2>📈 Mood evolution</h2>
-                
+
                 <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
-                <input type="range" id="rollingSlider" min="1" max="60  " value="1" style="width: 100%; margin-bottom: 1rem;">
+                <input type="range" id="rollingSlider" class="range-average" min="1" max="60  " value="1">
 
                 <canvas id="moodChart"></canvas>
             </div>
@@ -50,8 +52,9 @@
             </div>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="scripts/script.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
+
 </html>
