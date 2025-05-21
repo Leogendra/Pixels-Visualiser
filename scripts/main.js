@@ -12,7 +12,7 @@ const primaryColor = getComputedStyle(document.documentElement).getPropertyValue
 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 let current_data = [];
 let mood_chart_instance = null;
 
@@ -28,6 +28,15 @@ function average(tableau) {
     const somme = tableau.reduce((acc, val) => acc + val, 0);
     return somme / tableau.length;
 };
+
+function minimum(tableau) {
+    if (tableau.length === 0) return 0;
+    return tableau.reduce((acc, val) => Math.min(acc, val), tableau[0]);
+}
+function maximum(tableau) {
+    if (tableau.length === 0) return 0;
+    return tableau.reduce((acc, val) => Math.max(acc, val), tableau[0]);
+}
 
 
 function capitalize(string) {
@@ -45,14 +54,14 @@ function calculate_stats(data) {
 
     const total = allScores.length;
     const moodDistribution = Object.entries(moodCounts)
-        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])) // Sort by score in ascending order
         .map(([_, count]) => `${(100 * count / total).toFixed(1)}%`)
         .join(" | ");
 
     return [
         ["Number of Pixels", data.length],
         ["Average score", average(allScores).toFixed(2)],
-        ["Score distribution", moodDistribution]
+        [`Score distribution (${minimum(allScores)} to ${maximum(allScores)})`, moodDistribution]
     ];
 }
 
@@ -110,6 +119,7 @@ async function create_mood_chart(data, rollingAverage = 1) {
         mood_chart_instance.destroy();
     }
 
+    const isMobile = window.innerWidth <= 600;
     mood_chart_instance = new Chart(document.getElementById("moodChart"), {
         type: "line",
         data: {
@@ -123,6 +133,7 @@ async function create_mood_chart(data, rollingAverage = 1) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: !isMobile,
             animation: false,
             plugins: {
                 legend: {

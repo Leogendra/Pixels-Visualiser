@@ -61,9 +61,14 @@ body {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 2rem;
+    min-height: 100px;
+
+    & canvas {
+        max-height: 500px;
+    }
 }
 
-.grid-2 {
+.grid-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 1rem;
