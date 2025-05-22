@@ -1,6 +1,8 @@
 const rolling_slider = document.querySelector("#rollingSlider");
 const file_input = document.querySelector("#fileInput");
+
 const content_container = document.querySelector("#content");
+const range_pills = document.querySelectorAll('.pill');
 const stats_container = document.querySelector("#statsContainer");
 const word_freq_container = document.querySelector("#wordFrequency");
 
@@ -15,11 +17,15 @@ const secondaryColor = getComputedStyle(document.documentElement).getPropertyVal
 
 
 const DEV_MODE = false;
+let initial_data = [];
 let current_data = [];
+
+// Canvas
 let mood_chart_instance = null;
+let tags_frequency_chart_instance = null;
+let tags_score_chart_instance = null;
 
 // Tags
-let tags_frequency_chart_instance = null;
 let tagsPercentage = false;
 
 // Wordcloud
@@ -50,7 +56,30 @@ function capitalize(string) {
 }
 
 
-function calculate_stats(data) {
+function filter_pixels(range) {
+    const numberOfDays = range;
+    current_data = initial_data.filter(entry => {
+        const entryDate = new Date(entry.date);
+        const today = new Date();
+        const diffDays = Math.ceil(Math.abs(today - entryDate) / (1000 * 60 * 60 * 24));
+        return diffDays <= numberOfDays;
+    });
+
+    if (current_data.length === 0) {
+        stats_container.innerHTML = "<p>No data available for the selected range</p>";
+    }
+    else {
+        stats_container.innerHTML = "";
+        calculate_and_display_stats(current_data);
+        create_mood_chart(current_data, parseInt(rolling_slider.value));
+        create_tag_frequency_chart(current_data, tagsPercentage);
+        create_tag_score_chart(current_data);
+        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+    }
+}
+
+
+function calculate_and_display_stats(data) {
     const allScores = data.flatMap(entry => entry.scores);
     const moodCounts = {};
 
@@ -64,11 +93,18 @@ function calculate_stats(data) {
         .map(([_, count]) => `${(100 * count / total).toFixed(1)}%`)
         .join(" | ");
 
-    return [
+    stats = [
         ["Number of Pixels", data.length],
         ["Average score", average(allScores).toFixed(2)],
         [`Score distribution (${minimum(allScores)} to ${maximum(allScores)})`, moodDistribution]
     ];
+
+    stats_container.innerHTML = stats.map(([title, value]) => `
+        <div class="stat-card">
+            <h3>${title}</h3>
+            <p>${value}</p>
+        </div>
+    `).join("")
 }
 
 
@@ -159,7 +195,7 @@ async function create_mood_chart(data, rollingAverage = 1) {
 
 
 
-async function create_tag_frequency_chart(data, isPercentage=false) {
+async function create_tag_frequency_chart(data, isPercentage = false) {
     const tagCounts = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -178,7 +214,7 @@ async function create_tag_frequency_chart(data, isPercentage=false) {
         .sort(([, a], [, b]) => b - a)
         .slice(0, 10);
 
-        
+
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
             tags_frequency_chart_instance.destroy();
@@ -189,7 +225,7 @@ async function create_tag_frequency_chart(data, isPercentage=false) {
                 labels: sortedTags.map(([tag]) => tag),
                 datasets: [{
                     label: isPercentage ? "Tag frequency (%)" : "Tag frequency",
-                    data: sortedTags.map(([, count]) => isPercentage ? (100*count/nbPixels).toFixed(2) : count),
+                    data: sortedTags.map(([, count]) => isPercentage ? (100 * count / nbPixels).toFixed(2) : count),
                     backgroundColor: "#ff4b4b"
                 }]
             },
@@ -233,7 +269,10 @@ async function create_tag_score_chart(data) {
         .slice(0, 10);
 
     if (averages.length > 0) {
-        new Chart(document.getElementById("tagScoreChart"), {
+        if (tags_score_chart_instance) {
+            tags_score_chart_instance.destroy();
+        }
+        tags_score_chart_instance = new Chart(document.getElementById("tagScoreChart"), {
             type: "bar",
             data: {
                 labels: averages.map(([tag]) => tag),
@@ -298,23 +337,17 @@ async function handle_file_upload(file) {
             throw new Error("The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.");
         }
 
-        current_data = data;
+        initial_data = data;
+        current_data = initial_data;
 
         content_container.style.display = "block";
 
-        const stats = calculate_stats(data);
-        stats_container.innerHTML = stats.map(([title, value]) => `
-            <div class="stat-card">
-                <h3>${title}</h3>
-                <p>${value}</p>
-            </div>
-        `).join("");
+        calculate_and_display_stats(data);
 
-        // Graphiques
+        // Graphics
         create_mood_chart(data);
         create_tag_frequency_chart(data, tagsPercentage);
         create_tag_score_chart(data);
-
         create_word_frequency_section(data, nbMaxWords, wordcloudPercentage);
 
     }
@@ -345,7 +378,7 @@ async function auto_load_data(filePath) {
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data("../data/backup_an.json");
+        auto_load_data("../data/backup.json");
     }
 
     // Add event listener to the file input
@@ -353,6 +386,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = event.target.files[0];
         await handle_file_upload(file);
     });
+
+    // Pills filter
+    range_pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            const range = pill.dataset.range;
+            filter_pixels(range);
+        });
+    });
+
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {

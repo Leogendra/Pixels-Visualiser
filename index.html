@@ -7,6 +7,7 @@
     <title>Pixels Analyser</title>
     <link rel="icon" href="assets/icon.png" type="image/png">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
     <link rel="stylesheet" href="styles/slider.css">
 </head>
@@ -26,8 +27,16 @@
         </div>
 
         <div id="content" style="display: none;">
+            <div class="pill-selector">
+                <button class="pill" data-range="7">Last week</button>
+                <button class="pill" data-range="30">Last month</button>
+                <button class="pill" data-range="90">Last 3 months</button>
+                <button class="pill" data-range="365">Last year</button>
+                <button class="pill" data-range="1095">Last 3 years</button>
+                <button class="pill active" data-range="-1">All time</button>
+            </div>
+
             <div class="stats-grid" id="statsContainer">
-                <!-- Statistics will be inserted here -->
             </div>
 
             <div class="chart-container">
