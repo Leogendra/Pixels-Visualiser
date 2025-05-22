@@ -7,6 +7,8 @@ const word_freq_container = document.querySelector("#wordFrequency");
 const wordcloud_checkbox = document.querySelector("#wordCloudCheckbox");
 const wordcloud_input = document.querySelector("#maxWordsInput");
 
+const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
+
 // CSS variables
 const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
@@ -15,6 +17,10 @@ const secondaryColor = getComputedStyle(document.documentElement).getPropertyVal
 const DEV_MODE = false;
 let current_data = [];
 let mood_chart_instance = null;
+
+// Tags
+let tags_frequency_chart_instance = null;
+let tagsPercentage = false;
 
 // Wordcloud
 let full_word_frequency = [];
@@ -153,7 +159,7 @@ async function create_mood_chart(data, rollingAverage = 1) {
 
 
 
-async function create_tag_frequency_chart(data) {
+async function create_tag_frequency_chart(data, isPercentage=false) {
     const tagCounts = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -166,20 +172,25 @@ async function create_tag_frequency_chart(data) {
             });
         }
     });
+    const nbPixels = data.length;
 
     const sortedTags = Object.entries(tagCounts)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 10);
 
+        
     if (sortedTags.length > 0) {
-        new Chart(document.getElementById("tagChart"), {
+        if (tags_frequency_chart_instance) {
+            tags_frequency_chart_instance.destroy();
+        }
+        tags_frequency_chart_instance = new Chart(document.getElementById("tagChart"), {
             type: "bar",
             data: {
                 labels: sortedTags.map(([tag]) => tag),
                 datasets: [{
-                    label: "Frequency",
-                    data: sortedTags.map(([, count]) => count),
-                    backgroundColor: "rgba(255, 75, 75, 0.7)"
+                    label: isPercentage ? "Tag frequency (%)" : "Tag frequency",
+                    data: sortedTags.map(([, count]) => isPercentage ? (100*count/nbPixels).toFixed(2) : count),
+                    backgroundColor: "#ff4b4b"
                 }]
             },
             options: {
@@ -301,7 +312,7 @@ async function handle_file_upload(file) {
 
         // Graphiques
         create_mood_chart(data);
-        create_tag_frequency_chart(data);
+        create_tag_frequency_chart(data, tagsPercentage);
         create_tag_score_chart(data);
 
         create_word_frequency_section(data, nbMaxWords, wordcloudPercentage);
@@ -313,9 +324,9 @@ async function handle_file_upload(file) {
 }
 
 
-async function auto_load_data(filepath = "../data/backup.json") {
+async function auto_load_data(filePath) {
     try {
-        const response = await fetch(filepath);
+        const response = await fetch(filePath);
         if (!response.ok) throw new Error("File not found or invalid response");
         const data = await response.json();
 
@@ -334,7 +345,7 @@ async function auto_load_data(filepath = "../data/backup.json") {
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data();
+        auto_load_data("../data/backup_an.json");
     }
 
     // Add event listener to the file input
@@ -350,7 +361,13 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mood_chart(current_data, value);
     });
 
-    // Averaging slider
+    // Tags percent checkbox
+    tag_frequency_checkbox.addEventListener("change", (e) => {
+        tagsPercentage = e.target.checked;
+        create_tag_frequency_chart(current_data, tagsPercentage);
+    });
+
+    // Wordcloud percent checkbox
     wordcloud_checkbox.addEventListener("change", (e) => {
         wordcloudPercentage = e.target.checked;
         create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);

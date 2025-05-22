@@ -89,36 +89,7 @@ body {
 }
 
 
-/***** Wordcloud *****/
-
-.container-word-frequency {
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fill, minmax(100px, 1fr));
-    gap: 0.3rem;
-}
-
-.word-cloud {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: var(--secondary-bg);
-    border-radius: 8px;
-}
-
-.word-card {
-    background-color: var(--primary-color);
-    border-radius: 8px;
-    text-align: center;
-    color: #ffffff;
-}
-
-.range-average {
-    width: 100%;
-    margin-bottom: 1rem;
-}
-
-
-.options-wordcloud {
+.options {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -136,20 +107,11 @@ body {
     & input {
         margin-right: 2rem;
     }
-}
-
-.checkbox-wordcloud {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary-color);
-    cursor: pointer;
-}
-
-.input-max-words {
-    width: 80px;
-    height: 30px;
-    padding: 0.4rem 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+    
+    & .checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+    }
 }

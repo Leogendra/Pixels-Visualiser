@@ -7,6 +7,7 @@
     <title>Pixels Analyser</title>
     <link rel="icon" href="assets/icon.png" type="image/png">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/wordcloud.css">
     <link rel="stylesheet" href="styles/slider.css">
 </head>
 
@@ -41,6 +42,10 @@
             <div class="grid-charts">
                 <div class="chart-container">
                     <h2>🏷️ Tag frequency</h2>
+                    <div class="options">
+                        <label for="tagFrequencyCheckbox">Show in percentage</label>
+                        <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
+                    </div>
                     <canvas id="tagChart"></canvas>
                 </div>
 
@@ -53,9 +58,9 @@
             <div class="word-cloud">
                 <h2>📝 Most frequent words</h2>
 
-                <div class="options-wordcloud">
+                <div class="options">
                     <label for="wordCloudCheckbox">Show in percentage</label>
-                    <input type="checkbox" id="wordCloudCheckbox" class="checkbox-wordcloud">
+                    <input type="checkbox" id="wordCloudCheckbox" class="checkbox">
 
                     <label for="maxWordsInput">Number of words</label>
                     <input type="number" id="maxWordsInput" class="input-max-words" min="20" value="20">
