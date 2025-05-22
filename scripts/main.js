@@ -2,7 +2,7 @@ const rolling_slider = document.querySelector("#rollingSlider");
 const file_input = document.querySelector("#fileInput");
 
 const content_container = document.querySelector("#content");
-const range_pills = document.querySelectorAll('.pill');
+const range_pills = document.querySelectorAll(".pill");
 const stats_container = document.querySelector("#statsContainer");
 const word_freq_container = document.querySelector("#wordFrequency");
 
@@ -12,8 +12,8 @@ const wordcloud_input = document.querySelector("#maxWordsInput");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 // CSS variables
-const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary-color").trim();
+const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
 
 
 const DEV_MODE = false;
@@ -150,6 +150,26 @@ function get_word_frequency(data) {
 
 async function create_mood_chart(data, rollingAverage = 1) {
     const dates = data.map(entry => entry.date);
+    const annotations = {};
+    dates.forEach(dateStr => {
+        const [year, month, day] = dateStr.split("-").map(Number);
+        if (month === 1 && day === 1) {
+            annotations[`startOfYear-${year}`] = {
+                type: "line",
+                mode: "vertical",
+                scaleID: "x",
+                value: dateStr,
+                borderColor: "red",
+                borderWidth: 2,
+                label: {
+                    content: `January ${year}`,
+                    enabled: false,
+                    position: "top"
+                }
+            };
+        }
+    });
+
     const rawScores = data.map(entry => average(entry.scores));
 
     const scores = rawScores.map((_, i) => {
@@ -177,18 +197,21 @@ async function create_mood_chart(data, rollingAverage = 1) {
             responsive: true,
             maintainAspectRatio: !isMobile,
             animation: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
                     min: 1,
                     max: 5
                 }
-            }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                annotation: {
+                    annotations: annotations
+                }
+            },
         }
     });
 }
@@ -389,9 +412,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Pills filter
     range_pills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
+        pill.addEventListener("click", () => {
+            document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
             const range = pill.dataset.range;
             filter_pixels(range);
         });
