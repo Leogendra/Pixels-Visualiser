@@ -206,12 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
     nb_tags_inputs.forEach(input => {
         input.addEventListener("input", (e) => {
             nbMaxTags = parseInt(e.target.value);
-            if (nbMaxTags > 15) {
-                tag_grid_charts.classList.add('grid-single-column');
-            } 
-            else {
-                tag_grid_charts.classList.remove('grid-single-column');
-            }
             nb_tags_inputs.forEach(input => {
                 input.value = nbMaxTags;
             });

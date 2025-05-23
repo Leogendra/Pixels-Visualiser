@@ -1,6 +1,10 @@
 const tag_frequencies_container = document.querySelector("#tagFrequencyContainer");
 const tag_scores_container = document.querySelector("#tagScoreContainer");
 
+const canvas_mood = document.querySelector("#moodChart");
+const canvas_tag_frequency = document.getElementById("tagChart");
+const canvas_tag_score = document.getElementById("tagScoreChart");
+
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
@@ -67,7 +71,7 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
         mood_chart_instance.destroy();
     }
 
-    mood_chart_instance = new Chart(document.getElementById("moodChart"), {
+    mood_chart_instance = new Chart(canvas_mood, {
         type: "line",
         data: {
             labels: dates,
@@ -127,6 +131,7 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
             tags_frequency_chart_instance.destroy();
         }
         tag_frequencies_container.style.display = "block";
+        canvas_tag_frequency.style.height = `${maximum([150, sortedTags.length * 15])}px`;
         tags_frequency_chart_instance = new Chart(document.getElementById("tagChart"), {
             type: "bar",
             data: {
@@ -141,14 +146,10 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
                 responsive: true,
                 animation: !tags_frequency_chart_instance,
                 maintainAspectRatio: !isMobile,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    }
-                }
+                indexAxis: "y",
             }
         });
-    } 
+    }
     else {
         tag_frequencies_container.style.display = "none";
     }
@@ -184,23 +185,24 @@ async function create_tag_score_chart(data, maxTags = 10) {
             tags_score_chart_instance.destroy();
         }
         tag_scores_container.style.display = "block";
-        tags_score_chart_instance = new Chart(document.getElementById("tagScoreChart"), {
+        canvas_tag_score.style.height = `${maximum([150, averages.length * 15])}px`;
+        tags_score_chart_instance = new Chart(canvas_tag_score, {
             type: "bar",
             data: {
-                labels: averages.map(([tag]) => tag),
+                labels: averages.map(([tag, _]) => tag),
                 datasets: [{
                     label: "Average score",
-                    data: averages.map(([, avg]) => avg.toFixed(2)),
-                    backgroundColor: "#0DBF6C"
+                    data: averages.map(([_, avg]) => avg.toFixed(2)),
+                    backgroundColor: "#0DBF6C",
                 }]
             },
             options: {
                 responsive: true,
                 animation: !tags_score_chart_instance,
                 maintainAspectRatio: !isMobile,
+                indexAxis: "y",
                 scales: {
-                    y: {
-                        beginAtZero: true,
+                    x: {
                         max: 5,
                         min: 1
                     }
