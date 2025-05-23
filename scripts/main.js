@@ -3,6 +3,8 @@ const rolling_slider_text_value = document.querySelector("#rollingValue");
 const file_input = document.querySelector("#fileInput");
 
 const content_container = document.querySelector("#content");
+const stats_content_container = document.querySelector("#stats-content");
+const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
 
 const stats_container = document.querySelector("#statsContainer");
@@ -50,10 +52,13 @@ function filter_pixels(range) {
     });
 
     if (current_data.length === 0) {
-        // TODO: Display a message to the user
-        stats_container.innerHTML = "<p>No data available for the selected range</p>";
+        data_error_container.style.display = "block";
+        stats_content_container.style.display = "none";
     }
     else {
+        data_error_container.style.display = "none";
+        stats_content_container.style.display = "block";
+        
         calculate_and_display_stats(current_data);
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);

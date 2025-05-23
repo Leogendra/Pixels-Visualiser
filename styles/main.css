@@ -42,6 +42,16 @@ body {
     margin-bottom: 1rem;
 }
 
+.no-data-error {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

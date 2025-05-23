@@ -36,55 +36,59 @@
                 <button class="pill active" data-range="99999">All time</button>
             </div>
 
-            <div class="stats-grid" id="statsContainer">
-            </div>
+            <div class="no-data-error" style="display: none;">No data available for the selected range</div>
 
-            <div class="chart-container">
-                <h2>📈 Mood evolution</h2>
-                <div class="options">
-                    <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
-                    <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
-
-                    <label for="showAverageCheckbox">Show average</label>
-                    <input type="checkbox" id="showAverageCheckbox" class="checkbox">
-
-                    <label for="showYearsCheckbox">Show years</label>
-                    <input type="checkbox" id="showYearsCheckbox" class="checkbox">
-                </div>
-                <canvas id="moodChart"></canvas>
-            </div>
-
-            <div class="grid-charts">
-                <div class="chart-container">
-                    <h2>🏷️ Tag frequency</h2>
-                    <div class="options">
-                        <label for="tagFrequencyCheckbox">Show in percentage</label>
-                        <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
-                    </div>
-                    <canvas id="tagChart"></canvas>
+            <div id="stats-content">
+                <div class="stats-grid" id="statsContainer">
                 </div>
 
                 <div class="chart-container">
-                    <h2>😊 Average score per tag</h2>
+                    <h2>📈 Mood evolution</h2>
                     <div class="options">
-                        <input type="checkbox" class="checkbox" style="visibility: hidden;">
+                        <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
+                        <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
+
+                        <label for="showAverageCheckbox">Show average</label>
+                        <input type="checkbox" id="showAverageCheckbox" class="checkbox">
+
+                        <label for="showYearsCheckbox">Show years</label>
+                        <input type="checkbox" id="showYearsCheckbox" class="checkbox">
                     </div>
-                    <canvas id="tagScoreChart"></canvas>
-                </div>
-            </div>
-
-            <div class="word-cloud">
-                <h2>📝 Most frequent words</h2>
-
-                <div class="options">
-                    <label for="wordCloudCheckbox">Show in percentage</label>
-                    <input type="checkbox" id="wordCloudCheckbox" class="checkbox">
-
-                    <label for="maxWordsInput">Number of words</label>
-                    <input type="number" id="maxWordsInput" class="input-max-words" min="20" value="20">
+                    <canvas id="moodChart"></canvas>
                 </div>
 
-                <div id="wordFrequency"></div>
+                <div class="grid-charts">
+                    <div class="chart-container">
+                        <h2>🏷️ Tag frequency</h2>
+                        <div class="options">
+                            <label for="tagFrequencyCheckbox">Show in percentage</label>
+                            <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
+                        </div>
+                        <canvas id="tagChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h2>😊 Average score per tag</h2>
+                        <div class="options">
+                            <input type="checkbox" class="checkbox" style="visibility: hidden;">
+                        </div>
+                        <canvas id="tagScoreChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="word-cloud">
+                    <h2>📝 Most frequent words</h2>
+
+                    <div class="options">
+                        <label for="wordCloudCheckbox">Show in percentage</label>
+                        <input type="checkbox" id="wordCloudCheckbox" class="checkbox">
+
+                        <label for="maxWordsInput">Number of words</label>
+                        <input type="number" id="maxWordsInput" class="input-max-words" min="20" value="20">
+                    </div>
+
+                    <div id="wordFrequency"></div>
+                </div>
             </div>
         </div>
     </div>
