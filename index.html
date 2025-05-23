@@ -41,10 +41,16 @@
 
             <div class="chart-container">
                 <h2>📈 Mood evolution</h2>
+                <div class="options">
+                    <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
+                    <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
 
-                <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
-                <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
+                    <label for="showAverageCheckbox">Show average</label>
+                    <input type="checkbox" id="showAverageCheckbox" class="checkbox">
 
+                    <label for="showYearsCheckbox">Show years</label>
+                    <input type="checkbox" id="showYearsCheckbox" class="checkbox">
+                </div>
                 <canvas id="moodChart"></canvas>
             </div>
 
@@ -84,7 +90,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>

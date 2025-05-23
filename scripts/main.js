@@ -4,7 +4,10 @@ const file_input = document.querySelector("#fileInput");
 
 const content_container = document.querySelector("#content");
 const range_pills = document.querySelectorAll(".pill");
+
 const stats_container = document.querySelector("#statsContainer");
+const show_average_checkbox = document.querySelector("#showAverageCheckbox");
+const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
@@ -22,7 +25,9 @@ let initial_data = [];
 let current_data = [];
 
 // Mood chart
-let average_value = 1;
+let averagingValue = 1;
+let showAverage = false;
+let showYears = false;
 
 // Tags
 let tagsPercentage = false;
@@ -50,7 +55,7 @@ function filter_pixels(range) {
     }
     else {
         calculate_and_display_stats(current_data);
-        create_mood_chart(current_data, average_value);
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
         create_tag_score_chart(current_data);
         create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
@@ -84,7 +89,7 @@ async function handle_file_upload(file) {
         calculate_and_display_stats(data);
 
         // Graphics
-        create_mood_chart(data);
+        create_mood_chart(data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(data, tagsPercentage);
         create_tag_score_chart(data);
         create_word_frequency_section(data, nbMaxWords, wordcloudPercentage);
@@ -140,9 +145,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
-        const value = parseInt(e.target.value);
-        rolling_slider_text_value.textContent = value;
-        create_mood_chart(current_data, value);
+        averagingValue = parseInt(e.target.value);
+        rolling_slider_text_value.textContent = averagingValue;
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+    });
+
+    show_average_checkbox.addEventListener("change", (e) => {
+        showAverage = e.target.checked;
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+    });
+
+    show_years_checkbox.addEventListener("change", (e) => {
+        showYears = e.target.checked;
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 
     // Tags percent checkbox

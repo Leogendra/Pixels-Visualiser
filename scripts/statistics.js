@@ -19,7 +19,6 @@ function calculate_streaks(dateStrings) {
     let bestStreak = 1;
     let currentStreak = 1;
     let lastDate = dates[0];
-    console.log(lastDate);
 
     let latestStreak = 1;
     let currentLatestStreak = 1;
@@ -36,8 +35,6 @@ function calculate_streaks(dateStrings) {
             currentLatestStreak++;
         }
         else {
-            console.log("Streak ended");
-            console.log(`diffdays: ${diffDays}, prevDay: ${prev}, currDay: ${curr}`);
             currentStreak = 1;
             if ((prev - lastDate) / (1000 * 60 * 60 * 24) === 1) {
                 latestEndDate = prev;

@@ -5,32 +5,54 @@ let tags_score_chart_instance = null;
 
 
 
-async function create_mood_chart(data, rollingAverage=1) {
+async function create_mood_chart(data, rollingAverage=1, displayAverage=true, displayYears=true) {
     const dates = data.map(entry => entry.date);
     const annotations = {};
-    dates.forEach(dateStr => {
-        const [year, month, day] = dateStr.split("-").map(Number);
-        if (month === 1 && day === 1) {
-            annotations[`startOfYear-${year}`] = {
-                type: "line",
-                mode: "vertical",
-                scaleID: "x",
-                value: dateStr,
-                borderColor: "red",
-                borderWidth: 2,
-                label: {
-                    enabled: true,
-                    content: `${year}`,
-                    position: "top",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    font: {
-                        size: 10,
-                        weight: "bold"
-                    }
-                }
-            };
+    if (displayAverage) {
+        annotations["mean"] = {
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y",
+            value: average(data.map(entry => average(entry.scores))),
+            borderColor: "#ff4444",
+            borderWidth: 2,
         }
-    });
+    }
+
+    if (displayYears) {
+        dates.forEach(dateStr => {
+            const [year, month, day] = dateStr.split("-").map(Number);
+            if (month === 1 && day === 1) {
+                annotations[`startOfYear-${year}`] = {
+                    type: "line",
+                    mode: "vertical",
+                    scaleID: "x",
+                    value: dateStr,
+                    borderColor: "#aaaaff",
+                    borderWidth: 2,
+                    label: {
+                        enabled: true,
+                        content: `${year}`,
+                        position: "top",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        font: {
+                            size: 10,
+                            weight: "bold"
+                        }
+                    },
+                    enter(ctx) {
+                        ctx.element.options.label.enabled = false;
+                        ctx.chart.draw();
+                    },
+                    leave(ctx) {
+                        ctx.element.options.label.enabled = true;
+                        ctx.chart.draw();
+                    }
+                };
+            }
+        });
+
+    }
 
     const rawScores = data.map(entry => average(entry.scores));
 
