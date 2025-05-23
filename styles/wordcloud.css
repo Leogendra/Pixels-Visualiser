@@ -24,9 +24,9 @@
     margin-bottom: 1rem;
 }
 
-.input-max-words {
-    width: 80px;
-    height: 30px;
+.input-nb {
+    width: 60px;
+    height: 20px;
     padding: 0.4rem 0.6rem;
     border: 1px solid #ccc;
     border-radius: 4px;

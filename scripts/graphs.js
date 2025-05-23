@@ -1,11 +1,14 @@
+const tag_frequencies_container = document.querySelector("#tagFrequencyContainer");
+const tag_scores_container = document.querySelector("#tagScoreContainer");
+
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
+const isMobile = window.innerWidth <= 600;
 
 
 
-
-async function create_mood_chart(data, rollingAverage=1, displayAverage=true, displayYears=true) {
+async function create_mood_chart(data, rollingAverage = 1, displayAverage = true, displayYears = true) {
     const dates = data.map(entry => entry.date);
     const annotations = {};
     if (displayAverage) {
@@ -51,7 +54,6 @@ async function create_mood_chart(data, rollingAverage=1, displayAverage=true, di
                 };
             }
         });
-
     }
 
     const rawScores = data.map(entry => average(entry.scores));
@@ -65,7 +67,6 @@ async function create_mood_chart(data, rollingAverage=1, displayAverage=true, di
         mood_chart_instance.destroy();
     }
 
-    const isMobile = window.innerWidth <= 600;
     mood_chart_instance = new Chart(document.getElementById("moodChart"), {
         type: "line",
         data: {
@@ -101,7 +102,7 @@ async function create_mood_chart(data, rollingAverage=1, displayAverage=true, di
 }
 
 
-async function create_tag_frequency_chart(data, isPercentage = false) {
+async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 10) {
     const tagCounts = {};
     data.forEach(entry => {
         if (entry.tags && entry.tags.length > 0) {
@@ -114,17 +115,18 @@ async function create_tag_frequency_chart(data, isPercentage = false) {
             });
         }
     });
-    const nbPixels = data.length;
 
+    const nbPixels = data.length;
     const sortedTags = Object.entries(tagCounts)
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 10);
+        .slice(0, maxTags);
 
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
             tags_frequency_chart_instance.destroy();
         }
+        tag_frequencies_container.style.display = "block";
         tags_frequency_chart_instance = new Chart(document.getElementById("tagChart"), {
             type: "bar",
             data: {
@@ -138,6 +140,7 @@ async function create_tag_frequency_chart(data, isPercentage = false) {
             options: {
                 responsive: true,
                 animation: !tags_frequency_chart_instance,
+                maintainAspectRatio: !isMobile,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -145,13 +148,14 @@ async function create_tag_frequency_chart(data, isPercentage = false) {
                 }
             }
         });
-    } else {
-        document.getElementById("tagChart").parentElement.innerHTML = "<p>No tag data available</p>";
+    } 
+    else {
+        tag_frequencies_container.style.display = "none";
     }
 };
 
 
-async function create_tag_score_chart(data) {
+async function create_tag_score_chart(data, maxTags = 10) {
     const tagScores = {};
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
@@ -173,12 +177,13 @@ async function create_tag_score_chart(data) {
     const averages = Object.entries(tagScores)
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 10);
+        .slice(0, maxTags);
 
     if (averages.length > 0) {
         if (tags_score_chart_instance) {
             tags_score_chart_instance.destroy();
         }
+        tag_scores_container.style.display = "block";
         tags_score_chart_instance = new Chart(document.getElementById("tagScoreChart"), {
             type: "bar",
             data: {
@@ -191,16 +196,19 @@ async function create_tag_score_chart(data) {
             },
             options: {
                 responsive: true,
+                animation: !tags_score_chart_instance,
+                maintainAspectRatio: !isMobile,
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 5
+                        max: 5,
+                        min: 1
                     }
                 }
             }
         });
     }
     else {
-        document.getElementById("tagScoreChart").parentElement.innerHTML = "<p>No score data per tag available</p>";
+        tag_scores_container.style.display = "none";
     }
 };

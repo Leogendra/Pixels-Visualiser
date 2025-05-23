@@ -46,10 +46,6 @@ function calculate_streaks(dateStrings) {
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak;
         }
-
-        // diffdays: 0.9583333333333334, 
-        // prevDay: Tue Dec 31 2024 01:00:00 GMT+0100 (heure normale d’Europe centrale), 
-        // currDay: Wed Jan 01 2025 00:00:00 GMT+0100 (heure normale d’Europe centrale)
     }
 
     // Check if the last date in the array is part of the latest streak

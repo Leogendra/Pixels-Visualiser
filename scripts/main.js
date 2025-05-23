@@ -8,11 +8,13 @@ const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
 
 const stats_container = document.querySelector("#statsContainer");
+const tag_grid_charts = document.querySelector(".grid-charts");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
+const nb_tags_inputs = document.querySelectorAll("#maxTagsInput");
 const wordcloud_checkbox = document.querySelector("#wordCloudCheckbox");
 const wordcloud_input = document.querySelector("#maxWordsInput");
 
@@ -33,6 +35,7 @@ let showYears = false;
 
 // Tags
 let tagsPercentage = false;
+let nbMaxTags = 10;
 
 // Wordcloud
 let full_word_frequency = [];
@@ -40,6 +43,34 @@ let wordcloudPercentage = false;
 let nbMaxWords = 20;
 
 
+
+
+function fill_empty_dates(data) {
+    const dateSet = new Set(data.map(entry => normalize_date(entry.date)));
+
+    const allDates = Array.from(dateSet).map(dateStr => new Date(dateStr));
+    const minDate = new Date(Math.min(...allDates));
+    const maxDate = new Date(Math.max(...allDates));
+    console.log("minDate", minDate);
+    console.log("maxDate", maxDate);
+
+    let current = new Date(minDate);
+    while (current <= maxDate) {
+        const iso = normalize_date(current);
+        if (!dateSet.has(iso)) {
+            data.push({
+                date: iso,
+                scores: [],
+                notes: "",
+                tags: []
+            });
+        }
+        current.setDate(current.getDate() + 1);
+    }
+
+    data.sort((a, b) => new Date(normalize_date(a.date)) - new Date(normalize_date(b.date)));
+    current_data = data;
+}
 
 
 function filter_pixels(range) {
@@ -56,9 +87,10 @@ function filter_pixels(range) {
         stats_content_container.style.display = "none";
     }
     else {
+        fill_empty_dates(current_data);
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
-        
+
         calculate_and_display_stats(current_data);
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
@@ -128,7 +160,7 @@ async function auto_load_data(filePath) {
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data("../data/backup.json");
+        auto_load_data("../data/char.json");
     }
 
     // Add event listener to the file input
@@ -168,7 +200,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tags percent checkbox
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
-        create_tag_frequency_chart(current_data, tagsPercentage);
+        create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
+    });
+
+    nb_tags_inputs.forEach(input => {
+        input.addEventListener("input", (e) => {
+            nbMaxTags = parseInt(e.target.value);
+            if (nbMaxTags > 15) {
+                tag_grid_charts.classList.add('grid-single-column');
+            } 
+            else {
+                tag_grid_charts.classList.remove('grid-single-column');
+            }
+            nb_tags_inputs.forEach(input => {
+                input.value = nbMaxTags;
+            });
+            create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
+            create_tag_score_chart(current_data, nbMaxTags);
+        });
     });
 
     // Wordcloud percent checkbox
@@ -179,17 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Word cloud max words input
     wordcloud_input.addEventListener("input", (e) => {
-        try {
-            const value = parseInt(e.target.value);
-            if (value > 0) {
-                nbMaxWords = value;
-                create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
-            }
-        }
-        catch (error) {
-            console.error("Error parsing max words input:", error);
-            alert("Please enter a valid number for max words.");
-        }
+        nbMaxWords = parseInt(e.target.value);
+        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
     });
 
 });

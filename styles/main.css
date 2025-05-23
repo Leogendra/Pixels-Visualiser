@@ -69,6 +69,7 @@ body {
         font-size: 1.1rem;
         color: var(--text-color);
     }
+
     & p {
         font-size: 1.3rem;
         color: var(--text-color);
@@ -85,12 +86,22 @@ body {
     & canvas {
         max-height: 500px;
     }
+
+    & p {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-top: 1.5rem;
+    }
 }
 
 .grid-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 1rem;
+
+    &.grid-single-column {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 .button {
@@ -126,11 +137,26 @@ body {
     & input {
         margin-right: 2rem;
     }
-    
+
     & .checkbox {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 30px;
         accent-color: var(--primary-color);
         cursor: pointer;
+    }
+}
+
+
+@media (max-width: 800px) {
+    .chart-container {
+        padding: 0.5rem;
+
+        & h2 {
+            padding: 0.5rem;
+        }
+    }
+
+    .grid-charts {
+        grid-template-columns: 1fr !important;
     }
 }

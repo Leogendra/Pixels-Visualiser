@@ -20,3 +20,9 @@ function average(tableau) {
 function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+
+function normalize_date(input) {
+    const date = new Date(input);
+    return date.toISOString().split("T")[0]; // 'YYYY-MM-DD'
+}
