@@ -5,7 +5,7 @@ let tags_score_chart_instance = null;
 
 
 
-async function create_mood_chart(data, rollingAverage = 1) {
+async function create_mood_chart(data, rollingAverage=1) {
     const dates = data.map(entry => entry.date);
     const annotations = {};
     dates.forEach(dateStr => {

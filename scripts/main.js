@@ -1,4 +1,5 @@
 const rolling_slider = document.querySelector("#rollingSlider");
+const rolling_slider_text_value = document.querySelector("#rollingValue");
 const file_input = document.querySelector("#fileInput");
 
 const content_container = document.querySelector("#content");
@@ -20,6 +21,9 @@ const DEV_MODE = true;
 let initial_data = [];
 let current_data = [];
 
+// Mood chart
+let average_value = 1;
+
 // Tags
 let tagsPercentage = false;
 
@@ -29,6 +33,29 @@ let wordcloudPercentage = false;
 let nbMaxWords = 20;
 
 
+
+
+function filter_pixels(range) {
+    const numberOfDays = range;
+    current_data = initial_data.filter(entry => {
+        const entryDate = new Date(entry.date);
+        const today = new Date();
+        const diffDays = Math.ceil(Math.abs(today - entryDate) / (1000 * 60 * 60 * 24));
+        return diffDays <= numberOfDays;
+    });
+
+    if (current_data.length === 0) {
+        // TODO: Display a message to the user
+        stats_container.innerHTML = "<p>No data available for the selected range</p>";
+    }
+    else {
+        calculate_and_display_stats(current_data);
+        create_mood_chart(current_data, average_value);
+        create_tag_frequency_chart(current_data, tagsPercentage);
+        create_tag_score_chart(current_data);
+        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+    }
+}
 
 
 async function handle_file_upload(file) {
@@ -64,7 +91,8 @@ async function handle_file_upload(file) {
 
     }
     catch (error) {
-        alert(`Error: ${error.message}`);
+        // alert(`Error: ${error.message}`);
+        console.error(`Error: ${error.message}`);
     }
 }
 
@@ -113,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
         const value = parseInt(e.target.value);
-        document.getElementById("rollingValue").textContent = value;
+        rolling_slider_text_value.textContent = value;
         create_mood_chart(current_data, value);
     });
 

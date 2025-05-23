@@ -51,9 +51,18 @@ body {
 
 .stat-card {
     background-color: var(--secondary-bg);
-    padding: 1rem;
+    padding: 0.7rem;
     border-radius: 8px;
     text-align: center;
+
+    & h3 {
+        font-size: 1.1rem;
+        color: var(--text-color);
+    }
+    & p {
+        font-size: 1.3rem;
+        color: var(--text-color);
+    }
 }
 
 .chart-container {

@@ -1,11 +1,25 @@
+function calculate_mood_distribution(moodCounts) {
+    const nbMoods = moodCounts.length;
+
+    return Object.entries(moodCounts)
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])) // Sort by score in ascending order
+        .map(([score, count]) => `${score} : ${count} (${(100 * count / nbMoods).toFixed(1)}%)`)
+        .join(" | ");
+}
+
+
 function calculate_streaks(dateStrings) {
     const dates = [...new Set(dateStrings)]
-        .map(d => new Date(d))
+        .map(dateStr => {
+            const [year, month, day] = dateStr.split("-").map(Number);
+            return new Date(Date.UTC(year, month - 1, day));
+        })
         .sort((a, b) => a - b);
 
     let bestStreak = 1;
     let currentStreak = 1;
     let lastDate = dates[0];
+    console.log(lastDate);
 
     let latestStreak = 1;
     let currentLatestStreak = 1;
@@ -22,6 +36,8 @@ function calculate_streaks(dateStrings) {
             currentLatestStreak++;
         }
         else {
+            console.log("Streak ended");
+            console.log(`diffdays: ${diffDays}, prevDay: ${prev}, currDay: ${curr}`);
             currentStreak = 1;
             if ((prev - lastDate) / (1000 * 60 * 60 * 24) === 1) {
                 latestEndDate = prev;
@@ -33,9 +49,13 @@ function calculate_streaks(dateStrings) {
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak;
         }
+
+        // diffdays: 0.9583333333333334, 
+        // prevDay: Tue Dec 31 2024 01:00:00 GMT+0100 (heure normale d’Europe centrale), 
+        // currDay: Wed Jan 01 2025 00:00:00 GMT+0100 (heure normale d’Europe centrale)
     }
 
-    // Vérify if the last date in the array is part of the latest streak
+    // Check if the last date in the array is part of the latest streak
     if ((dates[dates.length - 1] - dates[dates.length - 2]) / (1000 * 60 * 60 * 24) === 1) {
         latestStreak = currentLatestStreak;
         latestEndDate = dates[dates.length - 1];
@@ -43,52 +63,26 @@ function calculate_streaks(dateStrings) {
 
     return {
         bestStreak,
-        latestStreak
+        latestStreak,
+        latestEndDate,
     };
-}
-
-
-function filter_pixels(range) {
-    const numberOfDays = range;
-    current_data = initial_data.filter(entry => {
-        const entryDate = new Date(entry.date);
-        const today = new Date();
-        const diffDays = Math.ceil(Math.abs(today - entryDate) / (1000 * 60 * 60 * 24));
-        return diffDays <= numberOfDays;
-    });
-
-    if (current_data.length === 0) {
-        stats_container.innerHTML = "<p>No data available for the selected range</p>";
-    }
-    else {
-        stats_container.innerHTML = "";
-        calculate_and_display_stats(current_data);
-        create_mood_chart(current_data, parseInt(rolling_slider.value));
-        create_tag_frequency_chart(current_data, tagsPercentage);
-        create_tag_score_chart(current_data);
-        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
-    }
 }
 
 
 function calculate_and_display_stats(data) {
     const allScores = data.flatMap(entry => entry.scores);
+    const allDates = data.map(entry => entry.date);
+    const streaks = calculate_streaks(allDates);
     const moodCounts = {};
 
     allScores.forEach(score => {
         moodCounts[score] = (moodCounts[score] || 0) + 1;
     });
 
-    const total = allScores.length;
-    const moodDistribution = Object.entries(moodCounts)
-        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])) // Sort by score in ascending order
-        .map(([_, count]) => `${(100 * count / total).toFixed(1)}%`)
-        .join(" | ");
-
     stats = [
         ["Number of Pixels", data.length],
         ["Average score", average(allScores).toFixed(2)],
-        [`Score distribution (${minimum(allScores)} to ${maximum(allScores)})`, moodDistribution]
+        ["Streaks", `Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}`],
     ];
 
     stats_container.innerHTML = stats.map(([title, value]) => `
