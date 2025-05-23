@@ -160,7 +160,7 @@ async function auto_load_data(filePath) {
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data("../data/char.json");
+        auto_load_data("../data/pixels.json");
     }
 
     // Add event listener to the file input

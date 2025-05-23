@@ -191,7 +191,7 @@ async function create_tag_score_chart(data, maxTags = 10) {
                 datasets: [{
                     label: "Average score",
                     data: averages.map(([, avg]) => avg.toFixed(2)),
-                    backgroundColor: "rgba(75, 192, 192, 0.7)"
+                    backgroundColor: "#0DBF6C"
                 }]
             },
             options: {
