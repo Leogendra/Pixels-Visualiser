@@ -24,7 +24,7 @@ const primaryColor = getComputedStyle(document.documentElement).getPropertyValue
 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 let initial_data = [];
 let current_data = [];
 
@@ -51,8 +51,6 @@ function fill_empty_dates(data) {
     const allDates = Array.from(dateSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
     const maxDate = new Date(Math.max(...allDates));
-    console.log("minDate", minDate);
-    console.log("maxDate", maxDate);
 
     let current = new Date(minDate);
     while (current <= maxDate) {
@@ -160,7 +158,7 @@ async function auto_load_data(filePath) {
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data("../data/pixels.json");
+        auto_load_data("../data/test.json");
     }
 
     // Add event listener to the file input

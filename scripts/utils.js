@@ -11,7 +11,8 @@ function maximum(tableau) {
 
 
 function average(tableau) {
-    if (tableau.length === 0) return 0;
+    tableau = tableau.filter(val => val !== null && val !== undefined);
+    if (tableau.length === 0) return null;
     const somme = tableau.reduce((acc, val) => acc + val, 0);
     return somme / tableau.length;
 };

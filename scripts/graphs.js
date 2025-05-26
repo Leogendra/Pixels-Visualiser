@@ -12,7 +12,48 @@ const isMobile = window.innerWidth <= 600;
 
 
 
+
+function fill_missing_dates(data) {
+    function format_date(date) {
+        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    data.sort((a, b) => {
+        const [y1, m1, d1] = a.date.split('-').map(Number);
+        const [y2, m2, d2] = b.date.split('-').map(Number);
+        return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
+    });
+
+    const result = [];
+
+    for (let i = 0; i < data.length - 1; i++) {
+        const current = data[i];
+        current.date = format_date(new Date(current.date));
+        const next = data[i + 1];
+        result.push(current);
+
+        const [y1, m1, d1] = current.date.split('-').map(Number);
+        const [y2, m2, d2] = next.date.split('-').map(Number);
+        let pointer = new Date(y1, m1 - 1, d1);
+        const target = new Date(y2, m2 - 1, d2);
+
+        pointer.setDate(pointer.getDate() + 1);
+        while (pointer < target) {
+            result.push({ date: format_date(pointer), scores: [] });
+            pointer.setDate(pointer.getDate() + 1);
+        }
+    }
+
+    result.push(data[data.length - 1]);
+    return result;
+}
+
+
+
 async function create_mood_chart(data, rollingAverage = 1, displayAverage = true, displayYears = true) {
+    data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
     const annotations = {};
     if (displayAverage) {
@@ -61,25 +102,33 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
     }
 
     const rawScores = data.map(entry => average(entry.scores));
-
-    const scores = rawScores.map((_, i) => {
-        const start = Math.max(0, i - rollingAverage + 1);
-        return average(rawScores.slice(start, i + 1));
+    const averagedScores = rawScores.map((scores, i) => {
+        // Update the function to handle null values
+        if (scores === null) return null;
+        const windowStart = Math.max(0, i - rollingAverage + 1);
+        let sum = 0;
+        let count = 0;
+        for (let j = windowStart; j <= i; j++) {
+            const v = rawScores[j];
+            if (v !== null) {
+                sum += v;
+                count++;
+            }
+        }
+        return count > 0 ? sum / count : null;
     });
 
-    if (mood_chart_instance) {
-        mood_chart_instance.destroy();
-    }
-
+    if (mood_chart_instance) { mood_chart_instance.destroy(); }
     mood_chart_instance = new Chart(canvas_mood, {
         type: "line",
         data: {
             labels: dates,
             datasets: [{
                 label: "Mood",
-                data: scores,
+                data: averagedScores,
                 borderColor: primaryColor,
-                tension: 0.1
+                tension: 0.1,
+                spanGaps: false,
             }]
         },
         options: {
