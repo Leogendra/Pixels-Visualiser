@@ -84,6 +84,7 @@ function filter_pixels(numberOfDays) {
     }
     else {
         fill_empty_dates(current_data);
+        get_word_frequency(current_data);
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
 
@@ -116,16 +117,16 @@ async function handle_file_upload(file) {
 
         initial_data = data;
         current_data = initial_data;
-
         content_container.style.display = "block";
 
         calculate_and_display_stats(data);
+        get_word_frequency(current_data);
 
         // Graphics
-        create_mood_chart(data, averagingValue, showAverage, showYears);
-        create_tag_frequency_chart(data, tagsPercentage);
-        create_tag_score_chart(data);
-        create_word_frequency_section(data, nbMaxWords, wordcloudPercentage);
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        create_tag_frequency_chart(current_data, tagsPercentage);
+        create_tag_score_chart(current_data);
+        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
 
     }
     catch (error) {

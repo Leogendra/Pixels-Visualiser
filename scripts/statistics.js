@@ -110,9 +110,6 @@ function get_word_frequency(data) {
 
 
 async function create_word_frequency_section(data, maxWords, inPercentage = false) {
-    if (full_word_frequency.length === 0) {
-        get_word_frequency(data);
-    }
     const wordFreq = full_word_frequency.slice(0, maxWords);
     const nbPixels = data.length;
     word_freq_container.innerHTML = wordFreq.length > 0 ? `
