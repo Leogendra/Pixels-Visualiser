@@ -46,18 +46,17 @@ let nbMaxWords = 20;
 
 
 function fill_empty_dates(data) {
-    const dateSet = new Set(data.map(entry => normalize_date(entry.date)));
-
-    const allDates = Array.from(dateSet).map(dateStr => new Date(dateStr));
+    const datesStrSet = new Set(data.map(entry => normalize_date(entry.date)));
+    const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
     const maxDate = new Date(Math.max(...allDates));
 
     let current = new Date(minDate);
     while (current <= maxDate) {
-        const iso = normalize_date(current);
-        if (!dateSet.has(iso)) {
+        const curentStrDate = normalize_date(current);
+        if (!datesStrSet.has(curentStrDate)) {
             data.push({
-                date: iso,
+                date: curentStrDate,
                 scores: [],
                 notes: "",
                 tags: []
@@ -71,13 +70,12 @@ function fill_empty_dates(data) {
 }
 
 
-function filter_pixels(range) {
-    const numberOfDays = range;
+function filter_pixels(numberOfDays) {
+    const lastPixelDate = new Date(current_data[current_data.length - 1].date);
     current_data = initial_data.filter(entry => {
         const entryDate = new Date(entry.date);
-        const today = new Date();
-        const diffDays = Math.ceil(Math.abs(today - entryDate) / (1000 * 60 * 60 * 24));
-        return diffDays <= numberOfDays;
+        const diffDays = Math.round(Math.abs(lastPixelDate - entryDate) / (1000 * 60 * 60 * 24));
+        return diffDays < numberOfDays;
     });
 
     if (current_data.length === 0) {
@@ -154,11 +152,12 @@ async function auto_load_data(filePath) {
 }
 
 
-// On doc loading
+
+
 document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
-        auto_load_data("../data/test.json");
+        auto_load_data("../data/pixels.json");
     }
 
     // Add event listener to the file input
@@ -166,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = event.target.files[0];
         await handle_file_upload(file);
     });
+
 
     // Pills filter
     range_pills.forEach(pill => {
@@ -176,7 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
             filter_pixels(range);
         });
     });
-
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
