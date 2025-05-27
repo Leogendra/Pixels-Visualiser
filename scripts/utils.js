@@ -25,5 +25,8 @@ function capitalize(string) {
 
 function normalize_date(input) {
     const date = new Date(input);
-    return date.toISOString().split("T")[0]; // 'YYYY-MM-DD'
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1);
+    const dd = String(date.getDate());
+    return `${yyyy}-${mm}-${dd}`;
 }
