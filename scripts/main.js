@@ -24,7 +24,7 @@ const primaryColor = getComputedStyle(document.documentElement).getPropertyValue
 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
 
 
-const DEV_MODE = false;
+const DEV_MODE = true;
 let initial_data = [];
 let current_data = [];
 

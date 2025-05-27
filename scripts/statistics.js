@@ -87,36 +87,45 @@ function calculate_and_display_stats(data) {
 }
 
 
-
 function get_word_frequency(data) {
-    const words = data
-        .filter(entry => entry.notes && entry.notes.trim() !== "")
-        .flatMap(entry =>
-            entry.notes.toLowerCase()
-                .replace(/[.,\/#!$%\^&\*;:{}=\"\+\-_`~()]/g, " ")
-                .split(/\s+/)
-        );
+    const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
 
-    const frequency = {};
-    words.forEach(word => {
-        if (!stop_words.has(word) && word.replace(/[^a-zA-Z]/g, "").length >= 3) {
-            frequency[word] = (frequency[word] || 0) + 1;
-        }
+    data.forEach(entry => {
+        if (!entry.notes || entry.notes.trim() === "") { return; }
+
+        const words = entry.notes.toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}="+\-_`~()]/g, " ")
+            .split(/\s+/)
+            .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3 && !stop_words.has(word));
+
+        words.forEach(word => {
+            if (!(word in wordData)) {
+                wordData[word] = { count: 0, scores: [] };
+            }
+            wordData[word].count += 1;
+            // wordData[word].scores.push(...(entry.scores));
+            wordData[word].scores.push(average(entry.scores));
+        });
     });
 
-    full_word_frequency = Object.entries(frequency)
-        .sort(([, a], [, b]) => b - a)
-};
+    full_word_frequency = Object.entries(wordData)
+        .map(([word, info]) => {
+            const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
+            return { word, count: info.count, avg_score: avg };
+        })
+        .sort((a, b) => b.count - a.count);
+}
 
 
 async function create_word_frequency_section(data, maxWords, inPercentage = false) {
     const wordFreq = full_word_frequency.slice(0, maxWords);
     const nbPixels = data.length;
     word_freq_container.innerHTML = wordFreq.length > 0 ? `
-            ${wordFreq.map(([word, count]) => `
+            ${wordFreq.map(word => `
                 <div class="word-card">
-                    <h4>${capitalize(word)}</h4>
-                    <p>${inPercentage ? (100 * count / nbPixels).toFixed(1) + "%" : count}</p>
+                    <h4>${capitalize(word.word)}</h4>
+                    <p>${inPercentage ? (100 * word.count / nbPixels).toFixed(1) + "%" : word.count}</p>
+                    <p>${(word.avg_score).toFixed(2)}</p>
                 </div>
             `).join("")}
         ` : "<p>No word frequency data available</p>";
