@@ -1,22 +1,35 @@
-.container-word-frequency {
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fill, minmax(100px, 1fr));
-    gap: 0.3rem;
+.words-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    /* grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); */
+    gap: 0.5rem;
+    padding: 1rem;
 }
 
-.word-cloud {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: var(--secondary-bg);
-    border-radius: 8px;
-}
 
 .word-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-width: 120px;
     background-color: var(--primary-color);
     border-radius: 8px;
-    text-align: center;
+    padding: 1.5rem 0.5rem;
     color: #ffffff;
+
+    & h4 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+    }
+    & p {
+        margin: 0;
+        font-size: 1rem;
+    } 
 }
 
 .range-average {

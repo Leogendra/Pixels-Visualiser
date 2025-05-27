@@ -159,6 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Auto load data
     if (DEV_MODE) {
         auto_load_data("../data/pixels.json");
+        setTimeout(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        }, 500);
     }
 
     // Add event listener to the file input

@@ -113,13 +113,11 @@ async function create_word_frequency_section(data, maxWords, inPercentage = fals
     const wordFreq = full_word_frequency.slice(0, maxWords);
     const nbPixels = data.length;
     word_freq_container.innerHTML = wordFreq.length > 0 ? `
-            <div class="container-word-frequency">
-                ${wordFreq.map(([word, count]) => `
-                    <div class="word-card">
-                        <h4>${capitalize(word)}</h4>
-                        <p>${inPercentage ? (100 * count / nbPixels).toFixed(1) + "%" : count}</p>
-                    </div>
-                `).join("")}
-            </div>
+            ${wordFreq.map(([word, count]) => `
+                <div class="word-card">
+                    <h4>${capitalize(word)}</h4>
+                    <p>${inPercentage ? (100 * count / nbPixels).toFixed(1) + "%" : count}</p>
+                </div>
+            `).join("")}
         ` : "<p>No word frequency data available</p>";
 }
