@@ -1,4 +1,4 @@
-const stop_words = new Set([
+const STOP_WORDS = new Set([
     // "en": [
     "'ll",
     "'tis",

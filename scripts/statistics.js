@@ -87,28 +87,42 @@ function calculate_and_display_stats(data) {
 }
 
 
-function get_word_frequency(data, sortByMood) {
+function get_word_frequency(data, orderByMood, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
+    const searchTextLower = searchText.toLowerCase();
 
     data.forEach(entry => {
         if (!entry.notes || entry.notes.trim() === "") { return; }
 
-        const words = entry.notes.toLowerCase()
-            .replace(/[.,\/#!$%\^&\*;:{}="+\-_`~()]/g, " ")
+        const notesLower = entry.notes.toLowerCase();
+        if (searchText) {
+            if (!notesLower.includes(searchText.toLowerCase())) { return; }
+            if (notesLower.includes(searchTextLower)) {
+                if (!(searchTextLower in wordData)) {
+                    wordData[searchTextLower] = { count: 0, scores: [] };
+                }
+                wordData[searchTextLower].count += 1;
+                wordData[searchTextLower].scores.push(average(entry.scores));
+            }
+        }
+
+        const words = notesLower
+            .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
             .split(/\s+/)
-            .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3 && !stop_words.has(word));
+            .filter(word => (word.replace(/[^a-zA-Z]/g, "").length >= 3) &&
+                    !STOP_WORDS.has(word) &&
+                   (!searchTextLower || searchTextLower.includes(word)));
 
         words.forEach(word => {
             if (!(word in wordData)) {
                 wordData[word] = { count: 0, scores: [] };
             }
             wordData[word].count += 1;
-            // wordData[word].scores.push(...(entry.scores));
             wordData[word].scores.push(average(entry.scores));
         });
     });
 
-    console.log("Word frequency data:");
+    console.log(`Nb of objects : ${full_word_frequency.length}`)
 
     full_word_frequency = Object.entries(wordData)
         .map(([word, info]) => {
@@ -116,19 +130,20 @@ function get_word_frequency(data, sortByMood) {
             return { word, count: info.count, avg_score: avg };
         })
         .sort((a, b) => {
-            if (sortByMood) {
+            if (orderByMood) {
                 const diff = b.avg_score - a.avg_score;
-                return diff !== 0 ? diff : b.count - a.count;
+                return (diff !== 0) ? diff : b.count - a.count;
             }
             else {
                 return b.count - a.count;
             }
         });
-
 }
 
 
 async function create_word_frequency_section(data, maxWords, minCount, inPercentage) {
+
+    console.log('Number of words in full_word_frequency:', full_word_frequency.length);
 
     let words_filtered = full_word_frequency
                         .filter(word => (word.count >= minCount))

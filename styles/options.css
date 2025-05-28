@@ -60,6 +60,8 @@ input[type="range"]::-moz-range-thumb {
 .option-item {
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
     margin-right: 1rem;
     margin-bottom: 0.5rem;
 }
