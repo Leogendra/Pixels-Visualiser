@@ -26,6 +26,14 @@
             <label for="fileInput" class="button">Choose a Backup file (.json)</label>
         </div>
 
+        <div id="privacyNotice" class="notice">
+            <p>
+                This is a fully static website built with vanilla JavaScript. Your data never leaves your device:
+                nothing is stored, uploaded, or shared.
+            </p>
+        </div>
+
+
         <div id="content" style="display: none;">
             <div class="pill-selector">
                 <button class="pill" data-range="7">Last week</button>
@@ -103,7 +111,7 @@
                             <label for="wordsOrderCheckbox">Order by score</label>
                             <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
                         </div>
-                            
+
                         <div class="option-item">
                             <label for="maxWordsInput">Number of words</label>
                             <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
@@ -113,11 +121,12 @@
                             <label for="minCountInput">Minimum count</label>
                             <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                         </div>
-                        
+
                         <div class="option-item">
                             <label for="searchInput">Search specific words</label>
-                            <input type="text" id="searchInput" class="input-nb large" placeholder='e.g. "happy", "good day", "been to work"'>
-                        </div>   
+                            <input type="text" id="searchInput" class="input-nb large"
+                                placeholder='e.g. "happy", "good day", "been to work"'>
+                        </div>
                     </div>
 
                     <div id="wordFrequency" class="words-container"></div>
@@ -127,8 +136,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>

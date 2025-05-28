@@ -47,6 +47,18 @@ body {
 }
 
 
+.notice {
+    background-color: var(--secondary-bg);
+    border-left: 4px solid var(--primary-color);
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    max-width: 500px;
+    color: var(--text-color);
+    margin: 0 auto;
+}
+
+
 .no-data-error {
     text-align: center;
     padding: 2rem;
