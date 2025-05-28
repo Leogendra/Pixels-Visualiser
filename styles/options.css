@@ -1,0 +1,84 @@
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -5px;
+}
+
+
+input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: 1rem;
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+
+    & label {
+        font-weight: 500;
+    }
+
+    & .checkbox {
+        width: 20px;
+        height: 30px;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+    }
+}
+
+
+.option-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+
+.range-average {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.input-nb {
+    width: 60px;
+    height: 20px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+
+    &.large {
+        width: 300px;
+    }
+}

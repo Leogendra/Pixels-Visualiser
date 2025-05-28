@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
-    <link rel="stylesheet" href="styles/slider.css">
+    <link rel="stylesheet" href="styles/options.css">
 </head>
 
 <body>
@@ -48,11 +48,15 @@
                         <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
 
-                        <label for="showAverageCheckbox">Show average</label>
-                        <input type="checkbox" id="showAverageCheckbox" class="checkbox">
+                        <div class="option-item">
+                            <label for="showAverageCheckbox">Show average</label>
+                            <input type="checkbox" id="showAverageCheckbox" class="checkbox">
+                        </div>
 
-                        <label for="showYearsCheckbox">Show years</label>
-                        <input type="checkbox" id="showYearsCheckbox" class="checkbox">
+                        <div class="option-item">
+                            <label for="showYearsCheckbox">Show years</label>
+                            <input type="checkbox" id="showYearsCheckbox" class="checkbox">
+                        </div>
                     </div>
                     <canvas id="moodChart"></canvas>
                 </div>
@@ -61,11 +65,15 @@
                     <div class="chart-container" id="tagFrequencyContainer">
                         <h2>🏷️ Tag frequency</h2>
                         <div class="options">
-                            <label for="tagFrequencyCheckbox">Show percentages</label>
-                            <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
+                            <div class="option-item">
+                                <label for="tagFrequencyCheckbox">Show percentages</label>
+                                <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
+                            </div>
 
-                            <label for="maxTagsInput">Number of tags</label>
-                            <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
+                            <div class="option-item">
+                                <label for="maxTagsInput">Number of tags</label>
+                                <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
+                            </div>
                         </div>
                         <canvas id="tagChart" class="free-canvas"></canvas>
                     </div>
@@ -73,8 +81,10 @@
                     <div class="chart-container" id="tagScoreContainer">
                         <h2>😊 Average score per tag</h2>
                         <div class="options">
-                            <label for="maxTagsInput">Number of tags</label>
-                            <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
+                            <div class="option-item">
+                                <label for="maxTagsInput">Number of tags</label>
+                                <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
+                            </div>
                         </div>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
                     </div>
@@ -84,17 +94,30 @@
                     <h2>📝 Most frequent words</h2>
 
                     <div class="options">
-                        <label for="wordsPercentageCheckbox">Show percentages</label>
-                        <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+                        <div class="option-item">
+                            <label for="wordsPercentageCheckbox">Show percentages</label>
+                            <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+                        </div>
 
-                        <label for="wordsOrderCheckbox">Order by score</label>
-                        <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
+                        <div class="option-item">
+                            <label for="wordsOrderCheckbox">Order by score</label>
+                            <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
+                        </div>
+                            
+                        <div class="option-item">
+                            <label for="maxWordsInput">Number of words</label>
+                            <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
+                        </div>
 
-                        <label for="maxWordsInput">Number of words</label>
-                        <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
-
-                        <label for="minCountInput">Minimum count</label>
-                        <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+                        <div class="option-item">
+                            <label for="minCountInput">Minimum count</label>
+                            <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+                        </div>
+                        
+                        <div class="option-item">
+                            <label for="searchInput">Search specific words/sentences</label>
+                            <input type="text" id="searchInput" class="input-nb large" placeholder='e.g. "happy", "good day", "been to work"'>
+                        </div>   
                     </div>
 
                     <div id="wordFrequency" class="words-container"></div>
