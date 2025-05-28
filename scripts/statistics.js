@@ -138,8 +138,8 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
             ${words_filtered.map(word => {
                 return `<div class="word-card">
                             <h4>${capitalize(word.word)}</h4>
-                            <p>${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
-                            <p>${(word.avg_score).toFixed(2)}</p>
+                            <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                            <p title="Average score">${(word.avg_score).toFixed(2)}</p>
                         </div>`
                 }).join("")}
         ` : "<p>No word frequency data available</p>";
