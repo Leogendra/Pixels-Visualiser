@@ -1,6 +1,5 @@
-const rolling_slider = document.querySelector("#rollingSlider");
-const rolling_slider_text_value = document.querySelector("#rollingValue");
 const file_input = document.querySelector("#fileInput");
+const privacy_notice = document.querySelector("#privacyNotice");
 
 const content_container = document.querySelector("#content");
 const stats_content_container = document.querySelector("#stats-content");
@@ -8,12 +7,16 @@ const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
 
 const stats_container = document.querySelector("#statsContainer");
+const rolling_slider = document.querySelector("#rollingSlider");
+const rolling_slider_text_value = document.querySelector("#rollingValue");
+
 const tag_grid_charts = document.querySelector(".grid-charts");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
-const word_freq_container = document.querySelector("#wordFrequency");
-
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
+
+
+const word_freq_container = document.querySelector("#wordFrequency");
 const nb_tags_inputs = document.querySelectorAll("#maxTagsInput");
 const wordcloud_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const wordcloud_order_checkbox = document.querySelector("#wordsOrderCheckbox");
@@ -120,19 +123,22 @@ async function handle_file_upload(file) {
             throw new Error("The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.");
         }
 
-        initial_data = data;
-        current_data = initial_data;
-        content_container.style.display = "block";
+        else {
+            initial_data = data;
+            current_data = initial_data;
 
-        calculate_and_display_stats(data);
-        get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
+            content_container.style.display = "block";
+            privacy_notice.style.display = "none";
 
-        // Graphics
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
-        create_tag_frequency_chart(current_data, tagsPercentage);
-        create_tag_score_chart(current_data);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
+            calculate_and_display_stats(data);
+            get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
 
+            // Graphics
+            create_mood_chart(current_data, averagingValue, showAverage, showYears);
+            create_tag_frequency_chart(current_data, tagsPercentage);
+            create_tag_score_chart(current_data);
+            create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
+        }
     }
     catch (error) {
         // alert(`Error: ${error.message}`);
