@@ -87,7 +87,7 @@ function calculate_and_display_stats(data) {
 }
 
 
-function get_word_frequency(data) {
+function get_word_frequency(data, sortByMood) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
 
     data.forEach(entry => {
@@ -108,25 +108,39 @@ function get_word_frequency(data) {
         });
     });
 
+    console.log("Word frequency data:");
+
     full_word_frequency = Object.entries(wordData)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
             return { word, count: info.count, avg_score: avg };
         })
-        .sort((a, b) => b.count - a.count);
+        .sort((a, b) => {
+            if (sortByMood) {
+                const diff = b.avg_score - a.avg_score;
+                return diff !== 0 ? diff : b.count - a.count;
+            }
+            else {
+                return b.count - a.count;
+            }
+        });
+
 }
 
 
-async function create_word_frequency_section(data, maxWords, inPercentage = false) {
-    const wordFreq = full_word_frequency.slice(0, maxWords);
-    const nbPixels = data.length;
-    word_freq_container.innerHTML = wordFreq.length > 0 ? `
-            ${wordFreq.map(word => `
-                <div class="word-card">
-                    <h4>${capitalize(word.word)}</h4>
-                    <p>${inPercentage ? (100 * word.count / nbPixels).toFixed(1) + "%" : word.count}</p>
-                    <p>${(word.avg_score).toFixed(2)}</p>
-                </div>
-            `).join("")}
+async function create_word_frequency_section(data, maxWords, minCount, inPercentage) {
+
+    let words_filtered = full_word_frequency
+                        .filter(word => (word.count >= minCount))
+                        .slice(0, maxWords);
+
+    word_freq_container.innerHTML = words_filtered.length > 0 ? `
+            ${words_filtered.map(word => {
+                return `<div class="word-card">
+                            <h4>${capitalize(word.word)}</h4>
+                            <p>${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                            <p>${(word.avg_score).toFixed(2)}</p>
+                        </div>`
+                }).join("")}
         ` : "<p>No word frequency data available</p>";
 }

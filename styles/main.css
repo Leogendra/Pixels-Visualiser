@@ -129,7 +129,7 @@ body {
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: .5rem;
+    gap: .4rem;
     padding: 1rem;
     background-color: var(--secondary-bg);
     border-radius: 8px;
@@ -140,12 +140,13 @@ body {
     }
 
     & input {
-        margin-right: 2rem;
+        margin-right: 1.5rem;
     }
 
     & .checkbox {
         width: 20px;
         height: 30px;
+        margin-right: 1.5rem;
         accent-color: var(--primary-color);
         cursor: pointer;
     }

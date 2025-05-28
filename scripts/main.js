@@ -15,8 +15,10 @@ const word_freq_container = document.querySelector("#wordFrequency");
 
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 const nb_tags_inputs = document.querySelectorAll("#maxTagsInput");
-const wordcloud_checkbox = document.querySelector("#wordCloudCheckbox");
-const wordcloud_input = document.querySelector("#maxWordsInput");
+const wordcloud_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
+const wordcloud_order_checkbox = document.querySelector("#wordsOrderCheckbox");
+const wordcloud_words_input = document.querySelector("#maxWordsInput");
+const wordcloud_count_input = document.querySelector("#minCountInput");
 
 
 // CSS variables
@@ -24,7 +26,7 @@ const primaryColor = getComputedStyle(document.documentElement).getPropertyValue
 const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 let initial_data = [];
 let current_data = [];
 
@@ -40,7 +42,9 @@ let nbMaxTags = 10;
 // Wordcloud
 let full_word_frequency = [];
 let wordcloudPercentage = false;
+let wordcloudOrderCount = false;
 let nbMaxWords = 20;
+let nbMinCount = 10;
 
 
 
@@ -84,7 +88,7 @@ function filter_pixels(numberOfDays) {
     }
     else {
         fill_empty_dates(current_data);
-        get_word_frequency(current_data);
+        get_word_frequency(current_data, wordcloudOrderCount);
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
 
@@ -92,7 +96,7 @@ function filter_pixels(numberOfDays) {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
         create_tag_score_chart(current_data);
-        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
     }
 }
 
@@ -120,13 +124,13 @@ async function handle_file_upload(file) {
         content_container.style.display = "block";
 
         calculate_and_display_stats(data);
-        get_word_frequency(current_data);
+        get_word_frequency(current_data, wordcloudOrderCount);
 
         // Graphics
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
         create_tag_score_chart(current_data);
-        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
 
     }
     catch (error) {
@@ -164,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     }
 
-    // Add event listener to the file input
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
         await handle_file_upload(file);
@@ -180,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
             filter_pixels(range);
         });
     });
+
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
@@ -198,7 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 
-    // Tags percent checkbox
+
+    // Tags
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
         create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
@@ -215,16 +220,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Wordcloud percent checkbox
-    wordcloud_checkbox.addEventListener("change", (e) => {
+
+    // Wordcloud
+    wordcloud_percentage_checkbox.addEventListener("change", (e) => {
         wordcloudPercentage = e.target.checked;
-        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
     });
 
-    // Word cloud max words input
-    wordcloud_input.addEventListener("input", (e) => {
+    wordcloud_order_checkbox.addEventListener("change", (e) => {
+        wordcloudOrderCount = e.target.checked;
+        get_word_frequency(current_data, wordcloudOrderCount);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
+    });
+
+    wordcloud_words_input.addEventListener("input", (e) => {
         nbMaxWords = parseInt(e.target.value);
-        create_word_frequency_section(current_data, nbMaxWords, wordcloudPercentage);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
+    });
+
+    wordcloud_count_input.addEventListener("input", (e) => {
+        nbMinCount = parseInt(e.target.value);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
     });
 
 });

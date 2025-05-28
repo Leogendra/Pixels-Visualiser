@@ -84,11 +84,17 @@
                     <h2>📝 Most frequent words</h2>
 
                     <div class="options">
-                        <label for="wordCloudCheckbox">Show percentages</label>
-                        <input type="checkbox" id="wordCloudCheckbox" class="checkbox">
+                        <label for="wordsPercentageCheckbox">Show percentages</label>
+                        <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+
+                        <label for="wordsOrderCheckbox">Order by score</label>
+                        <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
 
                         <label for="maxWordsInput">Number of words</label>
-                        <input type="number" id="maxWordsInput" class="input-nb" min="20" value="20">
+                        <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
+
+                        <label for="minCountInput">Minimum count</label>
+                        <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                     </div>
 
                     <div id="wordFrequency" class="words-container"></div>
