@@ -2,12 +2,21 @@ const tag_frequencies_container = document.querySelector("#tagFrequencyContainer
 const tag_scores_container = document.querySelector("#tagScoreContainer");
 
 const canvas_mood = document.querySelector("#moodChart");
-const canvas_tag_frequency = document.getElementById("tagChart");
-const canvas_tag_score = document.getElementById("tagScoreChart");
+const canvas_tag_frequency = document.querySelector("#tagChart");
+const canvas_tag_score = document.querySelector("#tagScoreChart");
+const weekdays_score = document.querySelector("#weekdaysChart");
+const months_score = document.querySelector("#monthChart");
+
+// CSS variables
+const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary-color").trim();
+const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
+const tertiaryColor = getComputedStyle(document.documentElement).getPropertyValue("--tertiary-color").trim();
 
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
+let week_score_chart_instance = null;
+let month_score_chart_instance = null;
 const isMobile = window.innerWidth <= 600;
 
 
@@ -55,6 +64,8 @@ function fill_missing_dates(data) {
 async function create_mood_chart(data, rollingAverage = 1, displayAverage = true, displayYears = true) {
     data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
+    const rawScores = data.map(entry => average(entry.scores));
+
     const annotations = {};
     if (displayAverage) {
         annotations["mean"] = {
@@ -101,10 +112,8 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
         });
     }
 
-    const rawScores = data.map(entry => average(entry.scores));
     const averagedScores = rawScores.map((scores, i) => {
-        // Update the function to handle null values
-        if (scores === null) return null;
+        if (scores == null) { return null; }
         const windowStart = Math.max(0, i - rollingAverage + 1);
         let sum = 0;
         let count = 0;
@@ -155,25 +164,12 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
 }
 
 
-async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 10) {
-    const tagCounts = {};
-    data.forEach(entry => {
-        if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                    });
-                }
-            });
-        }
-    });
-
-    const nbPixels = data.length;
+async function create_tag_frequency_chart(isPercentage, maxTags) {
+    const tagCounts = tag_stats.counts;
+    const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
-
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
@@ -188,7 +184,7 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
                 datasets: [{
                     label: isPercentage ? "Tag frequency (%)" : "Tag frequency",
                     data: sortedTags.map(([, count]) => isPercentage ? (100 * count / nbPixels).toFixed(2) : count),
-                    backgroundColor: "#ff4b4b"
+                    backgroundColor: secondaryColor
                 }]
             },
             options: {
@@ -205,25 +201,8 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
 };
 
 
-async function create_tag_score_chart(data, maxTags = 10) {
-    const tagScores = {};
-    data.forEach(entry => {
-        const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
-        if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        if (!tagScores[tag]) {
-                            tagScores[tag] = { total: 0, count: 0 };
-                        }
-                        tagScores[tag].total += avgScore;
-                        tagScores[tag].count += 1;
-                    });
-                }
-            });
-        }
-    });
-
+async function create_tag_score_chart(maxTags) {
+    const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
@@ -242,7 +221,7 @@ async function create_tag_score_chart(data, maxTags = 10) {
                 datasets: [{
                     label: "Average score",
                     data: averages.map(([_, avg]) => avg.toFixed(2)),
-                    backgroundColor: "#0DBF6C",
+                    backgroundColor: tertiaryColor,
                 }]
             },
             options: {
@@ -263,3 +242,100 @@ async function create_tag_score_chart(data, maxTags = 10) {
         tag_scores_container.style.display = "none";
     }
 };
+
+
+async function create_weekday_chart(firstDayOfWeek) {
+    let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    daysOfWeek = daysOfWeek.slice(firstDayOfWeek).concat(daysOfWeek.slice(0, firstDayOfWeek));
+
+    const week_days = Object.entries(weekdays_stats)
+        .map(([day, { total, count }]) => ([day, total / count]))
+        .sort((a, b) => {
+            return daysOfWeek.indexOf(a[0]) - daysOfWeek.indexOf(b[0]);
+        });
+
+    if (week_score_chart_instance) {
+        week_score_chart_instance.destroy();
+    }
+    week_score_chart_instance = new Chart(weekdays_score, {
+        type: "bar",
+        data: {
+            labels: week_days.map(([day, _]) => day),
+            datasets: [{
+                label: "Weekdays",
+                data: week_days.map(([_, avg]) => avg.toFixed(2)),
+                backgroundColor: tertiaryColor,
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: !week_score_chart_instance,
+            maintainAspectRatio: !isMobile,
+            scales: {
+                y: {
+                    max: 5,
+                    min: 1
+                }
+            }
+        }
+    });
+};
+
+
+async function create_month_chart(colorsByMonth) {
+    const seasons_colors = {
+        "winter": "#66ccff",
+        "spring": "#66ff99",
+        "summer": "#eeee44",
+        "autumn": "#db5800"
+    }
+
+    const month_seasons = {
+        "January": "winter",
+        "February": "winter",
+        "March": "spring",
+        "April": "spring",
+        "May": "spring",
+        "June": "summer",
+        "July": "summer",
+        "August": "summer",
+        "September": "autumn",
+        "October": "autumn",
+        "November": "autumn",
+        "December": "winter",
+    };
+
+    const month_data = Object.keys(month_seasons)
+        .filter(month => months_stats[month])
+        .map(month => [
+            month,
+            months_stats[month].total / months_stats[month].count
+        ]);
+
+    if (month_score_chart_instance) {
+        month_score_chart_instance.destroy();
+    }
+    month_score_chart_instance = new Chart(months_score, {
+        type: "bar",
+        data: {
+            labels: month_data.map(([month, _]) => month),
+            datasets: [{
+                label: "Months",
+                data: month_data.map(([_, avg]) => avg.toFixed(2)),
+                backgroundColor: colorsByMonth ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
+            },
+        ]
+        },
+        options: {
+            responsive: true,
+            animation: !month_score_chart_instance,
+            maintainAspectRatio: !isMobile,
+            scales: {
+                y: {
+                    max: 5,
+                    min: 1
+                }
+            }
+        }
+    });
+}

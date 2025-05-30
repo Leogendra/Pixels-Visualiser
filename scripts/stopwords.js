@@ -1,4 +1,4 @@
-const stop_words = new Set([
+const STOP_WORDS = new Set([
     // "en": [
     "'ll",
     "'tis",
@@ -1990,5 +1990,31 @@ const stop_words = new Set([
     "étés",
     "êtes",
     "être",
-    "ô"
+    "ô",
+    "j'ai",
+    "j'etais",
+    "j'étais",
+    "j'avais",
+    "c'est",
+    "c'etait",
+    "etait",
+    "c'était",
+    "qu'il",
+    "qu'elle",
+    "qu'il",
+    "qu'elle",
+    "qu'ils",
+    "qu'elles",
+    "qu'on",
+    "qu'une",
+    "qu'un",
+    "s'est",
+    "s'était",
+    "s'étaient",
+    "n'ai",
+    "n'ais",
+    "n'ait",
+    "n'avaient",
+    "n'avais",
+    "n'avait",
 ]);

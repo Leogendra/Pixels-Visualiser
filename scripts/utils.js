@@ -23,6 +23,11 @@ function capitalize(string) {
 }
 
 
+function normalize_string(str) {
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+
 function normalize_date(input) {
     const date = new Date(input);
     const yyyy = date.getFullYear();

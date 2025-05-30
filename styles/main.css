@@ -1,10 +1,12 @@
 :root {
     --primary-color: #2fa1ff;
     --secondary-color: #ff4b4b;
+    --tertiary-color: #0DBF6C;
     --bg-color: #ffffff;
     --secondary-bg: #f0f2f6;
     --text-color: #262730;
 }
+
 
 body {
     font-family: "Segoe UI", Roboto, sans-serif;
@@ -14,10 +16,12 @@ body {
     color: var(--text-color);
 }
 
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
 }
+
 
 .header {
     display: flex;
@@ -34,6 +38,7 @@ body {
     }
 }
 
+
 .upload-section {
     text-align: center;
     padding: 2rem;
@@ -41,6 +46,19 @@ body {
     border-radius: 8px;
     margin-bottom: 1rem;
 }
+
+
+.notice {
+    background-color: var(--secondary-bg);
+    border-left: 4px solid var(--primary-color);
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    max-width: 500px;
+    color: var(--text-color);
+    margin: 0 auto;
+}
+
 
 .no-data-error {
     text-align: center;
@@ -52,12 +70,14 @@ body {
     margin-bottom: 1rem;
 }
 
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
+
 
 .stat-card {
     background-color: var(--secondary-bg);
@@ -99,6 +119,7 @@ body {
     }
 }
 
+
 .grid-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -109,6 +130,7 @@ body {
     }
 }
 
+
 .button {
     background-color: var(--primary-color);
     color: rgb(0, 0, 0);
@@ -117,37 +139,10 @@ body {
     border-radius: 4px;
     color: #ffffff;
     cursor: pointer;
-}
+    transition: all 0.2s, color 0.2s;
 
-.button:hover {
-    opacity: 0.9;
-}
-
-
-.options {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: .5rem;
-    padding: 1rem;
-    background-color: var(--secondary-bg);
-    border-radius: 8px;
-    margin-bottom: 1rem;
-
-    & label {
-        font-weight: 500;
-    }
-
-    & input {
-        margin-right: 2rem;
-    }
-
-    & .checkbox {
-        width: 20px;
-        height: 30px;
-        accent-color: var(--primary-color);
-        cursor: pointer;
+    &:hover {
+        opacity: 0.9;
     }
 }
 
