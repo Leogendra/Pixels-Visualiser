@@ -64,6 +64,8 @@ function fill_missing_dates(data) {
 async function create_mood_chart(data, rollingAverage = 1, displayAverage = true, displayYears = true) {
     data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
+    const rawScores = data.map(entry => average(entry.scores));
+
     const annotations = {};
     if (displayAverage) {
         annotations["mean"] = {
@@ -110,10 +112,8 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
         });
     }
 
-    const rawScores = data.map(entry => average(entry.scores));
     const averagedScores = rawScores.map((scores, i) => {
-        // Update the function to handle null values
-        if (scores === null) return null;
+        if (scores == null) { return null; }
         const windowStart = Math.max(0, i - rollingAverage + 1);
         let sum = 0;
         let count = 0;
@@ -164,25 +164,12 @@ async function create_mood_chart(data, rollingAverage = 1, displayAverage = true
 }
 
 
-async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 10) {
-    const tagCounts = {};
-    data.forEach(entry => {
-        if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                    });
-                }
-            });
-        }
-    });
-
-    const nbPixels = data.length;
+async function create_tag_frequency_chart(isPercentage, maxTags) {
+    const tagCounts = tag_stats.counts;
+    const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
-
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
@@ -214,25 +201,8 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
 };
 
 
-async function create_tag_score_chart(data, maxTags = 10) {
-    const tagScores = {};
-    data.forEach(entry => {
-        const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
-        if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        if (!tagScores[tag]) {
-                            tagScores[tag] = { total: 0, count: 0 };
-                        }
-                        tagScores[tag].total += avgScore;
-                        tagScores[tag].count += 1;
-                    });
-                }
-            });
-        }
-    });
-
+async function create_tag_score_chart(maxTags) {
+    const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
@@ -274,23 +244,11 @@ async function create_tag_score_chart(data, maxTags = 10) {
 };
 
 
-async function create_weekday_chart(data, firstDayOfWeek) {
-    const day_scores = {};
-    data.forEach(entry => {
-        const avgScore = average(entry.scores);
-        const date = new Date(entry.date);
-        const day = date.toLocaleString('en-US', { weekday: 'long' });
-        if (!day_scores[day]) {
-            day_scores[day] = { total: 0, count: 0 };
-        }
-        day_scores[day].total += avgScore;
-        day_scores[day].count += 1;
-    });
-
+async function create_weekday_chart(firstDayOfWeek) {
     let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     daysOfWeek = daysOfWeek.slice(firstDayOfWeek).concat(daysOfWeek.slice(0, firstDayOfWeek));
 
-    const week_days = Object.entries(day_scores)
+    const week_days = Object.entries(weekdays_stats)
         .map(([day, { total, count }]) => ([day, total / count]))
         .sort((a, b) => {
             return daysOfWeek.indexOf(a[0]) - daysOfWeek.indexOf(b[0]);
@@ -304,7 +262,7 @@ async function create_weekday_chart(data, firstDayOfWeek) {
         data: {
             labels: week_days.map(([day, _]) => day),
             datasets: [{
-                label: "Average score",
+                label: "Weekdays",
                 data: week_days.map(([_, avg]) => avg.toFixed(2)),
                 backgroundColor: tertiaryColor,
             }]
@@ -324,25 +282,12 @@ async function create_weekday_chart(data, firstDayOfWeek) {
 };
 
 
-async function create_month_chart(data, colorsByMonth) {
-    const month_scores = {};
-
-    data.forEach(entry => {
-        const avgScore = average(entry.scores);
-        const date = new Date(entry.date);
-        const month = date.toLocaleString('en-US', { month: 'long' });
-        if (!month_scores[month]) {
-            month_scores[month] = { total: 0, count: 0 };
-        }
-        month_scores[month].total += avgScore;
-        month_scores[month].count += 1;
-    });
-
+async function create_month_chart(colorsByMonth) {
     const seasons_colors = {
-        "winter": "#5DADE2",
-        "spring": "#58D68D",
-        "summer": "#F4D03F",
-        "autumn": "#DC7633"
+        "winter": "#66ccff",
+        "spring": "#66ff99",
+        "summer": "#eeee44",
+        "autumn": "#db5800"
     }
 
     const month_seasons = {
@@ -361,10 +306,10 @@ async function create_month_chart(data, colorsByMonth) {
     };
 
     const month_data = Object.keys(month_seasons)
-        .filter(month => month_scores[month])
+        .filter(month => months_stats[month])
         .map(month => [
             month,
-            month_scores[month].total / month_scores[month].count
+            months_stats[month].total / months_stats[month].count
         ]);
 
     if (month_score_chart_instance) {
@@ -375,10 +320,11 @@ async function create_month_chart(data, colorsByMonth) {
         data: {
             labels: month_data.map(([month, _]) => month),
             datasets: [{
-                label: "Average score",
+                label: "Months",
                 data: month_data.map(([_, avg]) => avg.toFixed(2)),
                 backgroundColor: colorsByMonth ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
-            }]
+            },
+        ]
         },
         options: {
             responsive: true,

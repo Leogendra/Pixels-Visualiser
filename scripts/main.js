@@ -38,14 +38,17 @@ let showAverage = false;
 let showYears = false;
 
 // Tags
+let tag_stats = {};
 let tagsPercentage = false;
 let nbMaxTags = 10;
 
 // Weekdays
 let firstDayOfWeek = 1;
+let weekdays_stats = {};
 
 // Months
 let seasonColors = false;
+let months_stats = {};
 
 // Wordcloud
 let full_word_frequency = [];
@@ -95,17 +98,21 @@ function filter_pixels(numberOfDays) {
         stats_content_container.style.display = "none";
     }
     else {
-        fill_empty_dates(current_data);
-        get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
 
+        fill_empty_dates(current_data);
+        compute_tag_stats(current_data);
+        compute_weekdays_stats(current_data);
+        compute_months_stats(current_data);
+        get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
+
         calculate_and_display_stats(current_data);
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
-        create_tag_frequency_chart(current_data, tagsPercentage);
-        create_tag_score_chart(current_data);
-        create_weekday_chart(current_data, firstDayOfWeek);
-        create_month_chart(current_data, seasonColors);
+        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        create_tag_score_chart(nbMaxTags);
+        create_weekday_chart(firstDayOfWeek);
+        create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     }
 }
@@ -137,20 +144,23 @@ async function handle_file_upload(file) {
             content_container.style.display = "block";
             privacy_notice.style.display = "none";
 
+            // Stats
             calculate_and_display_stats(data);
+            compute_tag_stats(current_data);
+            compute_weekdays_stats(current_data);
+            compute_months_stats(current_data);
             get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
 
             // Graphics
             create_mood_chart(current_data, averagingValue, showAverage, showYears);
-            create_tag_frequency_chart(current_data, tagsPercentage);
-            create_tag_score_chart(current_data);
-            create_weekday_chart(current_data, firstDayOfWeek);
-            create_month_chart(current_data, seasonColors);
+            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+            create_tag_score_chart(nbMaxTags);
+            create_weekday_chart(firstDayOfWeek);
+            create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
         }
     }
     catch (error) {
-        // alert(`Error: ${error.message}`);
         console.error(`Error: ${error.message}`);
     }
 }
@@ -180,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEV_MODE) {
         auto_load_data("../data/pixels.json");
         setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight);
+            window.scrollTo(0, document.body.scrollHeight - 1500);
         }, 500);
     }
 
@@ -222,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tags
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
-        create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
+        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
     });
 
     nb_tags_inputs.forEach(input => {
@@ -231,8 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
             nb_tags_inputs.forEach(input => {
                 input.value = nbMaxTags;
             });
-            create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
-            create_tag_score_chart(current_data, nbMaxTags);
+            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+            create_tag_score_chart(nbMaxTags);
         });
     });
 
@@ -240,14 +250,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
         firstDayOfWeek = parseInt(e.target.value);
-        create_weekday_chart(current_data, firstDayOfWeek);
+        create_weekday_chart(firstDayOfWeek);
     });
 
 
     // Months
     season_colors_checkbox.addEventListener("change", (e) => {
         seasonColors = e.target.checked;
-        create_month_chart(current_data, seasonColors);
+        create_month_chart(seasonColors);
     });
 
 

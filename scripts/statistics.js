@@ -87,6 +87,71 @@ function calculate_and_display_stats(data) {
 }
 
 
+function compute_tag_stats(data) {
+    const tagCounts = {};
+    const tagScores = {};
+
+    data.forEach(entry => {
+        const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
+
+        if (entry.tags && entry.tags.length > 0) {
+            entry.tags.forEach(tagGroup => {
+                if (tagGroup.entries && tagGroup.entries.length > 0) {
+                    tagGroup.entries.forEach(tag => {
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+
+                        if (!tagScores[tag]) {
+                            tagScores[tag] = { total: 0, count: 0 };
+                        }
+                        tagScores[tag].total += avgScore;
+                        tagScores[tag].count += 1;
+                    });
+                }
+            });
+        }
+    });
+
+    tag_stats = {
+        counts: tagCounts,
+        scores: tagScores,
+        totalPixels: data.length
+    };
+}
+
+
+function compute_weekdays_stats(data) {
+    weekdays_stats = {};
+
+    data.forEach(entry => {
+        const avgScore = average(entry.scores);
+        const date = new Date(entry.date);
+        const day = date.toLocaleString('en-US', { weekday: 'long' });
+
+        if (!weekdays_stats[day]) {
+            weekdays_stats[day] = { total: 0, count: 0 };
+        }
+        weekdays_stats[day].total += avgScore;
+        weekdays_stats[day].count += 1;
+    });
+}
+
+
+function compute_months_stats(data) {
+    months_stats = {};
+
+    data.forEach(entry => {
+        const avgScore = average(entry.scores);
+        const date = new Date(entry.date);
+        const month = date.toLocaleString('en-US', { month: 'long' });
+        if (!months_stats[month]) {
+            months_stats[month] = { total: 0, count: 0 };
+        }
+        months_stats[month].total += avgScore;
+        months_stats[month].count += 1;
+    });
+}
+
+
 function get_word_frequency(data, orderByMood, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
     const searchTextLower = normalize_string(searchText);
@@ -95,7 +160,7 @@ function get_word_frequency(data, orderByMood, searchText) {
     data.forEach(entry => {
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
-        
+
         // Add the search term as a word if it matches the notes
         if (searchTextLower) {
             if (notesLower.includes(searchTextLower)) {
@@ -116,16 +181,16 @@ function get_word_frequency(data, orderByMood, searchText) {
             .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
             .replace(/-/g, " ")
             .split(/\s+/)
-            .filter(word => 
-                    (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
-                    (!STOP_WORDS.has(word)) && // Word is not a stop word
-                    (searchTextLower !== word) && // Word is not the search term (already counted above)
-                    (
-                        (searchWords.length === 0) || // Either no search words or
-                        searchWords.some(sw => (word.includes(sw) || sw.includes(word))) // Word matches any of the search words
-                    )
-                );
-        
+            .filter(word =>
+                (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
+                (!STOP_WORDS.has(word)) && // Word is not a stop word
+                (searchTextLower !== word) && // Word is not the search term (already counted above)
+                (
+                    (searchWords.length === 0) || // Either no search words or
+                    searchWords.some(sw => (word.includes(sw) || sw.includes(word))) // Word matches any of the search words
+                )
+            );
+
         // Add each word to the count
         const normalizedWords = words.map(word => normalize_string(word));
         normalizedWords.forEach(word => {
@@ -156,23 +221,23 @@ function get_word_frequency(data, orderByMood, searchText) {
 
 async function create_word_frequency_section(data, maxWords, minCount, inPercentage, searchText) {
     let words_filtered = full_word_frequency
-                        .filter(word => (word.count >= minCount))
-                        .slice(0, maxWords);
+        .filter(word => (word.count >= minCount))
+        .slice(0, maxWords);
 
     word_freq_container.innerHTML = words_filtered.length > 0 ? `
             ${words_filtered.map(word => {
-                let isWordSearched = false;
-                if (searchText) {
-                    const normalizedSearchText = normalize_string(searchText);
-                    isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
-                                      searchText.split(/\s+/)
-                                                .some(term => normalize_string(word.word) === (normalize_string(term)));
-                }
-                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+        let isWordSearched = false;
+        if (searchText) {
+            const normalizedSearchText = normalize_string(searchText);
+            isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
+                searchText.split(/\s+/)
+                    .some(term => normalize_string(word.word) === (normalize_string(term)));
+        }
+        return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                             <h4>${capitalize(word.word)}</h4>
                             <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
                             <p title="Average score">${(word.avg_score).toFixed(2)}</p>
                         </div>`
-                }).join("")}
+    }).join("")}
         ` : "<p>No word frequency data available</p>";
 }
