@@ -122,8 +122,6 @@ function get_word_frequency(data, orderByMood, searchText) {
         });
     });
 
-    console.log(`Nb of objects : ${full_word_frequency.length}`)
-
     full_word_frequency = Object.entries(wordData)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
@@ -142,9 +140,6 @@ function get_word_frequency(data, orderByMood, searchText) {
 
 
 async function create_word_frequency_section(data, maxWords, minCount, inPercentage) {
-
-    console.log('Number of words in full_word_frequency:', full_word_frequency.length);
-
     let words_filtered = full_word_frequency
                         .filter(word => (word.count >= minCount))
                         .slice(0, maxWords);

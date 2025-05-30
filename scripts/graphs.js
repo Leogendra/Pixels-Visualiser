@@ -4,10 +4,12 @@ const tag_scores_container = document.querySelector("#tagScoreContainer");
 const canvas_mood = document.querySelector("#moodChart");
 const canvas_tag_frequency = document.getElementById("tagChart");
 const canvas_tag_score = document.getElementById("tagScoreChart");
+const weekdays_score = document.getElementById("weekdaysChart");
 
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
+let week_score_chart_instance = null;
 const isMobile = window.innerWidth <= 600;
 
 
@@ -262,4 +264,54 @@ async function create_tag_score_chart(data, maxTags = 10) {
     else {
         tag_scores_container.style.display = "none";
     }
+};
+
+
+async function create_weekday_chart(data, firstDayOfWeek) {
+    const day_scores = {};
+    data.forEach(entry => {
+        const avgScore = average(entry.scores);
+        const date = new Date(entry.date);
+        const day = date.toLocaleString('en-US', { weekday: 'long' });
+        if (!day_scores[day]) {
+            day_scores[day] = { total: 0, count: 0 };
+        }
+        day_scores[day].total += avgScore;
+        day_scores[day].count += 1;
+    });
+
+    let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    daysOfWeek = daysOfWeek.slice(firstDayOfWeek).concat(daysOfWeek.slice(0, firstDayOfWeek));
+
+    const week_days = Object.entries(day_scores)
+        .map(([day, { total, count }]) => ([day, total / count]))
+        .sort((a, b) => {
+            return daysOfWeek.indexOf(a[0]) - daysOfWeek.indexOf(b[0]);
+        });
+
+    if (week_score_chart_instance) {
+        week_score_chart_instance.destroy();
+    }
+    week_score_chart_instance = new Chart(weekdays_score, {
+        type: "bar",
+        data: {
+            labels: week_days.map(([day, _]) => day),
+            datasets: [{
+                label: "Average score",
+                data: week_days.map(([_, avg]) => avg.toFixed(2)),
+                backgroundColor: "#0D6AC3",
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: !week_score_chart_instance,
+            maintainAspectRatio: !isMobile,
+            scales: {
+                y: {
+                    max: 5,
+                    min: 1
+                }
+            }
+        }
+    });
 };

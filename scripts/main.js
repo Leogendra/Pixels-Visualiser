@@ -15,6 +15,7 @@ const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
+const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 
 const word_freq_container = document.querySelector("#wordFrequency");
 const nb_tags_inputs = document.querySelectorAll("#maxTagsInput");
@@ -42,6 +43,9 @@ let showYears = false;
 // Tags
 let tagsPercentage = false;
 let nbMaxTags = 10;
+
+// Weekdays
+let firstDayOfWeek = 1;
 
 // Wordcloud
 let full_word_frequency = [];
@@ -100,6 +104,7 @@ function filter_pixels(numberOfDays) {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
         create_tag_score_chart(current_data);
+        create_weekday_chart(current_data);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
     }
 }
@@ -119,8 +124,9 @@ async function handle_file_upload(file) {
             typeof entry.notes === "string" &&
             Array.isArray(entry.tags)
         )) {
-            alert("The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.");
-            throw new Error("The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.");
+            const errorFormatTxt = "The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.";
+            alert(errorFormatTxt);
+            throw new Error(errorFormatTxt);
         }
 
         else {
@@ -137,6 +143,7 @@ async function handle_file_upload(file) {
             create_mood_chart(current_data, averagingValue, showAverage, showYears);
             create_tag_frequency_chart(current_data, tagsPercentage);
             create_tag_score_chart(current_data);
+            create_weekday_chart(current_data, firstDayOfWeek);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage);
         }
     }
@@ -225,6 +232,13 @@ document.addEventListener("DOMContentLoaded", () => {
             create_tag_frequency_chart(current_data, tagsPercentage, nbMaxTags);
             create_tag_score_chart(current_data, nbMaxTags);
         });
+    });
+
+
+    // Weekdays
+    weekday_frequency_select.addEventListener("change", (e) => {
+        firstDayOfWeek = parseInt(e.target.value);
+        create_weekday_chart(current_data, firstDayOfWeek);
     });
 
 
