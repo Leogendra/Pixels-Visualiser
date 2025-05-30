@@ -17,6 +17,8 @@ const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 
+const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
+
 const word_freq_container = document.querySelector("#wordFrequency");
 const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
 const wordcloud_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
@@ -24,11 +26,6 @@ const wordcloud_order_checkbox = document.querySelector("#wordsOrderCheckbox");
 const wordcloud_words_input = document.querySelector("#maxWordsInput");
 const wordcloud_count_input = document.querySelector("#minCountInput");
 const wordcloud_search_input = document.querySelector("#searchInput");
-
-
-// CSS variables
-const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary-color").trim();
-const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
 
 
 const DEV_MODE = false;
@@ -46,6 +43,9 @@ let nbMaxTags = 10;
 
 // Weekdays
 let firstDayOfWeek = 1;
+
+// Months
+let seasonColors = false;
 
 // Wordcloud
 let full_word_frequency = [];
@@ -104,7 +104,8 @@ function filter_pixels(numberOfDays) {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(current_data, tagsPercentage);
         create_tag_score_chart(current_data);
-        create_weekday_chart(current_data);
+        create_weekday_chart(current_data, firstDayOfWeek);
+        create_month_chart(current_data, seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     }
 }
@@ -144,6 +145,7 @@ async function handle_file_upload(file) {
             create_tag_frequency_chart(current_data, tagsPercentage);
             create_tag_score_chart(current_data);
             create_weekday_chart(current_data, firstDayOfWeek);
+            create_month_chart(current_data, seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
         }
     }
@@ -239,6 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
     weekday_frequency_select.addEventListener("change", (e) => {
         firstDayOfWeek = parseInt(e.target.value);
         create_weekday_chart(current_data, firstDayOfWeek);
+    });
+
+
+    // Months
+    season_colors_checkbox.addEventListener("change", (e) => {
+        seasonColors = e.target.checked;
+        create_month_chart(current_data, seasonColors);
     });
 
 

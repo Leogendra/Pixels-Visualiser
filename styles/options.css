@@ -89,6 +89,7 @@ input[type="range"]::-moz-range-thumb {
     width: 130px;
     height: 36px;
     padding: 0.4rem 0.2rem;
+    background-color: #ffffff;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;

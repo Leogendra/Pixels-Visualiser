@@ -22,7 +22,7 @@
     color: #ffffff;
 
     &.searched-word {
-        background-color: var(--secondary-color);
+        background-color: var(--tertiary-color);
     }
 
     & h4 {

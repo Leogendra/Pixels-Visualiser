@@ -80,7 +80,8 @@
 
                             <div class="option-item">
                                 <label for="maxTagsInput1">Number of tags</label>
-                                <input type="number" id="maxTagsInput1" class="input-nb input-max-tag" min="1" value="10">
+                                <input type="number" id="maxTagsInput1" class="input-nb input-max-tag" min="1"
+                                    value="10">
                             </div>
                         </div>
                         <canvas id="tagChart" class="free-canvas"></canvas>
@@ -91,30 +92,46 @@
                         <div class="options">
                             <div class="option-item">
                                 <label for="maxTagsInput2">Number of tags</label>
-                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1" value="10">
+                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1"
+                                    value="10">
                             </div>
                         </div>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
                     </div>
                 </div>
 
-                <div class="chart-container" id="tagScoreContainer">
-                    <h2>Weekdays average scores</h2>
-                    <div class="options">
-                        <div class="option-item">
-                            <label for="firstDayOfWeekSelect">First day of the week</label>
-                            <select id="firstDayOfWeekSelect" class="select">
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                                <option value="0">Sunday</option>
-                            </select>
+                <div class="grid-charts">
+                    <div class="chart-container" id="WeekdaysContainer">
+                        <h2>🔁 Weekdays average scores</h2>
+                        <div class="options">
+                            <div class="option-item">
+                                <label for="firstDayOfWeekSelect">First day of the week</label>
+                                <select id="firstDayOfWeekSelect" class="select">
+                                    <option value="1">Monday</option>
+                                    <option value="2">Tuesday</option>
+                                    <option value="3">Wednesday</option>
+                                    <option value="4">Thursday</option>
+                                    <option value="5">Friday</option>
+                                    <option value="6">Saturday</option>
+                                    <option value="0">Sunday</option>
+                                </select>
+                            </div>
                         </div>
+                        <canvas id="weekdaysChart"></canvas>
                     </div>
-                    <canvas id="weekdaysChart"></canvas>
+
+                    <div class="chart-container" id="WeekdaysContainer">
+                        <h2>🗓️ Months average scores</h2>
+                        <div class="options">
+                            <div class="option-item">
+                                <div class="option-item">
+                                    <label for="seasonColorsCheckbox">Season colors</label>
+                                    <input type="checkbox" id="seasonColorsCheckbox" class="checkbox">
+                                </div>
+                            </div>
+                        </div>
+                        <canvas id="monthChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="chart-container">

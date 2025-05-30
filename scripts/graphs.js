@@ -5,11 +5,18 @@ const canvas_mood = document.querySelector("#moodChart");
 const canvas_tag_frequency = document.querySelector("#tagChart");
 const canvas_tag_score = document.querySelector("#tagScoreChart");
 const weekdays_score = document.querySelector("#weekdaysChart");
+const months_score = document.querySelector("#monthChart");
+
+// CSS variables
+const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary-color").trim();
+const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--secondary-color").trim();
+const tertiaryColor = getComputedStyle(document.documentElement).getPropertyValue("--tertiary-color").trim();
 
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
 let week_score_chart_instance = null;
+let month_score_chart_instance = null;
 const isMobile = window.innerWidth <= 600;
 
 
@@ -190,7 +197,7 @@ async function create_tag_frequency_chart(data, isPercentage = false, maxTags = 
                 datasets: [{
                     label: isPercentage ? "Tag frequency (%)" : "Tag frequency",
                     data: sortedTags.map(([, count]) => isPercentage ? (100 * count / nbPixels).toFixed(2) : count),
-                    backgroundColor: "#ff4b4b"
+                    backgroundColor: secondaryColor
                 }]
             },
             options: {
@@ -244,7 +251,7 @@ async function create_tag_score_chart(data, maxTags = 10) {
                 datasets: [{
                     label: "Average score",
                     data: averages.map(([_, avg]) => avg.toFixed(2)),
-                    backgroundColor: "#0DBF6C",
+                    backgroundColor: tertiaryColor,
                 }]
             },
             options: {
@@ -299,7 +306,7 @@ async function create_weekday_chart(data, firstDayOfWeek) {
             datasets: [{
                 label: "Average score",
                 data: week_days.map(([_, avg]) => avg.toFixed(2)),
-                backgroundColor: "#0D6AC3",
+                backgroundColor: tertiaryColor,
             }]
         },
         options: {
@@ -315,3 +322,74 @@ async function create_weekday_chart(data, firstDayOfWeek) {
         }
     });
 };
+
+
+async function create_month_chart(data, colorsByMonth) {
+    const month_scores = {};
+
+    data.forEach(entry => {
+        const avgScore = average(entry.scores);
+        const date = new Date(entry.date);
+        const month = date.toLocaleString('en-US', { month: 'long' });
+        if (!month_scores[month]) {
+            month_scores[month] = { total: 0, count: 0 };
+        }
+        month_scores[month].total += avgScore;
+        month_scores[month].count += 1;
+    });
+
+    const seasons_colors = {
+        "winter": "#5DADE2",
+        "spring": "#58D68D",
+        "summer": "#F4D03F",
+        "autumn": "#DC7633"
+    }
+
+    const month_seasons = {
+        "January": "winter",
+        "February": "winter",
+        "March": "spring",
+        "April": "spring",
+        "May": "spring",
+        "June": "summer",
+        "July": "summer",
+        "August": "summer",
+        "September": "autumn",
+        "October": "autumn",
+        "November": "autumn",
+        "December": "winter",
+    };
+
+    const month_data = Object.keys(month_seasons)
+        .filter(month => month_scores[month])
+        .map(month => [
+            month,
+            month_scores[month].total / month_scores[month].count
+        ]);
+
+    if (month_score_chart_instance) {
+        month_score_chart_instance.destroy();
+    }
+    month_score_chart_instance = new Chart(months_score, {
+        type: "bar",
+        data: {
+            labels: month_data.map(([month, _]) => month),
+            datasets: [{
+                label: "Average score",
+                data: month_data.map(([_, avg]) => avg.toFixed(2)),
+                backgroundColor: colorsByMonth ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: !month_score_chart_instance,
+            maintainAspectRatio: !isMobile,
+            scales: {
+                y: {
+                    max: 5,
+                    min: 1
+                }
+            }
+        }
+    });
+}
