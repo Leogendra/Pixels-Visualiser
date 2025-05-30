@@ -89,31 +89,46 @@ function calculate_and_display_stats(data) {
 
 function get_word_frequency(data, orderByMood, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
-    const searchTextLower = searchText.toLowerCase();
+    const searchTextLower = normalize_string(searchText);
+    const searchWords = searchTextLower.split(/\s+/).map(word => normalize_string(word)).filter(word => word);
 
     data.forEach(entry => {
-        if (!entry.notes || entry.notes.trim() === "") { return; }
-
-        const notesLower = entry.notes.toLowerCase();
-        if (searchText) {
-            if (!notesLower.includes(searchText.toLowerCase())) { return; }
+        const notesLower = normalize_string(entry.notes);
+        if (!notesLower) { return; }
+        
+        // Add the search term as a word if it matches the notes
+        if (searchTextLower) {
             if (notesLower.includes(searchTextLower)) {
                 if (!(searchTextLower in wordData)) {
                     wordData[searchTextLower] = { count: 0, scores: [] };
                 }
-                wordData[searchTextLower].count += 1;
+                // Count number of appearances and add the score
+                wordData[searchTextLower].count += notesLower.split(searchTextLower).length - 1
                 wordData[searchTextLower].scores.push(average(entry.scores));
+            }
+            else if (!searchWords.some(sw => notesLower.includes(sw))) {
+                return;
             }
         }
 
+        // Filter words of the notes
         const words = notesLower
             .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
+            .replace(/-/g, " ")
             .split(/\s+/)
-            .filter(word => (word.replace(/[^a-zA-Z]/g, "").length >= 3) &&
-                    !STOP_WORDS.has(word) &&
-                   (!searchTextLower || searchTextLower.includes(word)));
-
-        words.forEach(word => {
+            .filter(word => 
+                    (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
+                    (!STOP_WORDS.has(word)) && // Word is not a stop word
+                    (searchTextLower !== word) && // Word is not the search term (already counted above)
+                    (
+                        (searchWords.length === 0) || // Either no search words or
+                        searchWords.some(sw => (word.includes(sw) || sw.includes(word))) // Word matches any of the search words
+                    )
+                );
+        
+        // Add each word to the count
+        const normalizedWords = words.map(word => normalize_string(word));
+        normalizedWords.forEach(word => {
             if (!(word in wordData)) {
                 wordData[word] = { count: 0, scores: [] };
             }
@@ -139,14 +154,21 @@ function get_word_frequency(data, orderByMood, searchText) {
 }
 
 
-async function create_word_frequency_section(data, maxWords, minCount, inPercentage) {
+async function create_word_frequency_section(data, maxWords, minCount, inPercentage, searchText) {
     let words_filtered = full_word_frequency
                         .filter(word => (word.count >= minCount))
                         .slice(0, maxWords);
 
     word_freq_container.innerHTML = words_filtered.length > 0 ? `
             ${words_filtered.map(word => {
-                return `<div class="word-card">
+                let isWordSearched = false;
+                if (searchText) {
+                    const normalizedSearchText = normalize_string(searchText);
+                    isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
+                                      searchText.split(/\s+/)
+                                                .some(term => normalize_string(word.word) === (normalize_string(term)));
+                }
+                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                             <h4>${capitalize(word.word)}</h4>
                             <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
                             <p title="Average score">${(word.avg_score).toFixed(2)}</p>

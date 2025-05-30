@@ -21,6 +21,10 @@
     padding: 1.2rem 0.8rem;
     color: #ffffff;
 
+    &.searched-word {
+        background-color: var(--secondary-color);
+    }
+
     & h4 {
         margin: 0 0 5px;
         font-size: 1.1rem;

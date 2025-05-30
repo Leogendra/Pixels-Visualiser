@@ -2,9 +2,9 @@ const tag_frequencies_container = document.querySelector("#tagFrequencyContainer
 const tag_scores_container = document.querySelector("#tagScoreContainer");
 
 const canvas_mood = document.querySelector("#moodChart");
-const canvas_tag_frequency = document.getElementById("tagChart");
-const canvas_tag_score = document.getElementById("tagScoreChart");
-const weekdays_score = document.getElementById("weekdaysChart");
+const canvas_tag_frequency = document.querySelector("#tagChart");
+const canvas_tag_score = document.querySelector("#tagScoreChart");
+const weekdays_score = document.querySelector("#weekdaysChart");
 
 let mood_chart_instance = null;
 let tags_frequency_chart_instance = null;
