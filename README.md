@@ -44,7 +44,13 @@ If you use a different app, you can still use this visualiser by converting your
 * `tags`: array of objects, each with a `type` and `entries` array
 
 
-## Technologies
+## Technologies used
 
 * Vanilla HTML, JS, CSS
 * [Chart.js](https://www.chartjs.org/)
+
+
+## Contributing
+
+If you find a bug or have a feature request, you can [open an issue](https://github.com/Leogendra/Pixels-Visualiser/issues). If you want to contribute to the code, feel free to submit a pull request.
+Note that you can set `DEV_MODE = true;` in the `scripts/main.js` (line 31) to enable development mode, which will load the JSON file from the `data/pixels.json` directory instead of requiring a file upload. 
