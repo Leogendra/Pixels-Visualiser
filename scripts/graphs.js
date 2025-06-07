@@ -61,7 +61,7 @@ function fill_missing_dates(data) {
 
 
 
-async function create_mood_chart(data, rollingAverage = 1, displayAverage = true, displayYears = true) {
+async function create_mood_chart(data, rollingAverage, displayAverage, displayYears) {
     data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
     const rawScores = data.map(entry => average(entry.scores));
@@ -175,8 +175,10 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
         if (tags_frequency_chart_instance) {
             tags_frequency_chart_instance.destroy();
         }
+
         tag_frequencies_container.style.display = "block";
-        canvas_tag_frequency.style.height = `${maximum([150, sortedTags.length * 15])}px`;
+        canvas_tag_frequency.style.height = `${maximum([150, 15 * sortedTags.length])}px`;
+
         tags_frequency_chart_instance = new Chart(document.getElementById("tagChart"), {
             type: "bar",
             data: {
@@ -212,8 +214,10 @@ async function create_tag_score_chart(maxTags) {
         if (tags_score_chart_instance) {
             tags_score_chart_instance.destroy();
         }
+
         tag_scores_container.style.display = "block";
         canvas_tag_score.style.height = `${maximum([150, averages.length * 15])}px`;
+        
         tags_score_chart_instance = new Chart(canvas_tag_score, {
             type: "bar",
             data: {
