@@ -41,7 +41,7 @@ let showYears = false;
 // Tags
 let tag_stats = {};
 let tagsPercentage = false;
-let nbMaxTags = 100;
+let nbMaxTags = 10;
 
 // Weekdays
 let firstDayOfWeek = 1;
