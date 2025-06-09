@@ -94,3 +94,62 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 4px;
     font-size: 1rem;
 }
+
+
+/* Dialog */
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#colorDialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    width: 350px;
+    max-width: 90vw;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.dialog-content h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.color-picker-group {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px 16px;
+    align-items: center;
+    background-color: var(--secondary-bg);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.color-picker-group label {
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.dialog-buttons .button {
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    border-radius: 4px;
+}

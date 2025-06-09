@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixels Visualiser</title>
     <link rel="icon" href="assets/icon.png" type="image/png">
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
@@ -167,6 +171,92 @@
 
                     <div id="wordFrequency" class="words-container"></div>
                 </div>
+
+                <div class="chart-container" id="pixelGridExportContainer">
+                    <h2>🖼️ Export Pixel Grid</h2>
+
+                    <div class="options grid-options">
+                        <div class="option-item">
+                            <button class="button" id="openSettingsDialog">
+                                <span class="material-symbols-outlined">settings</span>
+                            </button>
+                        </div>
+
+                        <dialog id="settingsDialog">
+                            <form method="dialog" class="dialog-content">
+                                <h3>Export Settings</h3>
+
+                                <div class="color-picker-group">
+
+                                    <label for="color1">Color for score 1</label>
+                                    <input type="color" id="color1" value="#d73027">
+
+                                    <label for="color2">Color for score 2</label>
+                                    <input type="color" id="color2" value="#fc8d59">
+
+                                    <label for="color3">Color for score 3</label>
+                                    <input type="color" id="color3" value="#fee08b">
+
+                                    <label for="color4">Color for score 4</label>
+                                    <input type="color" id="color4" value="#d9ef8b">
+
+                                    <label for="color5">Color for score 5</label>
+                                    <input type="color" id="color5" value="#1a9850">
+
+                                    <label for="colorEmpty">Color for empty days</label>
+                                    <input type="color" id="colorEmpty" value="#eeeeee">
+
+                                    <label for="showMonthLabelsCheckbox">Show month labels</label>
+                                    <input type="checkbox" id="showMonthLabelsCheckbox" class="checkbox" checked>
+
+                                    <label for="showLegendCheckbox">Show score legend</label>
+                                    <input type="checkbox" id="showLegendCheckbox" class="checkbox" checked>
+
+                                    <label for="scoreTypeSelect">Score type</label>
+                                    <select id="scoreTypeSelect" class="select">
+                                        <option value="first">First score of the day</option>
+                                        <option value="avg">Average score</option>
+                                        <option value="max">Max score</option>
+                                    </select>
+
+                                    <label for="startOfWeekSelect">Start of week</label>
+                                    <select id="startOfWeekSelect" class="select">
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                        <option value="0">Sunday</option>
+                                    </select>
+
+                                    <label for="layoutSelect">Orientation</label>
+                                    <select id="layoutSelect" class="select">
+                                        <option value="vertical-weeks">Vertical weeks</option>
+                                        <option value="vertical-months">Vertical months</option>
+                                        <option value="horizontal-weeks">Horizontal weeks</option>
+                                        <option value="horizontal-months">Horizontal months</option>
+                                    </select>
+
+                                    <label for="squareSizeInput">Square size (px)</label>
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50"
+                                        value="20">
+                                </div>
+
+                                <div class="dialog-buttons">
+                                    <button type="button" class="button" id="resetSettingsDialog">Reset</button>
+                                    <button type="submit" class="button" id="saveSettingsDialog">Save</button>
+                                </div>
+                            </form>
+                        </dialog>
+
+
+                        <div class="option-item">
+                            <button class="button" id="btnGeneratePixelGrid">Generate and Download</button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -180,6 +270,7 @@
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
     <script src="scripts/stopwords.js"></script>
+    <script src="scripts/dialog.js"></script>
     <script src="scripts/storage.js"></script>
     <script src="scripts/main.js"></script>
 </body>

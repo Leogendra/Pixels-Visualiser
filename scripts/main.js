@@ -28,7 +28,7 @@ const wordcloud_count_input = document.querySelector("#minCountInput");
 const wordcloud_search_input = document.querySelector("#searchInput");
 
 
-const DEV_MODE = false;
+const DEV_MODE = true;
 const DEV_FILE_PATH = "../data/pixels.json"
 let initial_data = [];
 let current_data = [];
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
         setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight - 2000);
+            window.scrollTo(0, document.body.scrollHeight - 10);
         }, 500);
     }
 
