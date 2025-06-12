@@ -28,10 +28,64 @@ function normalize_string(str) {
 }
 
 
-function normalize_date(input) {
+//////////////// Dates ////////////////
+
+function pixel_format_date(input) {
     const date = new Date(input);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1);
     const dd = String(date.getDate());
     return `${yyyy}-${mm}-${dd}`;
+}
+
+
+function normalize_date(input) {
+    const date = new Date(input);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
+function get_week_key(date, startOfWeek = 1) {
+    const d = new Date(date);
+    const day = (d.getDay() - startOfWeek + 7) % 7;
+    d.setDate(d.getDate() - day);
+    return d.toISOString().split("T")[0];
+}
+
+
+function get_month_key(date) { 
+    `${date.getFullYear()}-${date.getMonth()}`; 
+}
+
+
+//////////////// Colors ////////////////
+
+function hex_to_RGB(hex) {
+    hex = hex.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex.split("").map(c => c + c).join("");
+    }
+    const bigint = parseInt(hex, 16);
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+    };
+}
+
+
+function interpolate_RGB(a, b, t) {
+    return {
+        r: Math.round(a.r + (b.r - a.r) * t),
+        g: Math.round(a.g + (b.g - a.g) * t),
+        b: Math.round(a.b + (b.b - a.b) * t)
+    };
+}
+
+
+function RGB_to_hex({ r, g, b }) {
+    return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
 }

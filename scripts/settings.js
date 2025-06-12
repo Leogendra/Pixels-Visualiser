@@ -15,7 +15,7 @@ const setting_squareSize = document.getElementById("squareSizeInput");
 const setting_showMonthLabels = document.getElementById("showMonthLabelsCheckbox");
 const setting_showLegend = document.getElementById("showLegendCheckbox");
 const setting_scoreType = document.getElementById("scoreTypeSelect");
-const setting_startOfWeek = document.getElementById("startOfWeekSelect");
+const setting_firstDayOfWeek = document.getElementById("startOfWeekSelect");
 const setting_layout = document.getElementById("layoutSelect");
 
 
@@ -31,10 +31,8 @@ function getExportSettings() {
             5: setting_color5.value,
             empty: setting_colorEmpty.value
         },
-        // showMonthLabels: setting_showMonthLabels.checked,
-        // showLegend: setting_showLegend.checked,
         scoreType: setting_scoreType.value,
-        startOfWeek: parseInt(setting_startOfWeek.value, 10),
+        firstDayOfWeek: parseInt(setting_firstDayOfWeek.value, 10),
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
         layout: setting_layout.value
     };
@@ -48,17 +46,25 @@ function get_pixel_color(pixel, scoreType, colorMap) {
 
     let score;
 
-    switch (scoreType) {
-        case "avg":
-            score = average(pixel.scores);
-            break;
-        case "max":
-            score = maximum(pixel.scores);
-            break;
-        case "first":
-        default:
-            score = pixel.scores[0];
-            break;
+    if (scoreType == "avg") {
+        score = average(pixel.scores);
+    }
+    else if (scoreType == "max") {
+        score = maximum(pixel.scores);
+    }
+    else if (scoreType == "first") {
+        score = pixel.scores[0];
+    }
+
+    if (!Number.isInteger(score)) {
+        const floor = Math.floor(score);
+        const ceil = Math.ceil(score);
+        const t = score - floor;
+
+        const colorA = hex_to_RGB(colorMap[floor] || colorMap.empty);
+        const colorB = hex_to_RGB(colorMap[ceil] || colorMap.empty);
+        const blended = interpolate_RGB(colorA, colorB, t);
+        return RGB_to_hex(blended);
     }
 
     return colorMap[score] || colorMap.empty;
@@ -66,39 +72,35 @@ function get_pixel_color(pixel, scoreType, colorMap) {
 
 
 
-function generatePixelPNG(data) {
+function generate_pixels_PNG(data) {
     const {
         squareSize,
         colors,
         scoreType,
-        showMonthLabels,
-        showLegend,
-        startOfWeek,
+        firstDayOfWeek,
         layout
     } = getExportSettings();
 
-    // Créer une map date => pixel
-    const pixelMap = new Map();
+    // Create a map of pixels by date
+    const pixel_map = new Map();
     for (const pixel of data) {
-        const date = new Date(pixel.date);
-        if (isNaN(date)) continue;
-        const iso = date.toISOString().split("T")[0];
-        pixelMap.set(iso, pixel);
+        const normalizedDate = normalize_date(pixel.date);
+        pixel_map.set(normalizedDate, pixel);
     }
 
-    // Obtenir plage de dates
-    const dates = [...pixelMap.keys()].map(d => new Date(d));
+    // Obtain all dates from the pixel map
+    const dates = [...pixel_map.keys()].map(d => new Date(d));
     if (dates.length === 0) return;
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
 
-    // Alignement début
+    // Align the first date to the start of the week defined by firstDayOfWeek
     const firstDate = new Date(minDate);
-    const firstDow = firstDate.getDay();
-    const offset = (firstDow - startOfWeek + 7) % 7;
+    const firstDay = firstDate.getDay();
+    const offset = (firstDay - firstDayOfWeek + 7) % 7;
     firstDate.setDate(firstDate.getDate() - offset);
 
-    // Générer tous les jours
+    // Generate all dates from the first date to the last date
     const allDays = [];
     const current = new Date(firstDate);
     while (current <= maxDate) {
@@ -106,46 +108,32 @@ function generatePixelPNG(data) {
         current.setDate(current.getDate() + 1);
     }
 
-    // Layout dimensions
-    const getMonthKey = d => `${d.getFullYear()}-${d.getMonth()}`;
+    // Get all the weeks and months numbers
     const monthGroups = new Map();
     const weekGroups = new Map();
-
     for (const d of allDays) {
-        const dayKey = d.toISOString().split("T")[0];
-        const weekKey = getWeekKey(d, startOfWeek);
-        const monthKey = getMonthKey(d);
+        const weekKey = get_week_key(d, firstDayOfWeek);
+        const monthKey = get_month_key(d);
 
-        if (!weekGroups.has(weekKey)) weekGroups.set(weekKey, []);
+        if (!weekGroups.has(weekKey)) { weekGroups.set(weekKey, []); }
         weekGroups.get(weekKey).push(d);
 
-        if (!monthGroups.has(monthKey)) monthGroups.set(monthKey, []);
+        if (!monthGroups.has(monthKey)) { monthGroups.set(monthKey, []); }
         monthGroups.get(monthKey).push(d);
     }
 
-    // Choisir groupe de lignes/colonnes selon layout
-    let groups;
-    let direction; // "row"/"col"
-    switch (layout) {
-        case "vertical-weeks":
-            groups = [...weekGroups.values()];
-            direction = "col";
-            break;
-        case "horizontal-weeks":
-            groups = [...weekGroups.values()];
-            direction = "row";
-            break;
-        case "vertical-months":
-            groups = [...monthGroups.values()];
-            direction = "col";
-            break;
-        case "horizontal-months":
-            groups = [...monthGroups.values()];
-            direction = "row";
-            break;
+    // Choose layout and direction
+    groups = [...monthGroups.values()];
+    let direction = "row";
+
+    if (layout.includes("vertical")) {
+        direction = "col";
+    }
+    if (layout.includes("weeks")) {
+        groups = [...weekGroups.values()];
     }
 
-    // Dimensions du canvas
+    // Dimensions of the grid
     const cols = direction === "col" ? groups.length : 7;
     const rows = direction === "row" ? groups.length : 7;
 
@@ -157,36 +145,60 @@ function generatePixelPNG(data) {
     canvas.height = height;
     const ctx = canvas.getContext("2d");
 
-    // Peinture
+    // Draw the grid
+    let firstPixelDrawn = false;
     for (let i = 0; i < groups.length; i++) {
         const days = groups[i];
         for (const d of days) {
-            const dayOfWeek = (d.getDay() - startOfWeek + 7) % 7;
+            const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7;
             const x = direction === "col" ? i * squareSize : dayOfWeek * squareSize;
             const y = direction === "row" ? i * squareSize : dayOfWeek * squareSize;
 
             const key = d.toISOString().split("T")[0];
-            const pixel = pixelMap.get(key);
-            const color = get_pixel_color(pixel, scoreType, colors);
-
+            const pixel = pixel_map.get(key);
+            let color = get_pixel_color(pixel, scoreType, colors);
+            if (!firstPixelDrawn) {
+                if (color === colors.empty) {
+                    continue; 
+                }
+                else {
+                    firstPixelDrawn = true;
+                }
+            }
             ctx.fillStyle = color;
             ctx.fillRect(x, y, squareSize, squareSize);
         }
     }
 
-    // Export PNG
-    const link = document.createElement("a");
-    link.download = "pixels.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-}
+    // display png in a new window
+    const pngWindow = window.open("", "_blank");
+    if (pngWindow) {
+        // Avoid document.write() which is deprecated
+        const doc = pngWindow.document;
+        const html = doc.createElement("html");
+        const head = doc.createElement("head");
+        const body = doc.createElement("body");
+        const title = doc.createElement("title");
+        title.textContent = "Pixels PNG";
+        head.appendChild(title);
+        const img = doc.createElement("img");
+        img.src = canvas.toDataURL("image/png");
+        img.alt = "Pixels PNG";
+        img.style.maxWidth = "100%";
+        img.style.height = "auto";
+        body.appendChild(img);
+        html.appendChild(head);
+        html.appendChild(body);
+        doc.replaceChild(html, doc.documentElement);
+    }
+    else {
+        // Export PNG
+        const link = document.createElement("a");
+        link.download = "pixels.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    }
 
-// Utilitaire : key de semaine (ISO-like)
-function getWeekKey(date, startOfWeek = 1) {
-    const d = new Date(date);
-    const day = (d.getDay() - startOfWeek + 7) % 7;
-    d.setDate(d.getDate() - day);
-    return d.toISOString().split("T")[0];
 }
 
 
@@ -219,5 +231,5 @@ btn_close_settings_dialog.addEventListener("click", () => {
 });
 
 btn_generate_png.addEventListener("click", () => {
-    generatePixelPNG(current_data);
+    generate_pixels_PNG(current_data);
 });
