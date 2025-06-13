@@ -3,6 +3,9 @@ const btn_open_settings_dialog = document.querySelector("#openSettingsDialog");
 const btn_reset_settings_dialog = document.querySelector("#resetSettingsDialog");
 const btn_close_settings_dialog = document.querySelector("#saveSettingsDialog");
 const btn_generate_png = document.querySelector("#btnGeneratePixelGrid");
+const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
+const div_result_png = document.querySelector("#pixelGridResults");
+const result_png = document.querySelector(".pixel-png-img");
 
 const setting_color1 = document.getElementById("color1");
 const setting_color2 = document.getElementById("color2");
@@ -17,6 +20,8 @@ const setting_showLegend = document.getElementById("showLegendCheckbox");
 const setting_scoreType = document.getElementById("scoreTypeSelect");
 const setting_firstDayOfWeek = document.getElementById("startOfWeekSelect");
 const setting_layout = document.getElementById("layoutSelect");
+
+let pixelsCanvas;
 
 
 
@@ -123,82 +128,70 @@ function generate_pixels_PNG(data) {
     }
 
     // Choose layout and direction
-    groups = [...monthGroups.values()];
-    let direction = "row";
-
-    if (layout.includes("vertical")) {
-        direction = "col";
-    }
-    if (layout.includes("weeks")) {
-        groups = [...weekGroups.values()];
-    }
+    let direction = layout.includes("vertical") ? "col" : "row";
+    const isWeek = layout.includes("weeks");
+    const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
 
     // Dimensions of the grid
-    const cols = direction === "col" ? groups.length : 7;
-    const rows = direction === "row" ? groups.length : 7;
+    if (pixels_groups.length === 0) {
+        console.warn("No groups found for the selected layout.");
+        return;
+    }
 
-    const width = cols * squareSize;
-    const height = rows * squareSize;
+    const maxGroupLength = maximum(pixels_groups.map(g => g.length));
+    console.log(`Max group length: ${maxGroupLength}, number of groups: ${pixels_groups.length}`);
+    const cols = direction === "col" ? pixels_groups.length : maxGroupLength;
+    const rows = direction === "row" ? pixels_groups.length : maxGroupLength;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
+    pixelsCanvas = document.createElement("canvas");
+    pixelsCanvas.width = cols * squareSize;
+    pixelsCanvas.height = rows * squareSize;
+    const ctx = pixelsCanvas.getContext("2d");
 
     // Draw the grid
     let firstPixelDrawn = false;
-    for (let i = 0; i < groups.length; i++) {
-        const days = groups[i];
-        for (const d of days) {
-            const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7;
-            const x = direction === "col" ? i * squareSize : dayOfWeek * squareSize;
-            const y = direction === "row" ? i * squareSize : dayOfWeek * squareSize;
+    for (let i = 0; i < pixels_groups.length; i++) {
+        const days = pixels_groups[i];
+        for (let j = 0; j < days.length; j++) {
+            const d = days[j];
+            const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7; // + 7 to handle negative values
+            const normalizedDate = normalize_date(d);
+            const pixel = pixel_map.get(normalizedDate);
+            const color = get_pixel_color(pixel, scoreType, colors);
 
-            const key = d.toISOString().split("T")[0];
-            const pixel = pixel_map.get(key);
-            let color = get_pixel_color(pixel, scoreType, colors);
-            if (!firstPixelDrawn) {
+            let x, y;
+            if (direction === "col") {
+                x = i * squareSize;
+                y = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
+            } 
+            else {
+                y = i * squareSize;
+                x = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
+            }
+
+            if (!firstPixelDrawn) { // TODO: add option to entirely fill the grid with empty pixels (AKA background color)
                 if (color === colors.empty) {
-                    continue; 
-                }
+                    continue;
+                } 
                 else {
                     firstPixelDrawn = true;
                 }
             }
+
             ctx.fillStyle = color;
             ctx.fillRect(x, y, squareSize, squareSize);
         }
     }
 
-    // display png in a new window
-    const pngWindow = window.open("", "_blank");
-    if (pngWindow) {
-        // Avoid document.write() which is deprecated
-        const doc = pngWindow.document;
-        const html = doc.createElement("html");
-        const head = doc.createElement("head");
-        const body = doc.createElement("body");
-        const title = doc.createElement("title");
-        title.textContent = "Pixels PNG";
-        head.appendChild(title);
-        const img = doc.createElement("img");
-        img.src = canvas.toDataURL("image/png");
-        img.alt = "Pixels PNG";
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-        body.appendChild(img);
-        html.appendChild(head);
-        html.appendChild(body);
-        doc.replaceChild(html, doc.documentElement);
-    }
-    else {
-        // Export PNG
-        const link = document.createElement("a");
-        link.download = "pixels.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-    }
+    result_png.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = pixelsCanvas.toDataURL("image/png");
+    img.alt = "Pixels PNG";
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    result_png.appendChild(img);
 
+    btn_download_png.style.display = "block";
 }
 
 
@@ -232,4 +225,15 @@ btn_close_settings_dialog.addEventListener("click", () => {
 
 btn_generate_png.addEventListener("click", () => {
     generate_pixels_PNG(current_data);
+});
+
+btn_download_png.addEventListener("click", () => {
+    if (!pixelsCanvas) {
+        alert("Please generate the pixel grid first.");
+        return;
+    }
+    const link = document.createElement("a");
+    link.download = "pixels.png";
+    link.href = pixelsCanvas.toDataURL("image/png");
+    link.click();
 });
