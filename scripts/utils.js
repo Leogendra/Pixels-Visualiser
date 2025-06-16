@@ -57,7 +57,7 @@ function get_week_key(date, startOfWeek = 1) {
 
 
 function get_month_key(date) { 
-    `${date.getFullYear()}-${date.getMonth()}`; 
+    return `${date.getFullYear()}-${date.getMonth()}`; 
 }
 
 

@@ -28,8 +28,8 @@ const wordcloud_count_input = document.querySelector("#minCountInput");
 const wordcloud_search_input = document.querySelector("#searchInput");
 
 
-const DEV_MODE = true;
-const DEV_FILE_PATH = "../data/test.json"
+const DEV_MODE = false;
+const DEV_FILE_PATH = "../data/pixels.json"
 let initial_data = [];
 let current_data = [];
 

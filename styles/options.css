@@ -1,3 +1,4 @@
+/* Slider average */
 input[type="range"]::-webkit-slider-runnable-track {
     height: 6px;
     background: var(--primary-color);
@@ -33,6 +34,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
+/* Default options */
 .options {
     display: flex;
     flex-wrap: wrap;
@@ -150,7 +152,7 @@ dialog::backdrop {
     color: white;
 }
 
-#btnGeneratePixelGrid, 
+#btnGeneratePixelGrid,
 #btnDownloadPixelGrid {
     font-size: 1rem;
     font-weight: 600;
@@ -168,11 +170,6 @@ dialog::backdrop {
     margin-top: 10px;
 }
 
-.dialog-buttons .button {
-    padding: 8px 14px;
-    font-size: 0.95rem;
-    border-radius: 4px;
-}
 
 .results-img {
     display: flex;
@@ -180,4 +177,15 @@ dialog::backdrop {
     align-items: center;
     justify-content: center;
     padding: 0 1rem 1rem;
+}
+
+.pixel-png-img {
+    max-height: 600px;
+
+    & img {
+        height: 100%;
+        max-height: 100%;
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 }

@@ -184,11 +184,10 @@ function generate_pixels_PNG(data) {
     }
 
     result_png.innerHTML = "";
+    result_png.style.height = "600px"
     const img = document.createElement("img");
     img.src = pixelsCanvas.toDataURL("image/png");
     img.alt = "Pixels PNG";
-    img.style.maxWidth = "100%";
-    img.style.height = "auto";
     result_png.appendChild(img);
 
     btn_download_png.style.display = "block";

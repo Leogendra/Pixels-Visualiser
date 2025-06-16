@@ -131,20 +131,40 @@ body {
 }
 
 
+/* Buttons */
 .button {
     background-color: var(--primary-color);
     color: rgb(0, 0, 0);
     border: none;
-    padding: 10px 20px;
+    padding: 8px 14px;
     border-radius: 4px;
+    font-size: 1rem;
     color: #ffffff;
     cursor: pointer;
     transition: all 0.2s, color 0.2s;
-
+    
     &:hover {
         opacity: 0.9;
     }
 }
+
+
+.button-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.button-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.button-tertiary {
+    background-color: var(--tertiary-color);
+    color: white;
+}
+
+
 
 
 @media (max-width: 800px) {

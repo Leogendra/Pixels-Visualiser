@@ -236,7 +236,7 @@
                                     <input type="color" id="color5" value="#1a9850">
 
                                     <label for="colorEmpty">Color for empty days</label>
-                                    <input type="color" id="colorEmpty" value="#000000">
+                                    <input type="color" id="colorEmpty" value="#f0f2f6">
 
                                     <label for="squareSizeInput">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50"
@@ -244,8 +244,9 @@
                                 </div>
 
                                 <div class="dialog-buttons">
-                                    <button type="button" class="button" id="resetSettingsDialog">Reset</button>
-                                    <button type="submit" class="button" id="saveSettingsDialog">Save</button>
+                                    <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
+                                    <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button>
+                                    <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
                                 </div>
                             </form>
                         </dialog>
@@ -257,7 +258,9 @@
 
                     <div id="pixelGridResults" class="results-img">
                         <button class="button" id="btnDownloadPixelGrid">Download</button>
-                        <div class="pixel-png-img">Click the button to generate your Pixels grid.</div>
+                        <div class="pixel-png-img">
+                            <img id="pixelGridImage" src="" alt="Pixel Grid Image" style="display: none;">
+                        </div>
                     </div>
                 </div>
 
