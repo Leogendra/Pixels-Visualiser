@@ -41,7 +41,7 @@ let showYears = false;
 // Tags
 let tag_stats = {};
 let tagsPercentage = false;
-let nbMaxTags = 100;
+let nbMaxTags = 10;
 
 // Weekdays
 let firstDayOfWeek = 1;
@@ -62,14 +62,14 @@ let searchTerm = "";
 
 
 function fill_empty_dates(data) {
-    const datesStrSet = new Set(data.map(entry => normalize_date(entry.date)));
+    const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
     const maxDate = new Date(Math.max(...allDates));
 
     let current = new Date(minDate);
     while (current <= maxDate) {
-        const curentStrDate = normalize_date(current);
+        const curentStrDate = pixel_format_date(current);
         if (!datesStrSet.has(curentStrDate)) {
             data.push({
                 date: curentStrDate,
@@ -81,7 +81,7 @@ function fill_empty_dates(data) {
         current.setDate(current.getDate() + 1);
     }
 
-    data.sort((a, b) => new Date(normalize_date(a.date)) - new Date(normalize_date(b.date)));
+    data.sort((a, b) => new Date(pixel_format_date(a.date)) - new Date(pixel_format_date(b.date)));
     current_data = data;
 }
 
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
         setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight - 2000);
+            window.scrollTo(0, document.body.scrollHeight - 10);
         }, 500);
     }
 

@@ -177,9 +177,9 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
         }
 
         tag_frequencies_container.style.display = "block";
-        canvas_tag_frequency.style.height = `${maximum([150, 15 * sortedTags.length])}px`;
+        canvas_tag_frequency.height = `${maximum([150, 15 * sortedTags.length])}`;
 
-        tags_frequency_chart_instance = new Chart(document.getElementById("tagChart"), {
+        tags_frequency_chart_instance = new Chart(canvas_tag_frequency, {
             type: "bar",
             data: {
                 labels: sortedTags.map(([tag]) => tag),
@@ -216,7 +216,7 @@ async function create_tag_score_chart(maxTags) {
         }
 
         tag_scores_container.style.display = "block";
-        canvas_tag_score.style.height = `${maximum([150, averages.length * 15])}px`;
+        canvas_tag_score.height = `${maximum([150, 15 * averages.length])}`;
         
         tags_score_chart_instance = new Chart(canvas_tag_score, {
             type: "bar",
