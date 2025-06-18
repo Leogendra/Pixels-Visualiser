@@ -99,7 +99,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
-/* Dialog */
+/* Settings PNG */
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.4);
 }
@@ -167,24 +167,29 @@ dialog::backdrop {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 10px;
 }
 
 
-.results-img {
+/* Generating PNG */
+.div-results-img {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: 10px;
     padding: 0 1rem 1rem;
 }
 
 .pixel-png-img {
+    max-width: 100%;
     max-height: 600px;
 
     & img {
-        height: 100%;
+        height: auto;
+        width: 100%;
+        max-width: 100%;
         max-height: 100%;
+        object-fit: contain;
         border-radius: 2px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }

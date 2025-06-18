@@ -139,7 +139,6 @@ function generate_pixels_PNG(data) {
     }
 
     const maxGroupLength = maximum(pixels_groups.map(g => g.length));
-    console.log(`Max group length: ${maxGroupLength}, number of groups: ${pixels_groups.length}`);
     const cols = direction === "col" ? pixels_groups.length : maxGroupLength;
     const rows = direction === "row" ? pixels_groups.length : maxGroupLength;
 
@@ -184,10 +183,11 @@ function generate_pixels_PNG(data) {
     }
 
     result_png.innerHTML = "";
-    result_png.style.height = "600px"
     const img = document.createElement("img");
     img.src = pixelsCanvas.toDataURL("image/png");
-    img.alt = "Pixels PNG";
+    img.alt = "Pixels image";
+    if (direction === "row") { result_png.style.height = "600px"; }
+    else { result_png.style.height = "auto"; }
     result_png.appendChild(img);
 
     btn_download_png.style.display = "block";

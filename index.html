@@ -191,19 +191,6 @@
                         </div>
 
                         <div class="option-item">
-                            <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
-                            <select id="startOfWeekSelect" class="select">
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                                <option value="0">Sunday</option>
-                            </select>
-                        </div>
-
-                        <div class="option-item">
                             <label for="layoutSelect" title="Select how you want your image to look">Orientation</label>
                             <select id="layoutSelect" class="select">
                                 <option value="vertical-weeks">Vertical weeks</option>
@@ -238,13 +225,23 @@
                                     <input type="color" id="colorEmpty" value="#f0f2f6">
 
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50"
-                                        value="20">
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
+
+                                    <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
+                                    <select id="startOfWeekSelect" class="select">
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                        <option value="0">Sunday</option>
+                                    </select>
                                 </div>
 
                                 <div class="dialog-buttons">
                                     <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
-                                    <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button>
+                                    <!-- <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button> -->
                                     <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
                                 </div>
                             </form>
@@ -255,11 +252,9 @@
                         </div>
                     </div>
 
-                    <div id="pixelGridResults" class="results-img">
+                    <div id="pixelGridResults" class="div-results-img">
                         <button class="button" id="btnDownloadPixelGrid">Download</button>
-                        <div class="pixel-png-img">
-                            <img id="pixelGridImage" src="" alt="Pixel Grid Image" style="display: none;">
-                        </div>
+                        <div class="pixel-png-img"></div>
                     </div>
                 </div>
 
