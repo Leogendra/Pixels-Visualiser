@@ -60,12 +60,14 @@
                         <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
 
                         <div class="option-item">
-                            <label for="showAverageCheckbox" title="Show an horizontal line to visualise your average score">Show average</label>
+                            <label for="showAverageCheckbox"
+                                title="Show an horizontal line to visualise your average score">Show average</label>
                             <input type="checkbox" id="showAverageCheckbox" class="checkbox">
                         </div>
 
                         <div class="option-item">
-                            <label for="showYearsCheckbox" title="Show a vertical line for each 1st of January of each year">Show years</label>
+                            <label for="showYearsCheckbox"
+                                title="Show a vertical line for each 1st of January of each year">Show years</label>
                             <input type="checkbox" id="showYearsCheckbox" class="checkbox">
                         </div>
                     </div>
@@ -77,7 +79,8 @@
                         <h2>🏷️ Tag frequency</h2>
                         <div class="options">
                             <div class="option-item">
-                                <label for="tagFrequencyCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
+                                <label for="tagFrequencyCheckbox"
+                                    title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                                 <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
                             </div>
 
@@ -95,8 +98,7 @@
                         <div class="options">
                             <div class="option-item">
                                 <label for="maxTagsInput2" title="Number of tags to display">Number of tags</label>
-                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1"
-                                    value="10">
+                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1" value="10">
                             </div>
                         </div>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
@@ -108,7 +110,8 @@
                         <h2>🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
-                                <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
+                                <label for="firstDayOfWeekSelect"
+                                    title="Which day do you want the week to start on">First day of the week</label>
                                 <select id="firstDayOfWeekSelect" class="select">
                                     <option value="1">Monday</option>
                                     <option value="2">Tuesday</option>
@@ -128,7 +131,8 @@
                         <div class="options">
                             <div class="option-item">
                                 <div class="option-item">
-                                    <label for="seasonColorsCheckbox" title="Display different colors for each season">Season colors</label>
+                                    <label for="seasonColorsCheckbox"
+                                        title="Display different colors for each season">Season colors</label>
                                     <input type="checkbox" id="seasonColorsCheckbox" class="checkbox">
                                 </div>
                             </div>
@@ -142,7 +146,8 @@
 
                     <div class="options">
                         <div class="option-item">
-                            <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
+                            <label for="wordsPercentageCheckbox"
+                                title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                             <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
                         </div>
 
@@ -157,7 +162,8 @@
                         </div>
 
                         <div class="option-item">
-                            <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
+                            <label for="minCountInput"
+                                title="Minimum number of time this words appears in your Pixels">Minimum count</label>
                             <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                         </div>
 
@@ -200,51 +206,54 @@
                             </select>
                         </div>
 
-                        <dialog id="settingsDialog">
-                            <form method="dialog" class="dialog-content">
-                                <h3>Export Settings</h3>
+                        <dialog id="settingsDialog" class="dialog-settings">
+                            <h3>Image settings</h3>
 
-                                <div class="color-picker-group">
+                            <div class="dialog-settings-group">
+                                <label for="color1">Score 1</label>
+                                <input type="color" id="color1" value="#d73027">
 
-                                    <label for="color1">Color for score 1</label>
-                                    <input type="color" id="color1" value="#d73027">
+                                <label for="color2">Score 2</label>
+                                <input type="color" id="color2" value="#fc8d59">
 
-                                    <label for="color2">Color for score 2</label>
-                                    <input type="color" id="color2" value="#fc8d59">
+                                <label for="color3">Score 3</label>
+                                <input type="color" id="color3" value="#fee08b">
 
-                                    <label for="color3">Color for score 3</label>
-                                    <input type="color" id="color3" value="#fee08b">
+                                <label for="color4">Score 4</label>
+                                <input type="color" id="color4" value="#d9ef8b">
 
-                                    <label for="color4">Color for score 4</label>
-                                    <input type="color" id="color4" value="#d9ef8b">
+                                <label for="color5">Score 5</label>
+                                <input type="color" id="color5" value="#1a9850">
 
-                                    <label for="color5">Color for score 5</label>
-                                    <input type="color" id="color5" value="#1a9850">
+                                <label for="colorEmpty">Empty days</label>
+                                <input type="color" id="colorEmpty" value="#f0f2f6">
 
-                                    <label for="colorEmpty">Color for empty days</label>
-                                    <input type="color" id="colorEmpty" value="#f0f2f6">
+                                <div class="empty-line">
+                                <hr></div>
+                                <div class="empty-line">
+                                <hr></div>
 
-                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
+                                <label for="squareSizeInput"
+                                    title="The size of each Pixel on the generated image">Square size (px)</label>
+                                <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
 
-                                    <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
-                                    <select id="startOfWeekSelect" class="select">
-                                        <option value="1">Monday</option>
-                                        <option value="2">Tuesday</option>
-                                        <option value="3">Wednesday</option>
-                                        <option value="4">Thursday</option>
-                                        <option value="5">Friday</option>
-                                        <option value="6">Saturday</option>
-                                        <option value="0">Sunday</option>
-                                    </select>
-                                </div>
+                                <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
+                                <select id="startOfWeekSelect" class="select">
+                                    <option value="1">Monday</option>
+                                    <option value="2">Tuesday</option>
+                                    <option value="3">Wednesday</option>
+                                    <option value="4">Thursday</option>
+                                    <option value="5">Friday</option>
+                                    <option value="6">Saturday</option>
+                                    <option value="0">Sunday</option>
+                                </select>
+                            </div>
 
-                                <div class="dialog-buttons">
-                                    <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
-                                    <!-- <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button> -->
-                                    <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
-                                </div>
-                            </form>
+                            <div class="dialog-buttons">
+                                <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
+                                <!-- <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button> -->
+                                <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
+                            </div>
                         </dialog>
 
                         <div class="option-item">

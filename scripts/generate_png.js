@@ -1,7 +1,7 @@
-const settings_dialog = document.querySelector("#settingsDialog");
-const btn_open_settings_dialog = document.querySelector("#openSettingsDialog");
-const btn_reset_settings_dialog = document.querySelector("#resetSettingsDialog");
-const btn_close_settings_dialog = document.querySelector("#saveSettingsDialog");
+const dialog_settings = document.querySelector("#settingsDialog");
+const btn_open_dialog_settings = document.querySelector("#openSettingsDialog");
+const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
+const btn_save_dialog_settings = document.querySelector("#saveSettingsDialog");
 const btn_generate_png = document.querySelector("#btnGeneratePixelGrid");
 const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
 const div_result_png = document.querySelector("#pixelGridResults");
@@ -195,16 +195,17 @@ function generate_pixels_PNG(data) {
 
 
 
-function close_and_save_settings_dialog() {
+function close_and_save_dialog_settings() {
     // TODO: Get selected settingss
     // save selected settingss
-    settings_dialog.close();
+    dialog_settings.close();
+    console.log("Settings saved.");
 }
 
-btn_open_settings_dialog.addEventListener("click", () => {
-    settings_dialog.showModal();
+btn_open_dialog_settings.addEventListener("click", () => {
+    dialog_settings.showModal();
 
-    settings_dialog.addEventListener('click', (e) => {
+    dialog_settings.addEventListener('click', (e) => {
         const rect = e.target.getBoundingClientRect();
 
         const clickedInDialog = (
@@ -214,12 +215,13 @@ btn_open_settings_dialog.addEventListener("click", () => {
             e.clientX <= rect.left + rect.width
         );
 
-        // if (clickedInDialog === false) { close_and_save_settings_dialog(); }
+        // if (clickedInDialog === false) { close_and_save_dialog_settings(); }
     });
 });
 
-btn_close_settings_dialog.addEventListener("click", () => {
-    close_and_save_settings_dialog();
+btn_save_dialog_settings.addEventListener("click", () => {
+    console.log("Saving settings...");
+    close_and_save_dialog_settings();
 });
 
 btn_generate_png.addEventListener("click", () => {
