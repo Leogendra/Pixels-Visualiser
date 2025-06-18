@@ -1,5 +1,4 @@
 name: Deploy to Server
-run-name: Server Deployment
 
 on:
   push:
