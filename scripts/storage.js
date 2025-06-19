@@ -19,6 +19,8 @@ async function store_settings() {
         wordcloudOrderCount,
         nbMaxWords,
         nbMinCount,
+
+        png_settings
     };
 
     localStorage.setItem('pixelSettings', JSON.stringify(settings));
@@ -53,7 +55,6 @@ async function load_settings() {
         nbMinCount = settings.nbMinCount ?? nbMinCount;
 
         // update fields
-        // Mettre à jour les éléments de l'interface utilisateur selon les valeurs chargées
         if (rolling_slider) rolling_slider.value = averagingValue;
         if (rolling_slider_text_value) rolling_slider_text_value.textContent = averagingValue;
 
@@ -71,6 +72,10 @@ async function load_settings() {
         if (wordcloud_order_checkbox) wordcloud_order_checkbox.checked = wordcloudOrderCount;
         if (wordcloud_words_input) wordcloud_words_input.value = nbMaxWords;
         if (wordcloud_count_input) wordcloud_count_input.value = nbMinCount;
+        if (png_settings) {
+            png_settings = settings.png_settings;
+            set_image_settings(settings.png_settings);
+        }
     }
     catch (e) {
         console.error("Failed to load settings from localStorage", e);

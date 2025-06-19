@@ -33,6 +33,15 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
 }
 
+input[type="color"] {
+    padding: 0;
+    border-radius: 1px;
+}
+
+input[type="color"], select {
+    cursor: pointer;
+}
+
 
 /* Default options */
 .options {
@@ -108,25 +117,27 @@ input[type="range"]::-moz-range-thumb {
     color: white;
 }
 
+#dialogSettings {
+    border: none;
+    padding: 0;
+    border-radius: 12px;
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
 .dialog-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 1rem;
     padding: 1.5rem;
     color: var(--text-color);
     border: none;
-    border-radius: 12px;
     background-color: var(--bg-color);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-
-    &[open] {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    &::backdrop {
-        background: rgba(0, 0, 0, 0.4);
-    }
         
     & h3 {
         margin: 0;
