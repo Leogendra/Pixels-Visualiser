@@ -135,13 +135,11 @@ function generate_pixels_PNG(data) {
 
     // Align the first date to the start of the week defined by firstDayOfWeek
     const firstDate = new Date(minDate);
-    console.log(`First date before alignment: ${normalize_date(firstDate)}`);
     if (isWeek) {
         const firstDay = firstDate.getDay();
         const offset = (firstDay - firstDayOfWeek + 7) % 7;
         firstDate.setDate(firstDate.getDate() - offset);
     }
-    console.log(`First date after alignment: ${normalize_date(firstDate)}`);
 
     // Generate all dates from the first date to the last date
     const allDays = [];

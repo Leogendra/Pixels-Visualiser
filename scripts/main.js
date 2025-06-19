@@ -29,7 +29,7 @@ const wordcloud_search_input = document.querySelector("#searchInput");
 
 
 const DEV_MODE = false;
-const DEV_FILE_PATH = "../data/pixels.json"
+const DEV_FILE_PATH = "../data/test.json"
 let initial_data = [];
 let current_data = [];
 
@@ -162,11 +162,24 @@ async function handle_file_upload(file) {
             create_weekday_chart(firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+
+            // DEBUGGING
+            if (DEV_MODE) {
+                debug_function();
+            }
         }
     }
     catch (error) {
         console.error(`Error: ${error.message}`);
     }
+}
+
+
+// REMOVE FOR PRODUCTION
+async function debug_function() {
+    const first_pixel_card = await create_pixel_card(current_data[0]);
+    content_container.appendChild(first_pixel_card);
+    console.log("First pixel card:", first_pixel_card);
 }
 
 

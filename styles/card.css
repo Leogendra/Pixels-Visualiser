@@ -1,0 +1,78 @@
+.pixel-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 500px;
+    margin: 1rem auto;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    border-right: 4px solid var(--primary-color);
+    background-color: var(--secondary-bg);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    
+    & h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    & p {
+        margin: 0.5rem 0;
+        line-height: 1.4;
+        color: var(--text-color);
+    }
+
+    & .div-pixel-score-icons {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        & .pixel-icon {
+            width: 60px;
+            height: 60px;
+            transition: transform 0.2s ease;
+
+            &:hover {
+                transform: scale(1.1);
+            }
+        }
+    }
+
+    & .div-pixel-notes, & .div-pixel-tags {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 30px;
+        padding: 0 30px;
+        font-size: 1rem;
+    }
+
+    & .div-pixel-tags {
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        & .tag-pill {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 4px 10px;
+            margin-left: 5px;
+            margin-top: 5px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            cursor: default;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        & .tag-pill:hover {
+            background-color: var(--primary-color-hover);
+        }
+    }
+}
