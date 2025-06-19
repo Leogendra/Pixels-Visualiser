@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixels Visualiser</title>
-    <link rel="icon" href="assets/icon.png" type="image/png">
+    <link rel="icon" href="assets/favicon.png" type="image/png">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
     <link rel="stylesheet" href="styles/options.css">
+    <link rel="stylesheet" href="styles/footer.css">
 </head>
 
 <body>
     <div class="container">
         <div class="header">
             <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer">
-                <img class="hero-logo" src="assets/icon.png" alt="Logo">
+                <img class="hero-logo" src="assets/favicon.png" alt="Logo">
             </a>
             <h1>Pixels Visualiser</h1>
         </div>
@@ -206,7 +207,7 @@
                             </select>
                         </div>
 
-                        <dialog id="settingsDialog" class="dialog-settings">
+                        <dialog id="dialogSettings" class="dialog-settings">
                             <h3>Image settings</h3>
 
                             <div class="dialog-settings-group">
@@ -250,8 +251,8 @@
                             </div>
 
                             <div class="dialog-buttons">
-                                <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
-                                <!-- <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button> -->
+                                <button type="button" class="button button-secondary" id="resetSettingsDialog">Reset</button>
+                                <button type="button" class="button" id="cancelSettingsDialog">Cancel</button>
                                 <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
                             </div>
                         </dialog>
@@ -270,6 +271,15 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="github">
+            <a href="https://github.com/Leogendra" target="_blank">
+                <img src="assets/github.png" alt="github">
+            </a>
+        </div>
+        <div class="version">v1.0</div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
