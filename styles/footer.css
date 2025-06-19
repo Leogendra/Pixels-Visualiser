@@ -1,0 +1,35 @@
+footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 50px auto;
+    
+    &::before {
+        content: "";
+        display: block;
+        position: relative;
+        width: 500px;
+        max-width: 90%;
+        height: 1px;
+        margin-bottom: 20px;
+        background-color: var(--primary-color);
+    }
+    
+    a, img {
+        width: 40px;
+        height: 40px;
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    a:hover, img:hover {
+        transform: scale(1.1);
+    }
+
+    .version {
+        font-size: 0.8rem;
+        color: var(--text-color);
+        margin-top: 10px;
+    }
+}

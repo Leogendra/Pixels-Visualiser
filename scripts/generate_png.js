@@ -1,6 +1,7 @@
-const dialog_settings = document.querySelector("#settingsDialog");
+const dialog_settings = document.querySelector("#dialogSettings");
 const btn_open_dialog_settings = document.querySelector("#openSettingsDialog");
 const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
+const btn_cancel_dialog_settings = document.querySelector("#cancelSettingsDialog");
 const btn_save_dialog_settings = document.querySelector("#saveSettingsDialog");
 const btn_generate_png = document.querySelector("#btnGeneratePixelGrid");
 const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
@@ -21,12 +22,27 @@ const setting_scoreType = document.getElementById("scoreTypeSelect");
 const setting_firstDayOfWeek = document.getElementById("startOfWeekSelect");
 const setting_layout = document.getElementById("layoutSelect");
 
+const png_default_settings = {
+    colors: {
+        1: "#e22230",
+        2: "#e28422",
+        3: "#fbee45",
+        4: "#a0e865",
+        5: "#039d07",
+        empty: "#f0f2f6"
+    },
+    scoreType: "avg",
+    firstDayOfWeek: 1,
+    squareSize: 20,
+    layout: "vertical-weeks"
+};
+let png_settings = png_default_settings;
 let pixelsCanvas;
 
 
 
 
-function getExportSettings() {
+function get_image_settings() {
     return {
         colors: {
             1: setting_color1.value,
@@ -41,6 +57,20 @@ function getExportSettings() {
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
         layout: setting_layout.value
     };
+}
+
+
+function set_image_settings(settings) {
+    setting_color1.value = settings.colors[1];
+    setting_color2.value = settings.colors[2];
+    setting_color3.value = settings.colors[3];
+    setting_color4.value = settings.colors[4];
+    setting_color5.value = settings.colors[5];
+    setting_colorEmpty.value = settings.colors.empty;
+    setting_scoreType.value = settings.scoreType;
+    setting_firstDayOfWeek.value = settings.firstDayOfWeek.toString();
+    setting_squareSize.value = settings.squareSize.toString();
+    setting_layout.value = settings.layout;
 }
 
 
@@ -79,12 +109,16 @@ function get_pixel_color(pixel, scoreType, colorMap) {
 
 function generate_pixels_PNG(data) {
     const {
-        squareSize,
         colors,
+        layout,
         scoreType,
+        squareSize,
         firstDayOfWeek,
-        layout
-    } = getExportSettings();
+    } = get_image_settings();
+
+    // Choose layout and direction
+    const direction = layout.includes("vertical") ? "col" : "row";
+    const isWeek = layout.includes("weeks");
 
     // Create a map of pixels by date
     const pixel_map = new Map();
@@ -101,9 +135,13 @@ function generate_pixels_PNG(data) {
 
     // Align the first date to the start of the week defined by firstDayOfWeek
     const firstDate = new Date(minDate);
-    const firstDay = firstDate.getDay();
-    const offset = (firstDay - firstDayOfWeek + 7) % 7;
-    firstDate.setDate(firstDate.getDate() - offset);
+    console.log(`First date before alignment: ${normalize_date(firstDate)}`);
+    if (isWeek) {
+        const firstDay = firstDate.getDay();
+        const offset = (firstDay - firstDayOfWeek + 7) % 7;
+        firstDate.setDate(firstDate.getDate() - offset);
+    }
+    console.log(`First date after alignment: ${normalize_date(firstDate)}`);
 
     // Generate all dates from the first date to the last date
     const allDays = [];
@@ -127,12 +165,8 @@ function generate_pixels_PNG(data) {
         monthGroups.get(monthKey).push(d);
     }
 
-    // Choose layout and direction
-    let direction = layout.includes("vertical") ? "col" : "row";
-    const isWeek = layout.includes("weeks");
-    const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
-
     // Dimensions of the grid
+    const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
     if (pixels_groups.length === 0) {
         console.warn("No groups found for the selected layout.");
         return;
@@ -162,16 +196,16 @@ function generate_pixels_PNG(data) {
             if (direction === "col") {
                 x = i * squareSize;
                 y = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
-            } 
+            }
             else {
                 y = i * squareSize;
                 x = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
             }
 
-            if (!firstPixelDrawn) { // TODO: add option to entirely fill the grid with empty pixels (AKA background color)
+            if (!firstPixelDrawn) {
                 if (color === colors.empty) {
                     continue;
-                } 
+                }
                 else {
                     firstPixelDrawn = true;
                 }
@@ -182,53 +216,20 @@ function generate_pixels_PNG(data) {
         }
     }
 
-    result_png.innerHTML = "";
     const img = document.createElement("img");
     img.src = pixelsCanvas.toDataURL("image/png");
     img.alt = "Pixels image";
+
+    result_png.innerHTML = "";
+    result_png.appendChild(img);
     if (direction === "row") { result_png.style.height = "600px"; }
     else { result_png.style.height = "auto"; }
-    result_png.appendChild(img);
 
     btn_download_png.style.display = "block";
 }
 
 
-
-function close_and_save_dialog_settings() {
-    // TODO: Get selected settingss
-    // save selected settingss
-    dialog_settings.close();
-    console.log("Settings saved.");
-}
-
-btn_open_dialog_settings.addEventListener("click", () => {
-    dialog_settings.showModal();
-
-    dialog_settings.addEventListener('click', (e) => {
-        const rect = e.target.getBoundingClientRect();
-
-        const clickedInDialog = (
-            rect.top <= e.clientY &&
-            e.clientY <= rect.top + rect.height &&
-            rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width
-        );
-
-        // if (clickedInDialog === false) { close_and_save_dialog_settings(); }
-    });
-});
-
-btn_save_dialog_settings.addEventListener("click", () => {
-    console.log("Saving settings...");
-    close_and_save_dialog_settings();
-});
-
-btn_generate_png.addEventListener("click", () => {
-    generate_pixels_PNG(current_data);
-});
-
-btn_download_png.addEventListener("click", () => {
+async function download_pixels_PNG() {
     if (!pixelsCanvas) {
         alert("Please generate the pixel grid first.");
         return;
@@ -237,4 +238,59 @@ btn_download_png.addEventListener("click", () => {
     link.download = "pixels.png";
     link.href = pixelsCanvas.toDataURL("image/png");
     link.click();
+}
+
+
+function open_dialog_settings() {
+    dialog_settings.showModal();
+    dialog_settings.addEventListener('click', handle_click_dialog);
+}
+
+
+function handle_click_dialog(e) {
+    if (e.target === dialog_settings) {
+        close_dialog_settings();
+    }
+};
+
+
+function close_dialog_settings() {
+    set_image_settings(png_settings);
+    dialog_settings.close();
+    dialog_settings.removeEventListener('click', handle_click_dialog);
+}
+
+
+function close_and_save_dialog_settings() {
+    png_settings = get_image_settings();
+    store_settings();
+    dialog_settings.close();
+    dialog_settings.removeEventListener('click', handle_click_dialog);
+}
+
+
+
+
+btn_open_dialog_settings.addEventListener("click", () => {
+    open_dialog_settings();
+});
+
+btn_reset_dialog_settings.addEventListener("click", () => {
+    set_image_settings(png_default_settings);
+});
+
+btn_cancel_dialog_settings.addEventListener("click", () => {
+    close_dialog_settings();
+});
+
+btn_save_dialog_settings.addEventListener("click", () => {
+    close_and_save_dialog_settings();
+});
+
+btn_generate_png.addEventListener("click", () => {
+    generate_pixels_PNG(current_data);
+});
+
+btn_download_png.addEventListener("click", () => {
+    download_pixels_PNG();
 });

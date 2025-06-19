@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixels Visualiser</title>
-    <link rel="icon" href="assets/icon.png" type="image/png">
+    <link rel="icon" href="assets/favicon.png" type="image/png">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
     <link rel="stylesheet" href="styles/options.css">
+    <link rel="stylesheet" href="styles/footer.css">
 </head>
 
 <body>
     <div class="container">
         <div class="header">
             <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer">
-                <img class="hero-logo" src="assets/icon.png" alt="Logo">
+                <img class="hero-logo" src="assets/favicon.png" alt="Logo">
             </a>
             <h1>Pixels Visualiser</h1>
         </div>
@@ -29,11 +30,18 @@
             <label for="fileInput" class="button">Choose a Backup file (.json)</label>
         </div>
 
-        <div id="privacyNotice" class="notice">
-            <p>
-                This is a fully static website built with vanilla JavaScript. Your data never leaves your device:
-                nothing is stored, uploaded, or shared.
-            </p>
+        <div id="privacyNotice">
+            <div class="notice">
+                <p>
+                    This is a fully static website built with vanilla JavaScript. Your data never leaves your device:
+                    nothing is stored, uploaded, or shared outside your browser.
+                </p>
+            </div>
+
+            <div class="help-export">
+                <p>How to export your Pixels data ?</p>
+                <img src="assets/help_export.png" alt="How to export Pixels data" title="How to export your Pixels data" class="help-image">
+            </div>
         </div>
 
 
@@ -206,53 +214,56 @@
                             </select>
                         </div>
 
-                        <dialog id="settingsDialog" class="dialog-settings">
-                            <h3>Image settings</h3>
+                        <dialog id="dialogSettings">
+                            <div class="dialog-settings">
 
-                            <div class="dialog-settings-group">
-                                <label for="color1">Score 1</label>
-                                <input type="color" id="color1" value="#d73027">
-
-                                <label for="color2">Score 2</label>
-                                <input type="color" id="color2" value="#fc8d59">
-
-                                <label for="color3">Score 3</label>
-                                <input type="color" id="color3" value="#fee08b">
-
-                                <label for="color4">Score 4</label>
-                                <input type="color" id="color4" value="#d9ef8b">
-
-                                <label for="color5">Score 5</label>
-                                <input type="color" id="color5" value="#1a9850">
-
-                                <label for="colorEmpty">Empty days</label>
-                                <input type="color" id="colorEmpty" value="#f0f2f6">
-
-                                <div class="empty-line">
-                                <hr></div>
-                                <div class="empty-line">
-                                <hr></div>
-
-                                <label for="squareSizeInput"
+                                <h3>Image settings</h3>
+                                
+                                <div class="dialog-settings-group">
+                                    <label for="color1">Score 1</label>
+                                    <input type="color" id="color1" value="#e22230">
+                                    
+                                    <label for="color2">Score 2</label>
+                                    <input type="color" id="color2" value="#e28422">
+                                    
+                                    <label for="color3">Score 3</label>
+                                    <input type="color" id="color3" value="#fbee45">
+                                    
+                                    <label for="color4">Score 4</label>
+                                    <input type="color" id="color4" value="#a0e865">
+                                    
+                                    <label for="color5">Score 5</label>
+                                    <input type="color" id="color5" value="#039d07">
+                                    
+                                    <label for="colorEmpty">Empty days</label>
+                                    <input type="color" id="colorEmpty" value="#f0f2f6">
+                                    
+                                    <div class="empty-line">
+                                        <hr></div>
+                                    <div class="empty-line">
+                                    <hr></div>
+                                    
+                                    <label for="squareSizeInput"
                                     title="The size of each Pixel on the generated image">Square size (px)</label>
-                                <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
-
-                                <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
-                                <select id="startOfWeekSelect" class="select">
-                                    <option value="1">Monday</option>
-                                    <option value="2">Tuesday</option>
-                                    <option value="3">Wednesday</option>
-                                    <option value="4">Thursday</option>
-                                    <option value="5">Friday</option>
-                                    <option value="6">Saturday</option>
-                                    <option value="0">Sunday</option>
-                                </select>
-                            </div>
-
-                            <div class="dialog-buttons">
-                                <!-- <button type="button" class="button" id="resetSettingsDialog">Reset</button> -->
-                                <!-- <button type="button" class="button button-secondary" id="cancelSettingsDialog">Cancel</button> -->
-                                <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
+                                    
+                                    <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
+                                    <select id="startOfWeekSelect" class="select">
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                        <option value="0">Sunday</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="dialog-buttons">
+                                    <button type="button" class="button button-secondary" id="resetSettingsDialog">Reset</button>
+                                    <button type="button" class="button" id="cancelSettingsDialog">Cancel</button>
+                                    <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
+                                </div>
                             </div>
                         </dialog>
 
@@ -270,6 +281,15 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="github">
+            <a href="https://github.com/Leogendra" target="_blank">
+                <img src="assets/github.png" alt="github">
+            </a>
+        </div>
+        <div class="version">v1.0.2</div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
