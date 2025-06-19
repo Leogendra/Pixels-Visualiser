@@ -79,12 +79,16 @@ function get_pixel_color(pixel, scoreType, colorMap) {
 
 function generate_pixels_PNG(data) {
     const {
-        squareSize,
         colors,
+        layout,
         scoreType,
+        squareSize,
         firstDayOfWeek,
-        layout
     } = getExportSettings();
+
+    // Choose layout and direction
+    const direction = layout.includes("vertical") ? "col" : "row";
+    const isWeek = layout.includes("weeks");
 
     // Create a map of pixels by date
     const pixel_map = new Map();
@@ -101,9 +105,13 @@ function generate_pixels_PNG(data) {
 
     // Align the first date to the start of the week defined by firstDayOfWeek
     const firstDate = new Date(minDate);
-    const firstDay = firstDate.getDay();
-    const offset = (firstDay - firstDayOfWeek + 7) % 7;
-    firstDate.setDate(firstDate.getDate() - offset);
+    console.log(`First date before alignment: ${normalize_date(firstDate)}`);
+    if (isWeek) {
+        const firstDay = firstDate.getDay();
+        const offset = (firstDay - firstDayOfWeek + 7) % 7;
+        firstDate.setDate(firstDate.getDate() - offset);
+    }
+    console.log(`First date after alignment: ${normalize_date(firstDate)}`);
 
     // Generate all dates from the first date to the last date
     const allDays = [];
@@ -126,18 +134,14 @@ function generate_pixels_PNG(data) {
         if (!monthGroups.has(monthKey)) { monthGroups.set(monthKey, []); }
         monthGroups.get(monthKey).push(d);
     }
-
-    // Choose layout and direction
-    let direction = layout.includes("vertical") ? "col" : "row";
-    const isWeek = layout.includes("weeks");
-    const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
-
+    
     // Dimensions of the grid
+    const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
     if (pixels_groups.length === 0) {
         console.warn("No groups found for the selected layout.");
         return;
     }
-
+    
     const maxGroupLength = maximum(pixels_groups.map(g => g.length));
     const cols = direction === "col" ? pixels_groups.length : maxGroupLength;
     const rows = direction === "row" ? pixels_groups.length : maxGroupLength;
@@ -199,7 +203,6 @@ function close_and_save_dialog_settings() {
     // TODO: Get selected settingss
     // save selected settingss
     dialog_settings.close();
-    console.log("Settings saved.");
 }
 
 btn_open_dialog_settings.addEventListener("click", () => {
@@ -220,7 +223,6 @@ btn_open_dialog_settings.addEventListener("click", () => {
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {
-    console.log("Saving settings...");
     close_and_save_dialog_settings();
 });
 

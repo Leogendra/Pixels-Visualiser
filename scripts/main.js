@@ -28,7 +28,7 @@ const wordcloud_count_input = document.querySelector("#minCountInput");
 const wordcloud_search_input = document.querySelector("#searchInput");
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 let initial_data = [];
 let current_data = [];
@@ -133,7 +133,7 @@ async function handle_file_upload(file) {
             typeof entry.notes === "string" &&
             Array.isArray(entry.tags)
         )) {
-            const errorFormatTxt = "The file format is invalid. Please ensure the Pixel file contains an array of entries with date, scores, notes, and tags.";
+            const errorFormatTxt = "The file format is invalid. Please ensure the file is exported from the Teo Vogel's Pixels app.";
             alert(errorFormatTxt);
             throw new Error(errorFormatTxt);
         }
