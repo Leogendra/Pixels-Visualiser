@@ -33,6 +33,11 @@ async function create_pixel_card(pixel) {
         for (const score of pixel.scores) {
             const svg = await load_colored_SVG(score);
             svg.classList.add("pixel-icon");
+
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = `Score: ${score}`;
+            svg.appendChild(title);
+            
             scoreWrapper.appendChild(svg);
         }
 
@@ -42,7 +47,6 @@ async function create_pixel_card(pixel) {
     if (pixel.notes) {
         const notes = document.createElement("div");
         notes.className = "div-pixel-notes";
-        // notes.innerHTML = "<strong>Notes:</strong><br>";
         notes.innerHTML += pixel.notes.replace(/\n/g, "<br>");
         card.appendChild(notes);
     }
@@ -55,7 +59,6 @@ async function create_pixel_card(pixel) {
             return tag.entries.map(entry => `<span class="tag-pill" title="${tag.type}">${entry}</span>`);
         });
         
-        // tags.innerHTML = "<strong>Tags:</strong>";
         tags.innerHTML += tagStrings.join("");
         card.appendChild(tags);
     }

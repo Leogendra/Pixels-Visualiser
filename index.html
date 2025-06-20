@@ -7,6 +7,7 @@
     <title>Pixels Visualiser</title>
     <link rel="icon" href="assets/favicon.png" type="image/png">
 
+    <!-- Google Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
     <link rel="stylesheet" href="styles/main.css">
@@ -177,13 +178,18 @@
                         </div>
 
                         <div class="option-item">
-                            <label for="searchInput">Search specific words</label>
+                            <label for="searchInput">Search words</label>
                             <input type="text" id="searchInput" class="input-nb input-large"
                                 placeholder='e.g. "happy", "good day", "been to work"'>
                         </div>
                     </div>
 
                     <div id="wordFrequency" class="words-container"></div>
+
+                    <div id="wordcloudContainer">
+                        <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
+                        <button class="button" id="btnDownloadWordcloud">Download</button>
+                    </div>
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
@@ -289,14 +295,17 @@
                 <img src="assets/github.png" alt="github">
             </a>
         </div>
-        <div class="version">v1.0.2</div>
+        <div class="version">v1.1.2</div>
     </footer>
 
+    <!-- Charts.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- Wordcloud2.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+
     <script src="scripts/utils.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
