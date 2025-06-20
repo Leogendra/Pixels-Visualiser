@@ -16,10 +16,10 @@
     justify-content: center;
     width: fit-content;
     min-width: 120px;
-    background-color: var(--primary-color);
+    background-color: var(--word-card-color);
     border-radius: 8px;
     padding: 1.2rem 0.8rem;
-    color: #ffffff;
+    color: var(--word-card-text-color);
 
     &.searched-word {
         background-color: var(--tertiary-color);

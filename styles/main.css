@@ -7,7 +7,14 @@
     --text-color: #262730;
 
     --primary-color-hover: #1a8cd4;
+
+    --word-card-text-color: #000000;
+    --word-card-color: #dceeff;
+    /* --word-card-color: #ffeecf; */
+    /* --word-card-color: #e5f6e5; */
 }
+
+
 
 
 body {
