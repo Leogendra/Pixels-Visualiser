@@ -17,7 +17,6 @@ let tags_frequency_chart_instance = null;
 let tags_score_chart_instance = null;
 let week_score_chart_instance = null;
 let month_score_chart_instance = null;
-const isMobile = window.innerWidth <= 600;
 
 
 

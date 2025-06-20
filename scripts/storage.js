@@ -20,6 +20,9 @@ async function store_settings() {
         nbMaxWords,
         nbMinCount,
 
+        wordcloudSize,
+        wordcloudSpacing,
+
         png_settings
     };
 
@@ -54,6 +57,9 @@ async function load_settings() {
         nbMaxWords = settings.nbMaxWords ?? nbMaxWords;
         nbMinCount = settings.nbMinCount ?? nbMinCount;
 
+        wordcloudSize = settings.wordcloudSize ?? wordcloudSize;
+        wordcloudSpacing = settings.wordcloudSpacing ?? wordcloudSpacing;
+
         // update fields
         if (rolling_slider) rolling_slider.value = averagingValue;
         if (rolling_slider_text_value) rolling_slider_text_value.textContent = averagingValue;
@@ -68,10 +74,12 @@ async function load_settings() {
 
         if (season_colors_checkbox) season_colors_checkbox.checked = seasonColors;
 
-        if (wordcloud_percentage_checkbox) wordcloud_percentage_checkbox.checked = wordcloudPercentage;
-        if (wordcloud_order_checkbox) wordcloud_order_checkbox.checked = wordcloudOrderCount;
-        if (wordcloud_words_input) wordcloud_words_input.value = nbMaxWords;
-        if (wordcloud_count_input) wordcloud_count_input.value = nbMinCount;
+        if (words_percentage_checkbox) words_percentage_checkbox.checked = wordcloudPercentage;
+        if (words_order_checkbox) words_order_checkbox.checked = wordcloudOrderCount;
+        if (words_words_input) words_words_input.value = nbMaxWords;
+        if (words_count_input) words_count_input.value = nbMinCount;
+        if (wordcloud_size_input) wordcloud_size_input.value = wordcloudSize;
+        if (wordcloud_spacing_input) wordcloud_spacing_input.value = wordcloudSpacing;
         if (png_settings) {
             png_settings = settings.png_settings;
             set_image_settings(settings.png_settings);

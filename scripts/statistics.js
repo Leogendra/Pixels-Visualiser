@@ -224,20 +224,101 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
         .filter(word => (word.count >= minCount))
         .slice(0, maxWords);
 
-    word_freq_container.innerHTML = words_filtered.length > 0 ? `
+    if (words_filtered.length > 0) {
+        word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
-        let isWordSearched = false;
-        if (searchText) {
-            const normalizedSearchText = normalize_string(searchText);
-            isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
-                searchText.split(/\s+/)
+                let isWordSearched = false;
+                if (searchText) {
+                    const normalizedSearchText = normalize_string(searchText);
+                    isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
+                    searchText.split(/\s+/)
                     .some(term => normalize_string(word.word) === (normalize_string(term)));
-        }
-        return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
-                            <h4>${capitalize(word.word)}</h4>
-                            <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
-                            <p title="Average score">${(word.avg_score).toFixed(2)}</p>
-                        </div>`
-    }).join("")}
-        ` : "<p>No word frequency data available</p>";
+                }
+                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+                <h4>${capitalize(word.word)}</h4>
+                <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                <p title="Average score">${(word.avg_score).toFixed(2)}</p>
+                </div>`
+            }
+        ).join("")}`
+    }
+    else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }
+
+    update_wordcloud(minCount, inPercentage);
+}
+
+
+async function update_wordcloud(minCount) {
+    // TODO: Take order by score into account
+    // TODO: Make parameters for gridsize, backgound color and weight factor
+    const words = full_word_frequency
+        .filter(word => word.count >= minCount)
+        .sort((a, b) => { 
+            if (wordcloudOrderCount) { // Global variable
+                return b.avg_score - a.avg_score;
+            }
+            else {
+                return b.count - a.count;
+            }
+        })
+        .slice(0, maxWordcloudWords) // Max words to display in the wordcloud
+        .map(word => {
+            if (wordcloudOrderCount) {
+                return [word.word, 10 * word.avg_score - 25];
+            }
+            else {
+                return [word.word, word.count];
+            }
+        });
+
+    if (words.length === 0) {
+        wordcloud_container.style.display = "none";
+        return;
+    }
+
+    let adjustedWords = words;
+    if (!wordcloudOrderCount) {
+        const minimumCount = words[words.length - 1][1];
+        adjustedWords = words.map(([word, count]) => {
+            const adjustedCount = Math.sqrt(count - minimumCount + 1) + 1;
+            return [word, adjustedCount];
+        });
+    }
+
+    wordcloud_container.style.display = "flex";
+    // set_padding_to_wordcloud(); // TODO: Not working, fix this padding issue
+
+    WordCloud(wordcloud_canvas, {
+        list: adjustedWords,
+        gridSize: 3 * wordcloudSpacing,
+        weightFactor: wordcloudSize,
+        fontFamily: 'Segoe UI',
+        color: 'random-dark',
+        backgroundColor: wordcloudBgColor,
+        outOfBound: false,
+    });
+}
+
+
+async function set_padding_to_wordcloud() {
+    const padding = 20;
+    const baseWidth = 1000;
+    const baseHeight = 400;
+
+    wordcloud_canvas.width = baseWidth + padding * 2;
+    wordcloud_canvas.height = baseHeight + padding * 2;
+
+    const ctx = wordcloud_canvas.getContext("2d");
+    ctx.clearRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height); 
+    ctx.fillStyle = wordcloudBgColor;
+    ctx.fillRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height);
+}
+
+
+async function download_wordcloud() {
+    const canvas = wordcloud_canvas;
+    const link = document.createElement('a');
+    link.download = 'wordcloud.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
 }

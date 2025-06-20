@@ -4,8 +4,11 @@
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    max-height: 70vh;
+    overflow-y: auto;
     gap: 0.5rem;
     padding: 1rem;
+    margin: 0 1rem;
 }
 
 
@@ -16,10 +19,10 @@
     justify-content: center;
     width: fit-content;
     min-width: 120px;
-    background-color: var(--primary-color);
+    background-color: var(--word-card-color);
     border-radius: 8px;
     padding: 1.2rem 0.8rem;
-    color: #ffffff;
+    color: var(--word-card-text-color);
 
     &.searched-word {
         background-color: var(--tertiary-color);
@@ -33,4 +36,23 @@
         margin: 5px 0 0;
         font-size: 1rem;
     } 
+}
+
+#wordcloudContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: fit-content;
+    margin: 30px auto;
+    border-radius: 8px;
+
+    & canvas {
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background-color: var(--secondary-bg);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
 }
