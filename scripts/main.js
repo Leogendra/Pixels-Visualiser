@@ -26,12 +26,15 @@ const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
 const words_search_input = document.querySelector("#searchInput");
-const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
+
 const wordcloud_container = document.querySelector("#wordcloudContainer");
+const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
+const wordcloud_size_input = document.querySelector("#wordcloudSize");
+const wordcloud_spacing_input = document.querySelector("#wordcloudSpacing");
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
@@ -62,6 +65,11 @@ let wordcloudOrderCount = false;
 let nbMaxWords = 20;
 let nbMinCount = 10;
 let searchTerm = "";
+
+let wordcloudSize = 4;
+let wordcloudSpacing = 2;
+let wordcloudBgColor = "#f0f2f6"; // not editable
+let maxWordcloudWords = 150; // not editable
 
 
 
@@ -289,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    // Wordcloud
+    // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {
         wordcloudPercentage = e.target.checked;
         store_settings();
@@ -319,6 +327,19 @@ document.addEventListener("DOMContentLoaded", () => {
         searchTerm = e.target.value.toLowerCase();
         get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+    });
+
+    // Wordcloud
+    wordcloud_size_input.addEventListener("input", (e) => {
+        wordcloudSize = parseInt(e.target.value);
+        store_settings();
+        update_wordcloud(nbMinCount);
+    });
+
+    wordcloud_spacing_input.addEventListener("input", (e) => {
+        wordcloudSpacing = parseInt(e.target.value);
+        store_settings();
+        update_wordcloud(nbMinCount);
     });
 
     btn_download_wordcloud.addEventListener("click", () => {

@@ -261,7 +261,7 @@ async function update_wordcloud(minCount) {
                 return b.count - a.count;
             }
         })
-        .slice(0, 100) // Max words to display in the wordcloud
+        .slice(0, maxWordcloudWords) // Max words to display in the wordcloud
         .map(word => {
             if (wordcloudOrderCount) {
                 return [word.word, 10 * word.avg_score - 25];
@@ -286,16 +286,32 @@ async function update_wordcloud(minCount) {
     }
 
     wordcloud_container.style.display = "flex";
+    // set_padding_to_wordcloud(); // TODO: Not working, fix this padding issue
+
     WordCloud(wordcloud_canvas, {
         list: adjustedWords,
-        gridSize: 5,
-        weightFactor: 4,
+        gridSize: 3 * wordcloudSpacing,
+        weightFactor: wordcloudSize,
         fontFamily: 'Segoe UI',
         color: 'random-dark',
-        backgroundColor: '#f0f2f6'
+        backgroundColor: wordcloudBgColor,
+        outOfBound: false,
     });
+}
 
-    set_padding_to_wordcloud();
+
+async function set_padding_to_wordcloud() {
+    const padding = 20;
+    const baseWidth = 1000;
+    const baseHeight = 400;
+
+    wordcloud_canvas.width = baseWidth + padding * 2;
+    wordcloud_canvas.height = baseHeight + padding * 2;
+
+    const ctx = wordcloud_canvas.getContext("2d");
+    ctx.clearRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height); 
+    ctx.fillStyle = wordcloudBgColor;
+    ctx.fillRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height);
 }
 
 
@@ -305,19 +321,4 @@ async function download_wordcloud() {
     link.download = 'wordcloud.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-}
-
-
-async function set_padding_to_wordcloud() {
-    const padding = 20;
-    wordcloud_canvas.width = 1000 + padding * 2;
-    wordcloud_canvas.height = 400 + padding * 2;
-
-    const ctx = wordcloud_canvas.getContext("2d");
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
-    ctx.fillStyle = "#f0f2f6";
-    ctx.fillRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height);
-    ctx.restore();
-    ctx.translate(padding, padding);
 }
