@@ -7,9 +7,6 @@
     <title>Pixels Visualiser</title>
     <link rel="icon" href="assets/favicon.png" type="image/png">
 
-    <!-- Google Icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/wordcloud.css">
@@ -21,15 +18,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer">
-                <img class="hero-logo" src="assets/favicon.png" alt="Logo">
-            </a>
+            <img class="hero-logo" src="assets/favicon.png" alt="Logo">
             <h1>Pixels Visualiser</h1>
         </div>
 
-        <div class="upload-section">
+        <div class="upload-section" id="dragAndDropZone">
+            <label for="fileInput" class="button">Choose or drop a backup file (.json)</label>
             <input type="file" id="fileInput" accept=".json" style="display: none;">
-            <label for="fileInput" class="button">Choose a Backup file (.json)</label>
         </div>
 
         <div id="privacyNotice">
@@ -41,7 +36,11 @@
             </div>
 
             <div class="help-export">
-                <p>How to export your Pixels data ?</p>
+                    <p>How to export your
+                        <span>
+                            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer" class="info-link">Pixels</a>
+                        </span>
+                    data ?</p>
                 <img src="assets/help_export.png" alt="How to export Pixels data" title="How to export your Pixels data" class="help-image">
             </div>
         </div>
@@ -51,7 +50,7 @@
             <div class="pill-selector">
                 <button class="pill" data-range="7">Last week</button>
                 <button class="pill" data-range="30">Last month</button>
-                <button class="pill" data-range="90">Last 3 months</button>
+                <button class="pill" data-range="180">Last 6 months</button>
                 <button class="pill" data-range="365">Last year</button>
                 <button class="pill" data-range="1095">Last 3 years</button>
                 <button class="pill active" data-range="99999">All time</button>
@@ -179,8 +178,7 @@
 
                         <div class="option-item">
                             <label for="searchInput">Search words</label>
-                            <input type="text" id="searchInput" class="input-nb input-large"
-                                placeholder='e.g. "happy", "good day", "been to work"'>
+                            <input type="text" id="searchInput" class="input-nb input-large" placeholder='e.g. "happy", "good day", "been to work"'>
                         </div>
                     </div>
 
@@ -211,7 +209,7 @@
                     <div class="options grid-options">
                         <div class="option-item">
                             <button class="button" id="openSettingsDialog">
-                                <span class="material-symbols-outlined">settings</span>
+                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
                             </button>
                         </div>
 
@@ -258,13 +256,10 @@
                                     <label for="colorEmpty">Empty days</label>
                                     <input type="color" id="colorEmpty" value="#f0f2f6">
                                     
-                                    <div class="empty-line">
-                                        <hr></div>
-                                    <div class="empty-line">
-                                    <hr></div>
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
                                     
-                                    <label for="squareSizeInput"
-                                    title="The size of each Pixel on the generated image">Square size (px)</label>
+                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
                                     
                                     <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
@@ -303,12 +298,11 @@
     </div>
 
     <footer>
-        <div class="github">
-            <a href="https://github.com/Leogendra" target="_blank">
-                <img src="assets/github.png" alt="github">
-            </a>
-        </div>
-        <div class="version">v1.1.3</div>
+        <a class="github" href="https://github.com/Leogendra" target="_blank">
+            <img src="assets/github.png" alt="github">
+        </a>
+        <div class="version">Version: v1.1.5</div>
+        <div class="version">Last update: 2025-06-22</div>
     </footer>
 
     <!-- Charts.js -->
@@ -320,13 +314,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <script src="scripts/utils.js"></script>
+    <script src="scripts/main.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
     <script src="scripts/stopwords.js"></script>
     <script src="scripts/generate_png.js"></script>
     <script src="scripts/storage.js"></script>
-    <script src="scripts/main.js"></script>
 </body>
 
 </html>
