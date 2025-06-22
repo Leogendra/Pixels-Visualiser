@@ -22,21 +22,6 @@ const setting_scoreType = document.getElementById("scoreTypeSelect");
 const setting_firstDayOfWeek = document.getElementById("startOfWeekSelect");
 const setting_layout = document.getElementById("layoutSelect");
 
-const png_default_settings = {
-    colors: {
-        1: "#e22230",
-        2: "#e28422",
-        3: "#fbee45",
-        4: "#a0e865",
-        5: "#039d07",
-        empty: "#f0f2f6"
-    },
-    scoreType: "avg",
-    firstDayOfWeek: 1,
-    squareSize: 20,
-    layout: "vertical-weeks"
-};
-let png_settings = png_default_settings;
 let pixelsCanvas;
 
 

@@ -37,53 +37,74 @@ async function load_settings() {
     try {
         const settings = JSON.parse(saved);
 
-        averagingValue = settings.averagingValue ?? averagingValue;
-        showAverage = settings.showAverage ?? showAverage;
-        showYears = settings.showYears ?? showYears;
+        // Averaging value
+        averagingValue = settings.averagingValue;
+        rolling_slider.value = averagingValue;
+        rolling_slider_text_value.textContent = averagingValue;
 
-        tag_stats = settings.tag_stats ?? tag_stats;
-        tagsPercentage = settings.tagsPercentage ?? tagsPercentage;
-        nbMaxTags = settings.nbMaxTags ?? nbMaxTags;
+        // Show average
+        showAverage = settings.showAverage;
+        show_average_checkbox.checked = showAverage;
 
-        firstDayOfWeek = settings.firstDayOfWeek ?? firstDayOfWeek;
-        weekdays_stats = settings.weekdays_stats ?? weekdays_stats;
+        // Show years
+        showYears = settings.showYears;
+        show_years_checkbox.checked = showYears;
 
-        seasonColors = settings.seasonColors ?? seasonColors;
-        months_stats = settings.months_stats ?? months_stats;
+        // Tag stats
+        tag_stats = settings.tag_stats;
 
-        full_word_frequency = settings.full_word_frequency ?? full_word_frequency;
-        wordcloudPercentage = settings.wordcloudPercentage ?? wordcloudPercentage;
-        wordcloudOrderCount = settings.wordcloudOrderCount ?? wordcloudOrderCount;
-        nbMaxWords = settings.nbMaxWords ?? nbMaxWords;
-        nbMinCount = settings.nbMinCount ?? nbMinCount;
+        // Tags percentage
+        tagsPercentage = settings.tagsPercentage;
+        tag_frequency_checkbox.checked = tagsPercentage;
 
-        wordcloudSize = settings.wordcloudSize ?? wordcloudSize;
-        wordcloudSpacing = settings.wordcloudSpacing ?? wordcloudSpacing;
-
-        // update fields
-        if (rolling_slider) rolling_slider.value = averagingValue;
-        if (rolling_slider_text_value) rolling_slider_text_value.textContent = averagingValue;
-
-        if (show_average_checkbox) show_average_checkbox.checked = showAverage;
-        if (show_years_checkbox) show_years_checkbox.checked = showYears;
-
-        if (tag_frequency_checkbox) tag_frequency_checkbox.checked = tagsPercentage;
+        // Max tags
+        nbMaxTags = settings.nbMaxTags;
         nb_tags_inputs.forEach(input => input.value = nbMaxTags);
 
-        if (weekday_frequency_select) weekday_frequency_select.value = firstDayOfWeek;
+        // First day of week
+        firstDayOfWeek = settings.firstDayOfWeek;
+        weekday_frequency_select.value = firstDayOfWeek;
 
-        if (season_colors_checkbox) season_colors_checkbox.checked = seasonColors;
+        // Weekdays stats
+        weekdays_stats = settings.weekdays_stats;
 
-        if (words_percentage_checkbox) words_percentage_checkbox.checked = wordcloudPercentage;
-        if (words_order_checkbox) words_order_checkbox.checked = wordcloudOrderCount;
-        if (words_words_input) words_words_input.value = nbMaxWords;
-        if (words_count_input) words_count_input.value = nbMinCount;
-        if (wordcloud_size_input) wordcloud_size_input.value = wordcloudSize;
-        if (wordcloud_spacing_input) wordcloud_spacing_input.value = wordcloudSpacing;
-        if (settings.png_settings) {
-            png_settings = settings.png_settings;
-            set_image_settings(settings.png_settings);
-        }
+        // Season colors
+        seasonColors = settings.seasonColors;
+        season_colors_checkbox.checked = seasonColors;
+
+        // Months stats
+        months_stats = settings.months_stats;
+
+        // Word frequency
+        full_word_frequency = settings.full_word_frequency;
+
+        // Wordcloud percentage
+        wordcloudPercentage = settings.wordcloudPercentage;
+        words_percentage_checkbox.checked = wordcloudPercentage;
+
+        // Wordcloud order count
+        wordcloudOrderCount = settings.wordcloudOrderCount;
+        words_order_checkbox.checked = wordcloudOrderCount;
+
+        // Max words
+        nbMaxWords = settings.nbMaxWords;
+        words_words_input.value = nbMaxWords;
+
+        // Min count
+        nbMinCount = settings.nbMinCount;
+        words_count_input.value = nbMinCount;
+
+        // Wordcloud size
+        wordcloudSize = settings.wordcloudSize;
+        wordcloud_size_input.value = wordcloudSize;
+
+        // Wordcloud spacing
+        wordcloudSpacing = settings.wordcloudSpacing;
+        wordcloud_spacing_input.value = wordcloudSpacing;
+
+        // PNG settings
+        png_settings = settings.png_settings;
+        set_image_settings(settings.png_settings);
     }
     catch (e) {
         console.error("Failed to load settings from localStorage", e);

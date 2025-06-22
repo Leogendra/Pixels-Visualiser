@@ -50,7 +50,7 @@
             <div class="pill-selector">
                 <button class="pill" data-range="7">Last week</button>
                 <button class="pill" data-range="30">Last month</button>
-                <button class="pill" data-range="90">Last 3 months</button>
+                <button class="pill" data-range="180">Last 6 months</button>
                 <button class="pill" data-range="365">Last year</button>
                 <button class="pill" data-range="1095">Last 3 years</button>
                 <button class="pill active" data-range="99999">All time</button>
@@ -178,8 +178,7 @@
 
                         <div class="option-item">
                             <label for="searchInput">Search words</label>
-                            <input type="text" id="searchInput" class="input-nb input-large"
-                                placeholder='e.g. "happy", "good day", "been to work"'>
+                            <input type="text" id="searchInput" class="input-nb input-large" placeholder='e.g. "happy", "good day", "been to work"'>
                         </div>
                     </div>
 
@@ -257,13 +256,10 @@
                                     <label for="colorEmpty">Empty days</label>
                                     <input type="color" id="colorEmpty" value="#f0f2f6">
                                     
-                                    <div class="empty-line">
-                                        <hr></div>
-                                    <div class="empty-line">
-                                    <hr></div>
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
                                     
-                                    <label for="squareSizeInput"
-                                    title="The size of each Pixel on the generated image">Square size (px)</label>
+                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
                                     
                                     <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
@@ -305,7 +301,7 @@
         <a class="github" href="https://github.com/Leogendra" target="_blank">
             <img src="assets/github.png" alt="github">
         </a>
-        <div class="version">Version: v1.1.3</div>
+        <div class="version">Version: v1.1.5</div>
         <div class="version">Last update: 2025-06-22</div>
     </footer>
 

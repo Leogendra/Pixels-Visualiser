@@ -71,6 +71,22 @@ let wordcloudSize = 4;
 let wordcloudSpacing = 2;
 let wordcloudBgColor = "#f0f2f6"; // not editable
 let maxWordcloudWords = 150; // not editable
+const png_default_settings = {
+    colors: {
+        1: "#e22230",
+        2: "#e28422",
+        3: "#fbee45",
+        4: "#a0e865",
+        5: "#039d07",
+        empty: "#f0f2f6"
+    },
+    scoreType: "avg",
+    firstDayOfWeek: 1,
+    squareSize: 20,
+    layout: "vertical-weeks"
+};
+let png_settings = png_default_settings;
+
 
 
 
@@ -270,20 +286,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
         averagingValue = parseInt(e.target.value);
-        store_settings();
         rolling_slider_text_value.textContent = averagingValue;
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 
     show_average_checkbox.addEventListener("change", (e) => {
         showAverage = e.target.checked;
-        store_settings();
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
         showYears = e.target.checked;
-        store_settings();
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 
@@ -291,14 +304,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tags
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
-        store_settings();
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
     });
 
     nb_tags_inputs.forEach(input => {
         input.addEventListener("input", (e) => {
             nbMaxTags = parseInt(e.target.value);
-            store_settings();
             nb_tags_inputs.forEach(input => {
                 input.value = nbMaxTags;
             });
@@ -311,7 +322,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
         firstDayOfWeek = parseInt(e.target.value);
-        store_settings();
         create_weekday_chart(firstDayOfWeek);
     });
 
@@ -319,7 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Months
     season_colors_checkbox.addEventListener("change", (e) => {
         seasonColors = e.target.checked;
-        store_settings();
         create_month_chart(seasonColors);
     });
 
@@ -327,26 +336,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {
         wordcloudPercentage = e.target.checked;
-        store_settings();
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
     words_order_checkbox.addEventListener("change", (e) => {
         wordcloudOrderCount = e.target.checked;
-        store_settings();
         get_word_frequency(current_data, wordcloudOrderCount, searchTerm);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
     words_words_input.addEventListener("input", (e) => {
         nbMaxWords = parseInt(e.target.value);
-        store_settings();
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
     words_count_input.addEventListener("input", (e) => {
         nbMinCount = parseInt(e.target.value);
-        store_settings();
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
@@ -359,13 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Wordcloud
     wordcloud_size_input.addEventListener("input", (e) => {
         wordcloudSize = parseInt(e.target.value);
-        store_settings();
         update_wordcloud(nbMinCount);
     });
 
     wordcloud_spacing_input.addEventListener("input", (e) => {
         wordcloudSpacing = parseInt(e.target.value);
-        store_settings();
         update_wordcloud(nbMinCount);
     });
 
@@ -377,4 +380,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
     }
+
+
+    // Export PNG
+    setting_scoreType.addEventListener("change", (e) => {
+        png_settings = get_image_settings();
+    });
+
+    setting_firstDayOfWeek.addEventListener("input", (e) => {
+        png_settings = get_image_settings();
+    });
+
+
+    // Save settings
+    const inputs = Array.from(document.querySelectorAll('input, select'));
+
+    inputs.forEach(input => {
+        input.addEventListener('input', store_settings);
+    });
 });
