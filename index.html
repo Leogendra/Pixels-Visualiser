@@ -21,15 +21,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer">
-                <img class="hero-logo" src="assets/favicon.png" alt="Logo">
-            </a>
+            <img class="hero-logo" src="assets/favicon.png" alt="Logo">
             <h1>Pixels Visualiser</h1>
         </div>
 
         <div class="upload-section" id="dragAndDropZone">
             <input type="file" id="fileInput" accept=".json" style="display: none;">
-            <label for="fileInput" class="button">Choose a Backup file (.json)</label>
+            <label for="fileInput" class="button">Choose or drop a backup file (.json)</label>
         </div>
 
         <div id="privacyNotice">
@@ -41,7 +39,11 @@
             </div>
 
             <div class="help-export">
-                <p>How to export your Pixels data ?</p>
+                    <p>How to export your
+                        <span>
+                            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer" class="info-link">Pixels</a>
+                        </span>
+                    data ?</p>
                 <img src="assets/help_export.png" alt="How to export Pixels data" title="How to export your Pixels data" class="help-image">
             </div>
         </div>
@@ -211,7 +213,7 @@
                     <div class="options grid-options">
                         <div class="option-item">
                             <button class="button" id="openSettingsDialog">
-                                <span class="material-symbols-outlined">settings</span>
+                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
                             </button>
                         </div>
 
@@ -319,13 +321,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <script src="scripts/utils.js"></script>
+    <script src="scripts/main.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
     <script src="scripts/stopwords.js"></script>
     <script src="scripts/generate_png.js"></script>
     <script src="scripts/storage.js"></script>
-    <script src="scripts/main.js"></script>
 </body>
 
 </html>
