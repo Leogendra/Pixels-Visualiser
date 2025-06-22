@@ -23,7 +23,7 @@ async function store_settings() {
         wordcloudSize,
         wordcloudSpacing,
 
-        png_settings
+        png_settings,
     };
 
     localStorage.setItem('pixelSettings', JSON.stringify(settings));
@@ -80,7 +80,7 @@ async function load_settings() {
         if (words_count_input) words_count_input.value = nbMinCount;
         if (wordcloud_size_input) wordcloud_size_input.value = wordcloudSize;
         if (wordcloud_spacing_input) wordcloud_spacing_input.value = wordcloudSpacing;
-        if (png_settings) {
+        if (settings.png_settings) {
             png_settings = settings.png_settings;
             set_image_settings(settings.png_settings);
         }

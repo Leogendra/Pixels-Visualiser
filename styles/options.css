@@ -113,7 +113,6 @@ input[type="color"], select {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--tertiary-color);
     color: white;
 }
 
@@ -176,12 +175,6 @@ input[type="color"], select {
 
 
 /* Generating PNG */
-#btnGeneratePixelGrid,
-#btnDownloadPixelGrid {
-    font-size: 1rem;
-    font-weight: 600;
-}
-
 #btnDownloadPixelGrid {
     display: none;
     margin-bottom: 2rem;

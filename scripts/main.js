@@ -1,4 +1,5 @@
 const file_input = document.querySelector("#fileInput");
+const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const privacy_notice = document.querySelector("#privacyNotice");
 
 const content_container = document.querySelector("#content");
@@ -226,6 +227,32 @@ document.addEventListener("DOMContentLoaded", () => {
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
         await handle_file_upload(file);
+    });
+
+    drag_and_drop_zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        drag_and_drop_zone.classList.add("dragover");
+    });
+
+    drag_and_drop_zone.addEventListener("dragleave", () => {
+        drag_and_drop_zone.classList.remove("dragover");
+    });
+
+    drag_and_drop_zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        drag_and_drop_zone.classList.remove("dragover");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type === "application/json" || file.name.endsWith(".json")) {
+                handle_file_upload(file);
+            } 
+            else {
+                // TODO: add a CSS-UX-friendly message
+                alert("Please drop a valid .json file");
+            }
+        }
     });
 
 
