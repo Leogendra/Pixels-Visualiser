@@ -35,7 +35,7 @@ const wordcloud_spacing_input = document.querySelector("#wordcloudSpacing");
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = false;
+const DEV_MODE = true;
 const DEV_FILE_PATH = "../data/pixels.json"
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
         setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight - 10);
+            window.scrollTo(0, document.body.scrollHeight - 2000);
         }, 500);
     }
 
@@ -387,12 +387,12 @@ document.addEventListener("DOMContentLoaded", () => {
         png_settings = get_image_settings();
     });
 
-    setting_firstDayOfWeek.addEventListener("input", (e) => {
+    setting_layout.addEventListener("input", (e) => {
         png_settings = get_image_settings();
     });
 
 
-    // Save settings
+    // Save settings whe a field is changed
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {
