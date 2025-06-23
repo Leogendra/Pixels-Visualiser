@@ -160,6 +160,15 @@ function get_word_frequency(data, orderByMood, searchText) {
                         .map(word => normalize_string(word))
                         .filter(word => word);
 
+    let searchPattern = null;
+    if (searchTextLower.includes("*")) {
+        const pattern = searchTextLower
+            .split("*")
+            .map(escape_regex)
+            .join("(\\w+)");
+        searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
+    }
+
     data.forEach(entry => {
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
@@ -167,7 +176,6 @@ function get_word_frequency(data, orderByMood, searchText) {
         // Add the search term as a word if it matches the notes
         if (searchTextLower) {
             if (notesLower.includes(searchTextLower)) {
-                console.log(`Found search term "${searchTextLower}" in notes: ${notesLower}`);
                 if (!(searchTextLower in wordData)) {
                     wordData[searchTextLower] = { count: 0, scores: [] };
                 }
@@ -181,7 +189,7 @@ function get_word_frequency(data, orderByMood, searchText) {
         }
 
         // Filter words of the notes
-        const words = notesLower
+        let words = notesLower
             .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
             .replace(/-/g, " ")
             .split(/\s+/)
@@ -202,6 +210,17 @@ function get_word_frequency(data, orderByMood, searchText) {
                 )
             );
 
+        // If searchPattern is defined, find words that match the pattern
+        if (searchPattern) {
+            let match;
+            while ((match = searchPattern.exec(notesLower)) !== null) {
+                const capturedWord = match[1]; // Word after the asterisk
+                if (capturedWord) {
+                    words.push(capturedWord);
+                }
+            }
+        }
+
         // Add each word to the count
         const normalizedWords = words.map(word => normalize_string(word));
         normalizedWords.forEach(word => {
@@ -212,8 +231,6 @@ function get_word_frequency(data, orderByMood, searchText) {
             wordData[word].scores.push(average(entry.scores));
         });
     });
-
-    console.log(wordData);
 
     full_word_frequency = Object.entries(wordData)
         .map(([word, info]) => {

@@ -29,6 +29,11 @@ function normalize_string(str) {
 }
 
 
+function escape_regex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
 //////////////// Dates ////////////////
 
 function pixel_format_date(input) {
