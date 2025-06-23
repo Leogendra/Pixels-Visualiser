@@ -1,3 +1,9 @@
+const input_date = document.querySelector("#dateSearchInput");
+const div_date_result = document.querySelector("#dateSearchResult");
+
+
+
+
 async function load_colored_SVG(score) {
     const path = `assets/pixels/score_${score}.svg`;
     const res = await fetch(path);
@@ -14,6 +20,7 @@ async function load_colored_SVG(score) {
 
 
 async function create_pixel_card(pixel) {
+    const getDynamicBorders = true; // TODO: add this parameter
     const card = document.createElement("div");
     card.className = "pixel-card";
 
@@ -63,5 +70,38 @@ async function create_pixel_card(pixel) {
         card.appendChild(tags);
     }
 
+    if (getDynamicBorders) {
+        const {
+            colors,
+            layout,
+            scoreType,
+            squareSize,
+            firstDayOfWeek,
+        } = get_image_settings();
+        const pixelColor = get_pixel_color(pixel, scoreType, colors);
+        card.style.borderColor = pixelColor;
+    }
+
     return card;
 }
+
+
+async function get_pixel_by_date(date) {
+    const found = current_data.find(p => normalize_date(p.date) === date);
+
+    if (found) {
+        const card = await create_pixel_card(found);
+        div_date_result.innerHTML = card.outerHTML;
+    } 
+    else {
+        div_date_result.textContent = "No entry found for this date.";
+    }
+}
+
+
+
+
+input_date.addEventListener("change", () => {
+    const selected = normalize_date(input_date.value);
+    get_pixel_by_date(selected);
+});
