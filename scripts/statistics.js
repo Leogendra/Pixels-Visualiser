@@ -76,7 +76,7 @@ function calculate_and_display_stats(data) {
         ["Number of Pixels", `<p>${data.length}</p>`],
         ["Average score", `<p>${average(allScores).toFixed(2)}</p>`],
         ["Streaks", `<p>Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}</p>`],
-        ["Score distribution", "<canvas id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"],
+        ["Score distribution", "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"],
     ];
 
     stats_container.innerHTML = stats.map(([title, value]) => `
