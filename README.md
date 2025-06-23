@@ -6,9 +6,13 @@ Pixels Visualiser is a client-side web app that allows users to load a JSON file
 
 - Interactive line chart of mood evolution over time
 - Rolling average control for smoothing data
-- Word frequency section based on user notes (with % toggle)
 - Tag analysis
-- Responsive layout for desktop and mobile
+- Weekdays and months distribution
+- Word frequency section based on user notes (with % toggle)
+- Wordcloud visualisation
+- Generate a PNG image of your Pixels
+- Search Pixels by date
+- Responsive layout for mobile (Note: the app is still best used on desktop. On mobile, some tooltips explaining buttons and controls might not be visible.)
 
 ## JSON Data Format
 

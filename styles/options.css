@@ -79,10 +79,10 @@ input[type="color"], select {
 }
 
 
-.range-average {
+.range-slider {
     width: 100%;
-    margin-bottom: 1rem;
 }
+
 
 .input-nb {
     width: 60px;

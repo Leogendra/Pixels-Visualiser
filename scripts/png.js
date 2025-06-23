@@ -59,6 +59,18 @@ function set_image_settings(settings) {
 }
 
 
+function get_user_colors() {
+    return [
+        setting_color1.value,
+        setting_color2.value,
+        setting_color3.value,
+        setting_color4.value,
+        setting_color5.value,
+        setting_colorEmpty.value
+    ];
+}
+
+
 function get_pixel_color(pixel, scoreType, colorMap) {
     if (!pixel || !Array.isArray(pixel.scores) || pixel.scores.length === 0) {
         return colorMap.empty;
