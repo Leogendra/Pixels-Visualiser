@@ -8,19 +8,19 @@ const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
 const div_result_png = document.querySelector("#pixelGridResults");
 const result_png = document.querySelector(".pixel-png-img");
 
-const setting_color1 = document.getElementById("color1");
-const setting_color2 = document.getElementById("color2");
-const setting_color3 = document.getElementById("color3");
-const setting_color4 = document.getElementById("color4");
-const setting_color5 = document.getElementById("color5");
-const setting_colorEmpty = document.getElementById("colorEmpty");
+const setting_color1 = document.querySelector("#color1");
+const setting_color2 = document.querySelector("#color2");
+const setting_color3 = document.querySelector("#color3");
+const setting_color4 = document.querySelector("#color4");
+const setting_color5 = document.querySelector("#color5");
+const setting_colorEmpty = document.querySelector("#colorEmpty");
 
-const setting_squareSize = document.getElementById("squareSizeInput");
-const setting_showMonthLabels = document.getElementById("showMonthLabelsCheckbox");
-const setting_showLegend = document.getElementById("showLegendCheckbox");
-const setting_scoreType = document.getElementById("scoreTypeSelect");
-const setting_firstDayOfWeek = document.getElementById("startOfWeekSelect");
-const setting_layout = document.getElementById("layoutSelect");
+const setting_squareSize = document.querySelector("#squareSizeInput");
+const setting_showMonthLabels = document.querySelector("#showMonthLabelsCheckbox");
+const setting_showLegend = document.querySelector("#showLegendCheckbox");
+const setting_scoreType = document.querySelector("#scoreTypeSelect");
+const setting_firstDayOfWeek = document.querySelector("#startOfWeekSelect");
+const setting_layout = document.querySelector("#layoutSelect");
 
 let pixelsCanvas;
 

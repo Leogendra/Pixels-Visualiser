@@ -76,3 +76,26 @@
         }
     }
 }
+
+
+.input-date {
+    padding: 0.5rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    max-width: 220px;
+    width: 100%;
+}
+
+
+.pixel-date-result {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin: 0 1rem;
+}

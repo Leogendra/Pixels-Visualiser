@@ -155,7 +155,19 @@ function compute_months_stats(data) {
 function get_word_frequency(data, orderByMood, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
     const searchTextLower = normalize_string(searchText);
-    const searchWords = searchTextLower.split(/\s+/).map(word => normalize_string(word)).filter(word => word);
+    const searchWords = searchTextLower
+                        .split(/\s+/)
+                        .map(word => normalize_string(word))
+                        .filter(word => word);
+
+    let searchPattern = null;
+    if (searchTextLower.includes("*")) {
+        const pattern = searchTextLower
+            .split("*")
+            .map(escape_regex)
+            .join("(\\w+)");
+        searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
+    }
 
     data.forEach(entry => {
         const notesLower = normalize_string(entry.notes);
@@ -177,7 +189,7 @@ function get_word_frequency(data, orderByMood, searchText) {
         }
 
         // Filter words of the notes
-        const words = notesLower
+        let words = notesLower
             .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
             .replace(/-/g, " ")
             .split(/\s+/)
@@ -187,9 +199,27 @@ function get_word_frequency(data, orderByMood, searchText) {
                 (searchTextLower !== word) && // Word is not the search term (already counted above)
                 (
                     (searchWords.length === 0) || // Either no search words or
-                    searchWords.some(sw => (word.includes(sw) || sw.includes(word))) // Word matches any of the search words
+                    searchWords.some((sw, i) => {
+                        if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
+                            return (word.startsWith(sw) || sw.startsWith(word));
+                        }
+                        else { // Other search words must be exact matches
+                            return (word === sw);
+                        }
+                    })
                 )
             );
+
+        // If searchPattern is defined, find words that match the pattern
+        if (searchPattern) {
+            let match;
+            while ((match = searchPattern.exec(notesLower)) !== null) {
+                const capturedWord = match[1]; // Word after the asterisk
+                if (capturedWord) {
+                    words.push(capturedWord);
+                }
+            }
+        }
 
         // Add each word to the count
         const normalizedWords = words.map(word => normalize_string(word));
@@ -249,8 +279,6 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
 
 
 async function update_wordcloud(minCount) {
-    // TODO: Take order by score into account
-    // TODO: Make parameters for gridsize, backgound color and weight factor
     const words = full_word_frequency
         .filter(word => word.count >= minCount)
         .sort((a, b) => { 
@@ -286,7 +314,7 @@ async function update_wordcloud(minCount) {
     }
 
     wordcloud_container.style.display = "flex";
-    // set_padding_to_wordcloud(); // TODO: Not working, fix this padding issue
+    // TODO: Add padding to wordcloud
 
     WordCloud(wordcloud_canvas, {
         list: adjustedWords,
@@ -297,21 +325,6 @@ async function update_wordcloud(minCount) {
         backgroundColor: wordcloudBgColor,
         outOfBound: false,
     });
-}
-
-
-async function set_padding_to_wordcloud() {
-    const padding = 20;
-    const baseWidth = 1000;
-    const baseHeight = 400;
-
-    wordcloud_canvas.width = baseWidth + padding * 2;
-    wordcloud_canvas.height = baseHeight + padding * 2;
-
-    const ctx = wordcloud_canvas.getContext("2d");
-    ctx.clearRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height); 
-    ctx.fillStyle = wordcloudBgColor;
-    ctx.fillRect(0, 0, wordcloud_canvas.width, wordcloud_canvas.height);
 }
 
 

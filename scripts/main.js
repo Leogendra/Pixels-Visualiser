@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
         setTimeout(() => {
-            window.scrollTo(0, document.body.scrollHeight - 10);
+            window.scrollTo(0, document.body.scrollHeight - 2000);
         }, 500);
     }
 
@@ -387,12 +387,12 @@ document.addEventListener("DOMContentLoaded", () => {
         png_settings = get_image_settings();
     });
 
-    setting_firstDayOfWeek.addEventListener("input", (e) => {
+    setting_layout.addEventListener("input", (e) => {
         png_settings = get_image_settings();
     });
 
 
-    // Save settings
+    // Save settings whe a field is changed
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {

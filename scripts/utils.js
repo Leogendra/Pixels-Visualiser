@@ -24,7 +24,13 @@ function capitalize(string) {
 
 
 function normalize_string(str) {
+    // Remove accents, convert to lowercase and trim whitespace
     return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+
+function escape_regex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 
