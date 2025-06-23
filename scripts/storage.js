@@ -19,6 +19,7 @@ async function store_settings() {
         wordcloudOrderCount,
         nbMaxWords,
         nbMinCount,
+        minScore,
 
         wordcloudSize,
         wordcloudSpacing,
@@ -93,6 +94,11 @@ async function load_settings() {
         // Min count
         nbMinCount = settings.nbMinCount;
         words_count_input.value = nbMinCount;
+
+        // Min score
+        minScore = settings.minScore;
+        min_score_slider.value = 10 * minScore;
+        min_score_slider_text_value.textContent = minScore;
 
         // Wordcloud size
         wordcloudSize = settings.wordcloudSize;

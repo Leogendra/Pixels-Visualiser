@@ -65,8 +65,8 @@
                 <div class="chart-container">
                     <h2>📈 Mood evolution</h2>
                     <div class="options">
-                        <label for="rollingSlider">Rolling average : <span id="rollingValue">1</span> days</label>
-                        <input type="range" id="rollingSlider" class="range-average" min="1" max="60" value="1">
+                        <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
+                        <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
 
                         <div class="option-item">
                             <label for="showAverageCheckbox"
@@ -175,6 +175,11 @@
                             <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                         </div>
 
+                        <div class="option-item">
+                            <label for="minScoreSlider" title="Only count words appearing in a Pixel with a score above the defined threshold">Min score: <span id="minScoreValue">1</span></label>
+                            <input type="range" id="minScoreSlider" class="range-slider" min="10" max="50" value="10">
+                        </div>
+                        
                         <div class="option-item">
                             <label for="searchInput" title='hint: use "*" to search for any word, e.g. "went to *"'>Search words</label>
                             <input type="text" id="searchInput" class="input-nb input-large" placeholder='e.g. "happy", "good day", "been to *"'>
@@ -318,7 +323,7 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.2.0</div>
+        <div class="version">Version: v1.2.1</div>
         <div class="version">Last update: 2025-06-23</div>
     </footer>
 

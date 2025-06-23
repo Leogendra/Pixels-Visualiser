@@ -152,7 +152,7 @@ function compute_months_stats(data) {
 }
 
 
-function get_word_frequency(data, orderByMood, searchText) {
+function get_word_frequency(data, orderByMood, minScore, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
     const searchTextLower = normalize_string(searchText);
     const searchWords = searchTextLower
@@ -197,6 +197,7 @@ function get_word_frequency(data, orderByMood, searchText) {
                 (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
                 (!STOP_WORDS.has(word)) && // Word is not a stop word
                 (searchTextLower !== word) && // Word is not the search term (already counted above)
+                (average(entry.scores) >= minScore) && // Word meets min score requirement
                 (
                     (searchWords.length === 0) || // Either no search words or
                     searchWords.some((sw, i) => {
