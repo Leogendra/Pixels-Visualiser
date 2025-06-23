@@ -128,6 +128,10 @@ a:hover {
 
 
 .stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-color: var(--secondary-bg);
     padding: 0.7rem;
     border-radius: 8px;
@@ -140,9 +144,21 @@ a:hover {
 
     & p {
         font-size: 1.3rem;
+        margin: 0 0 1rem;
         color: var(--text-color);
     }
+
+    .pie-chart {
+        display: none;
+        width: 150px;
+        height: 150px;
+    }
+
+    &:hover .pie-chart {
+        display: block;
+    }
 }
+
 
 .chart-container {
     background-color: var(--secondary-bg);

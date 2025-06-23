@@ -73,18 +73,69 @@ function calculate_and_display_stats(data) {
     });
 
     stats = [
-        ["Number of Pixels", data.length],
-        ["Average score", average(allScores).toFixed(2)],
-        ["Streaks", `Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}`],
+        ["Number of Pixels", `<p>${data.length}</p>`],
+        ["Average score", `<p>${average(allScores).toFixed(2)}</p>`],
+        ["Streaks", `<p>Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}</p>`],
+        ["Score distribution", "<canvas id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"],
     ];
 
     stats_container.innerHTML = stats.map(([title, value]) => `
         <div class="stat-card">
             <h3>${title}</h3>
-            <p>${value}</p>
+            ${value}
         </div>
-    `).join("")
+    `).join("");
+
+    create_scores_pie_chart();
 }
+
+
+async function create_scores_pie_chart() {
+    const rawScores = current_data.reduce((acc, entry) => {
+        entry.scores.forEach(score => {
+            acc[score] = (acc[score] || 0) + 1;
+        });
+        return acc;
+    }, {});
+
+    const scoresCount = Object.keys(rawScores).map(Number);
+    const values = scoresCount.map(score => rawScores[score] || 0);
+
+    const ctx = document.querySelector("#scoresPieChart").getContext("2d");
+    new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: scoresCount,
+            datasets: [{
+                label: "Scores",
+                data: values,
+                backgroundColor: get_user_colors(),
+                borderColor: "#000000",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.parsed;
+                            const data = context.chart.data.datasets[0].data;
+                            const total = data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${percentage}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 
 
 function compute_tag_stats(data) {
@@ -156,9 +207,9 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
     const searchTextLower = normalize_string(searchText);
     const searchWords = searchTextLower
-                        .split(/\s+/)
-                        .map(word => normalize_string(word))
-                        .filter(word => word);
+        .split(/\s+/)
+        .map(word => normalize_string(word))
+        .filter(word => word);
 
     let searchPattern = null;
     if (searchTextLower.includes("*")) {
@@ -258,19 +309,19 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
     if (words_filtered.length > 0) {
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
-                let isWordSearched = false;
-                if (searchText) {
-                    const normalizedSearchText = normalize_string(searchText);
-                    isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
+            let isWordSearched = false;
+            if (searchText) {
+                const normalizedSearchText = normalize_string(searchText);
+                isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
                     searchText.split(/\s+/)
-                    .some(term => normalize_string(word.word) === (normalize_string(term)));
-                }
-                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+                        .some(term => normalize_string(word.word) === (normalize_string(term)));
+            }
+            return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                 <h4>${capitalize(word.word)}</h4>
                 <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
                 <p title="Average score">${(word.avg_score).toFixed(2)}</p>
                 </div>`
-            }
+        }
         ).join("")}`
     }
     else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }
@@ -282,7 +333,7 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
 async function update_wordcloud(minCount) {
     const words = full_word_frequency
         .filter(word => word.count >= minCount)
-        .sort((a, b) => { 
+        .sort((a, b) => {
             if (wordcloudOrderCount) { // Global variable
                 return b.avg_score - a.avg_score;
             }

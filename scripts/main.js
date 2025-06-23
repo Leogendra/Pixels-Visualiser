@@ -37,9 +37,9 @@ const wordcloud_spacing_input = document.querySelector("#wordcloudSpacing");
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 2500;
+const SCROLL_TO = 50;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
