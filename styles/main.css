@@ -109,6 +109,7 @@ a:hover {
 
 
 .no-data-error {
+    display: none;
     text-align: center;
     padding: 2rem;
     font-size: 1.5rem;

@@ -56,7 +56,7 @@
                 <button class="pill active" data-range="99999">All time</button>
             </div>
 
-            <div class="no-data-error" style="display: none;">No data available for the selected range</div>
+            <div class="no-data-error">No data available for the selected range</div>
 
             <div id="stats-content">
                 <div class="stats-grid" id="statsContainer">
@@ -155,24 +155,39 @@
 
                     <div class="options">
                         <div class="option-item">
-                            <label for="wordsPercentageCheckbox"
-                                title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
-                            <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+                            <button class="button open-settings" id="openWordsSettingsDialog">
+                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                            </button>
                         </div>
 
-                        <div class="option-item">
-                            <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
-                            <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
-                        </div>
+                        <dialog id="dialogWordsSettings" class="div-dialog-settings">
+                            <div class="dialog-settings">
+
+                                <h3>Words settings</h3>
+                                
+                                <div class="dialog-settings-group">
+                                    <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
+                                    <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+
+                                    <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
+                                    <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
+
+                                    <label for="excludeStopwordsCheckbox" title="Exclude common words from the word list">Exclude stopwords</label>
+                                    <input type="checkbox" id="excludeStopwordsCheckbox" class="checkbox" checked>
+                                
+                                    <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
+                                    <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+                                </div>
+                                
+                                <div class="dialog-buttons">
+                                    <button type="submit" class="button button-tertiary" id="saveWordsSettingsDialog">Save</button>
+                                </div>
+                            </div>
+                        </dialog>
 
                         <div class="option-item">
                             <label for="maxWordsInput" title="Number of words to display">Number of words</label>
                             <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
-                        </div>
-
-                        <div class="option-item">
-                            <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
-                            <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                         </div>
 
                         <div class="option-item">
@@ -212,7 +227,7 @@
 
                     <div class="options grid-options">
                         <div class="option-item">
-                            <button class="button" id="openSettingsDialog">
+                            <button class="button open-settings" id="openImageSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
                             </button>
                         </div>
@@ -236,7 +251,7 @@
                             </select>
                         </div>
 
-                        <dialog id="dialogSettings">
+                        <dialog id="dialogSettings" class="div-dialog-settings">
                             <div class="dialog-settings">
 
                                 <h3>Image settings</h3>
@@ -336,11 +351,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <script src="scripts/utils.js"></script>
+    <script src="scripts/stopwords.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
-    <script src="scripts/stopwords.js"></script>
     <script src="scripts/png.js"></script>
     <script src="scripts/storage.js"></script>
 </body>

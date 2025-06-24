@@ -14,21 +14,25 @@ const rolling_slider_text_value = document.querySelector("#rollingValue");
 const tag_grid_charts = document.querySelector(".grid-charts");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
+const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
-
 const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 
 const word_freq_container = document.querySelector("#wordFrequency");
-const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
+const words_exclude_stopwords_checkbox = document.querySelector("#excludeStopwordsCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
 const min_score_slider = document.querySelector("#minScoreSlider");
 const min_score_slider_text_value = document.querySelector("#minScoreValue");
 const words_search_input = document.querySelector("#searchInput");
+
+const words_dialog_settings = document.querySelector("#dialogWordsSettings");
+const btn_open_words_dialog_settings = document.querySelector("#openWordsSettingsDialog");
+const btn_save_words_dialog_settings = document.querySelector("#saveWordsSettingsDialog");
 
 const wordcloud_container = document.querySelector("#wordcloudContainer");
 const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
@@ -39,7 +43,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 50;
+const SCROLL_TO = 2000;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -63,6 +67,7 @@ let seasonColors = false;
 let months_stats = {};
 
 // Wordcloud
+let STOP_WORDS = new Set([...STOPWORDS_EN, ...STOPWORDS_FR]);
 let full_word_frequency = [];
 let wordcloudPercentage = false;
 let wordcloudOrderCount = false;
@@ -233,6 +238,26 @@ async function auto_load_data(filePath) {
 }
 
 
+// Dialog words settings
+function open_words_dialog_settings() {
+    words_dialog_settings.showModal();
+    words_dialog_settings.addEventListener('click', handle_click_words_dialog);
+}
+
+
+function close_words_dialog_settings() {
+    words_dialog_settings.close();
+    words_dialog_settings.removeEventListener('click', handle_click_words_dialog);
+}
+
+
+function handle_click_words_dialog(e) {
+    if (e.target === words_dialog_settings) {
+        close_words_dialog_settings();
+    }
+}
+
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -347,6 +372,17 @@ document.addEventListener("DOMContentLoaded", () => {
         wordcloudOrderCount = e.target.checked;
         get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+    });    
+    
+    words_exclude_stopwords_checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            STOP_WORDS = new Set([...STOPWORDS_EN, ...STOPWORDS_FR]);
+        } 
+        else {
+            STOP_WORDS = new Set();
+        }
+        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
+        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
     words_words_input.addEventListener("input", (e) => {
@@ -373,6 +409,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Wordcloud
+    btn_open_words_dialog_settings.addEventListener("click", () => {
+        open_words_dialog_settings();
+    });
+
+    btn_save_words_dialog_settings.addEventListener("click", () => {
+        close_words_dialog_settings();
+    });
+
+    btn_generate_png.addEventListener("click", () => {
+        generate_pixels_PNG(current_data);
+    });
+
+    btn_download_png.addEventListener("click", () => {
+        download_pixels_PNG();
+    });
+
     wordcloud_size_input.addEventListener("input", (e) => {
         wordcloudSize = parseInt(e.target.value);
         update_wordcloud(nbMinCount);

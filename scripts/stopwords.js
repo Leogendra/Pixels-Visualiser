@@ -1,5 +1,4 @@
-const STOP_WORDS = new Set([
-    // "en": [
+const STOPWORDS_EN = new Set([
     "'ll",
     "'tis",
     "'twas",
@@ -1298,8 +1297,9 @@ const STOP_WORDS = new Set([
     "zero",
     "zm",
     "zr",
+])
 
-    // "fr":
+const STOPWORDS_FR = new Set([
     "a",
     "abord",
     "absolument",

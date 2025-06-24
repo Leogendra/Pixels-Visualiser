@@ -1,5 +1,5 @@
 const dialog_settings = document.querySelector("#dialogSettings");
-const btn_open_dialog_settings = document.querySelector("#openSettingsDialog");
+const btn_open_dialog_settings = document.querySelector("#openImageSettingsDialog");
 const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
 const btn_cancel_dialog_settings = document.querySelector("#cancelSettingsDialog");
 const btn_save_dialog_settings = document.querySelector("#saveSettingsDialog");
@@ -242,13 +242,6 @@ function open_dialog_settings() {
 }
 
 
-function handle_click_dialog(e) {
-    if (e.target === dialog_settings) {
-        close_dialog_settings();
-    }
-};
-
-
 function close_dialog_settings() {
     set_image_settings(png_settings);
     dialog_settings.close();
@@ -261,6 +254,13 @@ function close_and_save_dialog_settings() {
     store_settings();
     dialog_settings.close();
     dialog_settings.removeEventListener('click', handle_click_dialog);
+}
+
+
+function handle_click_dialog(e) {
+    if (e.target === dialog_settings) {
+        close_dialog_settings();
+    }
 }
 
 
