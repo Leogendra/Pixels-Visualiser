@@ -26,6 +26,8 @@ async function get_stopwords_settings() {
     custom_stopwords = new Set(custom_stopwords_textarea.value.split("\n").map(word => word.trim()).filter(word => word !== ""));
     default_stopwords = new Set(default_stopwords_textarea.value.split("\n").map(word => word.trim()).filter(word => word !== ""));
     STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
+    get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
+    create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
 }
 
 

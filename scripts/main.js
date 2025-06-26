@@ -158,7 +158,7 @@ function filter_pixels(numberOfDays) {
 async function handle_file_upload(file) {
     if (!file) return;
 
-    // try {
+    try {
         const text = await file.text();
         const data = JSON.parse(text);
 
@@ -204,10 +204,10 @@ async function handle_file_upload(file) {
                 // debug_function();
             }
         }
-    // }
-    // catch (error) {
-    //     console.error(`Error in handle file upload: ${error.message}`);
-    // }
+    }
+    catch (error) {
+        console.error(`Error in handle file upload: ${error.message}`);
+    }
 }
 
 
@@ -220,7 +220,7 @@ async function debug_function() {
 
 
 async function auto_load_data(filePath) {
-    // try {
+    try {
         const response = await fetch(filePath);
         if (!response.ok) throw new Error("File not found or invalid response");
         const data = await response.json();
@@ -229,10 +229,10 @@ async function auto_load_data(filePath) {
         file.text = async () => JSON.stringify(data);
 
         await handle_file_upload(file);
-    // }
-    // catch (error) {
-    //     console.error("auto_load_data Error:", error.message);
-    // }
+    }
+    catch (error) {
+        console.error("auto_load_data Error:", error.message);
+    }
 }
 
 

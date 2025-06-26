@@ -26,15 +26,15 @@ async function store_settings() {
         png_settings,
     };
 
-    localStorage.setItem('pixelSettings', JSON.stringify(settings));
+    localStorage.setItem("pixelSettings", JSON.stringify(settings));
 }
 
 
 async function load_settings() {
-    const saved = localStorage.getItem('pixelSettings');
+    const saved = localStorage.getItem("pixelSettings");
     if (!saved) return;
 
-    // try {
+    try {
         const settings = JSON.parse(saved);
 
         // Averaging value
@@ -91,6 +91,7 @@ async function load_settings() {
         stopwordsLanguage = settings.stopwordsLanguage || "en";
         default_stopwords = new Set(settings.default_stopwords || []);
         custom_stopwords = new Set(settings.custom_stopwords || []);
+        STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
         set_stopwords_settings();
 
         // Wordcloud size
@@ -104,8 +105,8 @@ async function load_settings() {
         // PNG settings
         png_settings = settings.png_settings;
         set_image_settings(settings.png_settings);
-    // }
-    // catch (e) {
-    //     console.error("Failed to load settings from localStorage", e);
-    // }
+    }
+    catch (e) {
+        console.error("Failed to load settings from localStorage", e);
+    }
 }
