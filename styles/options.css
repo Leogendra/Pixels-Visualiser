@@ -108,16 +108,30 @@ input[type="color"], select {
     font-size: 1rem;
 }
 
+.textarea {
+    width: fit-content;
+    max-width: 200px;
+    height: 100px;
+    padding: 0.2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+
+    &.long {
+        height: 200px;
+    }
+}
+
 
 /* Settings PNG */
-#openSettingsDialog {
+.open-settings {
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
 }
 
-#dialogSettings {
+.div-dialog-settings {
     border: none;
     padding: 0;
     border-radius: 12px;
@@ -150,7 +164,7 @@ input[type="color"], select {
         display: grid;
         align-items: center;
         grid-template-columns: 1fr 1fr;
-        min-width: 200px;
+        min-width: 300px;
         gap: 10px 0px;
         background-color: var(--secondary-bg);
         padding: 1rem;
@@ -167,10 +181,15 @@ input[type="color"], select {
     }
 
     & .dialog-buttons {
-        width: 100%;
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        justify-content: end;
+        width: 100%;
         gap: 10px;
+
+        & button {
+            margin: 0;
+        }
     }
 }
 

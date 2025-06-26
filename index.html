@@ -56,7 +56,7 @@
                 <button class="pill active" data-range="99999">All time</button>
             </div>
 
-            <div class="no-data-error" style="display: none;">No data available for the selected range</div>
+            <div class="no-data-error">No data available for the selected range</div>
 
             <div id="stats-content">
                 <div class="stats-grid" id="statsContainer">
@@ -119,8 +119,7 @@
                         <h2>🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
-                                <label for="firstDayOfWeekSelect"
-                                    title="Which day do you want the week to start on">First day of the week</label>
+                                <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
                                 <select id="firstDayOfWeekSelect" class="select">
                                     <option value="1">Monday</option>
                                     <option value="2">Tuesday</option>
@@ -155,24 +154,69 @@
 
                     <div class="options">
                         <div class="option-item">
-                            <label for="wordsPercentageCheckbox"
-                                title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
-                            <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+                            <button class="button open-settings" id="openWordsSettingsDialog">
+                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                            </button>
                         </div>
 
-                        <div class="option-item">
-                            <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
-                            <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
-                        </div>
+                        <dialog id="dialogWordsSettings" class="div-dialog-settings">
+                            <div class="dialog-settings">
+
+                                <h3>Words settings</h3>
+                                
+                                <div class="dialog-settings-group">
+                                    <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
+                                    <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
+
+                                    <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
+                                    <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
+                                    
+                                    <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
+                                    <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+
+                                    <label for="excludeStopwordsCheckbox" title="Choose which words you want to exclude from the word list">Customise stopwords</label>
+                                    <button class="button" id="openStopwordsSettingsDialog">Stopwords</button>
+                                </div>
+
+                                <div class="dialog-buttons">
+                                    <button type="submit" class="button button-tertiary" id="saveWordsSettingsDialog">Save</button>
+                                </div>
+                            </div>
+                        </dialog>
+
+                        <dialog id="dialogStopwordsSettings" class="div-dialog-settings">
+                            <div class="dialog-settings">
+
+                                <h3>Stopwords settings</h3>
+                                
+                                <div class="dialog-settings-group">
+
+                                    <label for="stopwordsLanguageSelect" title="Which language do you want the stopwords to be in?">Stopwords language</label>
+                                    <select id="stopwordsLanguageSelect" class="select">
+                                        <option value="no">Don't use</option>
+                                        <option value="en">English</option>
+                                        <option value="fr">French</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="ge">German</option>
+                                        <option value="it">Italian</option>
+                                    </select>
+
+                                    <label for="defaultStopwordsTextarea" title="Words that are excluded for this language, you can delete some">Default stopwords</label>
+                                    <textarea id="defaultStopwordsTextarea" class="textarea long" rows="4" placeholder="One word per line"></textarea>
+
+                                    <label for="customStopwordsTextarea" title="Choose personnal words you want to exclude">Custom stopwords</label>
+                                    <textarea id="customStopwordsTextarea" class="textarea" rows="4" placeholder="Enter one word per line"></textarea>
+                                </div>
+
+                                <div class="dialog-buttons">
+                                    <button type="submit" class="button button-tertiary" id="saveStopwordsSettingsDialog">Save</button>
+                                </div>
+                            </div>
+                        </dialog>
 
                         <div class="option-item">
                             <label for="maxWordsInput" title="Number of words to display">Number of words</label>
                             <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
-                        </div>
-
-                        <div class="option-item">
-                            <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
-                            <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
                         </div>
 
                         <div class="option-item">
@@ -208,11 +252,11 @@
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
-                    <h2>🖼️ Export Pixel Grid</h2>
+                    <h2>🖼️ Export Pixels image</h2>
 
                     <div class="options grid-options">
                         <div class="option-item">
-                            <button class="button" id="openSettingsDialog">
+                            <button class="button open-settings" id="openImageSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
                             </button>
                         </div>
@@ -236,7 +280,7 @@
                             </select>
                         </div>
 
-                        <dialog id="dialogSettings">
+                        <dialog id="dialogSettings" class="div-dialog-settings">
                             <div class="dialog-settings">
 
                                 <h3>Image settings</h3>
@@ -298,7 +342,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h2>📅 Search Pixel by Date</h2>
+                    <h2>📅 Search Pixels by date</h2>
 
                     <div class="options">
                         <div class="option-item">
@@ -323,8 +367,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.2.2</div>
-        <div class="version">Last update: 2025-06-23</div>
+        <div class="version">Version: v1.2.3</div>
+        <div class="version">Last update: 2025-06-27</div>
     </footer>
 
     <!-- Charts.js -->
@@ -336,11 +380,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <script src="scripts/utils.js"></script>
+    <script src="scripts/stopwords.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
-    <script src="scripts/stopwords.js"></script>
     <script src="scripts/png.js"></script>
     <script src="scripts/storage.js"></script>
 </body>

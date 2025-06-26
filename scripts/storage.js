@@ -4,22 +4,21 @@ async function store_settings() {
         showAverage,
         showYears,
 
-        tag_stats,
         tagsPercentage,
         nbMaxTags,
 
         firstDayOfWeek,
-        weekdays_stats,
-
         seasonColors,
-        months_stats,
 
-        full_word_frequency,
         wordcloudPercentage,
         wordcloudOrderCount,
         nbMaxWords,
         nbMinCount,
         minScore,
+
+        stopwordsLanguage,
+        default_stopwords: Array.from(default_stopwords),
+        custom_stopwords: Array.from(custom_stopwords),
 
         wordcloudSize,
         wordcloudSpacing,
@@ -27,12 +26,12 @@ async function store_settings() {
         png_settings,
     };
 
-    localStorage.setItem('pixelSettings', JSON.stringify(settings));
+    localStorage.setItem("pixelSettings", JSON.stringify(settings));
 }
 
 
 async function load_settings() {
-    const saved = localStorage.getItem('pixelSettings');
+    const saved = localStorage.getItem("pixelSettings");
     if (!saved) return;
 
     try {
@@ -51,9 +50,6 @@ async function load_settings() {
         showYears = settings.showYears;
         show_years_checkbox.checked = showYears;
 
-        // Tag stats
-        tag_stats = settings.tag_stats;
-
         // Tags percentage
         tagsPercentage = settings.tagsPercentage;
         tag_frequency_checkbox.checked = tagsPercentage;
@@ -66,18 +62,9 @@ async function load_settings() {
         firstDayOfWeek = settings.firstDayOfWeek;
         weekday_frequency_select.value = firstDayOfWeek;
 
-        // Weekdays stats
-        weekdays_stats = settings.weekdays_stats;
-
         // Season colors
         seasonColors = settings.seasonColors;
         season_colors_checkbox.checked = seasonColors;
-
-        // Months stats
-        months_stats = settings.months_stats;
-
-        // Word frequency
-        full_word_frequency = settings.full_word_frequency;
 
         // Wordcloud percentage
         wordcloudPercentage = settings.wordcloudPercentage;
@@ -99,6 +86,13 @@ async function load_settings() {
         minScore = settings.minScore;
         min_score_slider.value = 10 * minScore;
         min_score_slider_text_value.textContent = minScore;
+
+        // Stopwords settings
+        stopwordsLanguage = settings.stopwordsLanguage || "en";
+        default_stopwords = new Set(settings.default_stopwords || []);
+        custom_stopwords = new Set(settings.custom_stopwords || []);
+        STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
+        set_stopwords_settings();
 
         // Wordcloud size
         wordcloudSize = settings.wordcloudSize;
