@@ -16,17 +16,15 @@ async function store_settings() {
         nbMinCount,
         minScore,
 
-        // useStopwords,
-        // stopwordsLanguage,
-        // custom_stopwords,
+        stopwordsLanguage,
+        default_stopwords: Array.from(default_stopwords),
+        custom_stopwords: Array.from(custom_stopwords),
 
         wordcloudSize,
         wordcloudSpacing,
 
         png_settings,
     };
-
-    console.log("Storing settings:", settings);
 
     localStorage.setItem('pixelSettings', JSON.stringify(settings));
 }
@@ -36,10 +34,8 @@ async function load_settings() {
     const saved = localStorage.getItem('pixelSettings');
     if (!saved) return;
 
-    try {
+    // try {
         const settings = JSON.parse(saved);
-
-        console.log("Loaded settings:", settings);
 
         // Averaging value
         averagingValue = settings.averagingValue;
@@ -92,10 +88,10 @@ async function load_settings() {
         min_score_slider_text_value.textContent = minScore;
 
         // Stopwords settings
-        // useStopwords = settings.useStopwords;
-        // stopwordsLanguage = settings.stopwordsLanguage || "en";
-        // custom_stopwords = new Set(settings.custom_stopwords || []);
-        // set_stopwords_settings();
+        stopwordsLanguage = settings.stopwordsLanguage || "en";
+        default_stopwords = new Set(settings.default_stopwords || []);
+        custom_stopwords = new Set(settings.custom_stopwords || []);
+        set_stopwords_settings();
 
         // Wordcloud size
         wordcloudSize = settings.wordcloudSize;
@@ -108,8 +104,8 @@ async function load_settings() {
         // PNG settings
         png_settings = settings.png_settings;
         set_image_settings(settings.png_settings);
-    }
-    catch (e) {
-        console.error("Failed to load settings from localStorage", e);
-    }
+    // }
+    // catch (e) {
+    //     console.error("Failed to load settings from localStorage", e);
+    // }
 }

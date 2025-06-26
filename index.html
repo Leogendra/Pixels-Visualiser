@@ -119,8 +119,7 @@
                         <h2>🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
-                                <label for="firstDayOfWeekSelect"
-                                    title="Which day do you want the week to start on">First day of the week</label>
+                                <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
                                 <select id="firstDayOfWeekSelect" class="select">
                                     <option value="1">Monday</option>
                                     <option value="2">Tuesday</option>
@@ -171,16 +170,44 @@
 
                                     <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
                                     <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
-
-                                    <label for="excludeStopwordsCheckbox" title="Exclude common words from the word list">Exclude stopwords</label>
-                                    <input type="checkbox" id="excludeStopwordsCheckbox" class="checkbox" checked>
-                                
+                                    
                                     <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
                                     <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+
+                                    <label for="excludeStopwordsCheckbox" title="Choose which words you want to exclude from the word list">Customise stopwords</label>
+                                    <button class="button" id="openStopwordsSettingsDialog">Stopwords</button>
                                 </div>
-                                
+
                                 <div class="dialog-buttons">
                                     <button type="submit" class="button button-tertiary" id="saveWordsSettingsDialog">Save</button>
+                                </div>
+                            </div>
+                        </dialog>
+
+                        <dialog id="dialogStopwordsSettings" class="div-dialog-settings">
+                            <div class="dialog-settings">
+
+                                <h3>Stopwords settings</h3>
+                                
+                                <div class="dialog-settings-group">
+
+                                    <label for="stopwordsLanguageSelect" title="Which language do you want the stopwords to be in?">Stopwords language</label>
+                                    <select id="stopwordsLanguageSelect" class="select">
+                                        <option value="no">Don't use</option>
+                                        <option value="en">English</option>
+                                        <option value="fr">French</option>
+                                        <option value="es">Spanish</option>
+                                    </select>
+
+                                    <label for="defaultStopwordsTextarea" title="Words that are excluded for this language, you can delete some">Default stopwords</label>
+                                    <textarea id="defaultStopwordsTextarea" class="textarea long" rows="4" placeholder="One word per line"></textarea>
+
+                                    <label for="customStopwordsTextarea" title="Choose personnal words you want to exclude">Custom stopwords</label>
+                                    <textarea id="customStopwordsTextarea" class="textarea" rows="4" placeholder="Enter one word per line"></textarea>
+                                </div>
+
+                                <div class="dialog-buttons">
+                                    <button type="submit" class="button button-tertiary" id="saveStopwordsSettingsDialog">Save</button>
                                 </div>
                             </div>
                         </dialog>

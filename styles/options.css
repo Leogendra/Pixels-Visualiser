@@ -108,6 +108,20 @@ input[type="color"], select {
     font-size: 1rem;
 }
 
+.textarea {
+    width: fit-content;
+    max-width: 200px;
+    height: 100px;
+    padding: 0.2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+
+    &.long {
+        height: 200px;
+    }
+}
+
 
 /* Settings PNG */
 .open-settings {

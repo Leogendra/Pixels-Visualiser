@@ -23,7 +23,6 @@ const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
-const words_exclude_stopwords_checkbox = document.querySelector("#excludeStopwordsCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
 const min_score_slider = document.querySelector("#minScoreSlider");
@@ -41,7 +40,7 @@ const wordcloud_spacing_input = document.querySelector("#wordcloudSpacing");
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = false;
+const DEV_MODE = true;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 2000;
 const isMobile = window.innerWidth <= 800;
@@ -67,7 +66,6 @@ let seasonColors = false;
 let months_stats = {};
 
 // Wordcloud
-let STOP_WORDS = new Set([...STOPWORDS_EN, ...STOPWORDS_FR]);
 let full_word_frequency = [];
 let wordcloudPercentage = false;
 let wordcloudOrderCount = false;
@@ -160,7 +158,7 @@ function filter_pixels(numberOfDays) {
 async function handle_file_upload(file) {
     if (!file) return;
 
-    try {
+    // try {
         const text = await file.text();
         const data = JSON.parse(text);
 
@@ -206,10 +204,10 @@ async function handle_file_upload(file) {
                 // debug_function();
             }
         }
-    }
-    catch (error) {
-        console.error(`Error: ${error.message}`);
-    }
+    // }
+    // catch (error) {
+    //     console.error(`Error in handle file upload: ${error.message}`);
+    // }
 }
 
 
@@ -222,7 +220,7 @@ async function debug_function() {
 
 
 async function auto_load_data(filePath) {
-    try {
+    // try {
         const response = await fetch(filePath);
         if (!response.ok) throw new Error("File not found or invalid response");
         const data = await response.json();
@@ -231,10 +229,10 @@ async function auto_load_data(filePath) {
         file.text = async () => JSON.stringify(data);
 
         await handle_file_upload(file);
-    }
-    catch (error) {
-        console.error("auto_load_data Error:", error.message);
-    }
+    // }
+    // catch (error) {
+    //     console.error("auto_load_data Error:", error.message);
+    // }
 }
 
 
@@ -372,17 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
         wordcloudOrderCount = e.target.checked;
         get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-    });    
-    
-    words_exclude_stopwords_checkbox.addEventListener("change", (e) => {
-        if (e.target.checked) {
-            STOP_WORDS = new Set([...STOPWORDS_EN, ...STOPWORDS_FR]);
-        } 
-        else {
-            STOP_WORDS = new Set();
-        }
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
 
     words_words_input.addEventListener("input", (e) => {
@@ -415,14 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn_save_words_dialog_settings.addEventListener("click", () => {
         close_words_dialog_settings();
-    });
-
-    btn_generate_png.addEventListener("click", () => {
-        generate_pixels_PNG(current_data);
-    });
-
-    btn_download_png.addEventListener("click", () => {
-        download_pixels_PNG();
     });
 
     wordcloud_size_input.addEventListener("input", (e) => {
