@@ -60,16 +60,15 @@
         flex-wrap: wrap;
 
         & .tag-pill {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 4px 10px;
-            margin-left: 5px;
-            margin-top: 5px;
+            margin: 3px;
+            padding: 5px 10px;
             border-radius: 999px;
+            color: #fff;
+            background-color: var(--primary-color);
             font-size: 0.9rem;
+            white-space: nowrap;
             cursor: default;
             transition: background-color 0.2s;
-            white-space: nowrap;
         }
 
         & .tag-pill:hover {

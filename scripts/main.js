@@ -42,7 +42,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 5000;
+const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -90,6 +90,7 @@ const png_default_settings = {
     scoreType: "avg",
     firstDayOfWeek: 1,
     squareSize: 20,
+    borderSize: 0,
     layout: "vertical-weeks"
 };
 let png_settings = png_default_settings;
@@ -441,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {
-        if (input.type === "file") return;
+        if (input.type === "file") { return; }
         input.addEventListener('input', store_settings);
     });
 });

@@ -261,25 +261,6 @@
                             </button>
                         </div>
 
-                        <div class="option-item">
-                            <label for="scoreTypeSelect" title="Choose how the score of each Pixel is calculated">Score type</label>
-                            <select id="scoreTypeSelect" class="select">
-                                <option value="avg">Average score</option>
-                                <option value="first">First score of the day</option>
-                                <option value="max">Max score</option>
-                            </select>
-                        </div>
-
-                        <div class="option-item">
-                            <label for="layoutSelect" title="Select how you want your image to look">Orientation</label>
-                            <select id="layoutSelect" class="select">
-                                <option value="vertical-weeks">Vertical weeks</option>
-                                <option value="vertical-months">Vertical months</option>
-                                <option value="horizontal-weeks">Horizontal weeks</option>
-                                <option value="horizontal-months">Horizontal months</option>
-                            </select>
-                        </div>
-
                         <dialog id="dialogSettings" class="div-dialog-settings">
                             <div class="dialog-settings">
 
@@ -307,9 +288,6 @@
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
                                     
-                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
-                                    
                                     <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
                                     <select id="startOfWeekSelect" class="select">
                                         <option value="1">Monday</option>
@@ -320,6 +298,13 @@
                                         <option value="6">Saturday</option>
                                         <option value="0">Sunday</option>
                                     </select>
+                                    
+                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
+
+                                    <label for="borderSizeInput" title="The size of the border on each Pixels">Border size (px)</label>
+                                    <input type="number" id="borderSizeInput" class="input-nb" min="0" max="10" value="0">
+
                                 </div>
                                 
                                 <div class="dialog-buttons">
@@ -329,6 +314,27 @@
                                 </div>
                             </div>
                         </dialog>
+
+                        <div class="option-item">
+                            <label for="scoreTypeSelect" title="Choose how the score of each Pixel is calculated">Score type</label>
+                            <select id="scoreTypeSelect" class="select">
+                                <option value="gradient">Gradient</option>
+                                <option value="avg">Blend average</option>
+                                <option value="first">First score of day</option>
+                                <option value="last">Last score of day</option>
+                                <option value="max">Max score</option>
+                            </select>
+                        </div>
+
+                        <div class="option-item">
+                            <label for="layoutSelect" title="Select how you want your image to look">Orientation</label>
+                            <select id="layoutSelect" class="select">
+                                <option value="vertical-weeks">Vertical weeks</option>
+                                <option value="vertical-months">Vertical months</option>
+                                <option value="horizontal-weeks">Horizontal weeks</option>
+                                <option value="horizontal-months">Horizontal months</option>
+                            </select>
+                        </div>
 
                         <div class="option-item">
                             <button class="button" id="btnGeneratePixelGrid">Generate</button>
@@ -371,7 +377,7 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.3.3</div>
+        <div class="version">Version: v1.3.4</div>
         <div class="version">Last update: 2025-06-27</div>
     </footer>
 

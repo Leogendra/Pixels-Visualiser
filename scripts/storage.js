@@ -1,4 +1,6 @@
 async function store_settings() {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Ensure all inputs are updated
+
     const settings = {
         averagingValue,
         showAverage,

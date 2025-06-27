@@ -322,19 +322,18 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
     if (words_filtered.length > 0) {
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
-            let isWordSearched = false;
-            if (searchText) {
-                const normalizedSearchText = normalize_string(searchText);
-                isWordSearched = (normalize_string(word.word) === normalizedSearchText) ||
-                    searchText.split(/\s+/)
-                        .some(term => normalize_string(word.word) === (normalize_string(term)));
+                let isWordSearched = false;
+                if (searchText) {
+                    isWordSearched = (normalize_string(word.word) === normalize_string(searchText)) ||
+                                    searchText.split(/\s+/)
+                                              .some(term => normalize_string(word.word) === (normalize_string(term)));
+                }
+                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+                    <h4>${capitalize(word.word)}</h4>
+                    <p title="Number of apearance">count: ${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                    <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
+                    </div>`
             }
-            return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
-                <h4>${capitalize(word.word)}</h4>
-                <p title="Number of apearance">count: ${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
-                <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
-                </div>`
-        }
         ).join("")}`
     }
     else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }

@@ -81,7 +81,7 @@ async function create_pixel_card(pixel) {
             squareSize,
             firstDayOfWeek,
         } = get_image_settings();
-        const pixelColor = get_pixel_color(pixel, colors, scoreType);
+        const pixelColor = get_pixel_color(pixel.scores, colors, scoreType);
         card.style.borderColor = pixelColor;
     }
 
@@ -108,7 +108,7 @@ async function setup_date_calendar() {
 
     for (const pixel of current_data) {
         const date = normalize_date(pixel.date);
-        tagColors[date] = get_pixel_color(pixel, colors, scoreType);
+        tagColors[date] = get_pixel_color(pixel.scores, colors, scoreType);
     }
 
     const events = pixels_dates.map(date => ({

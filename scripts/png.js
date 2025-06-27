@@ -15,11 +15,11 @@ const setting_color4 = document.querySelector("#color4");
 const setting_color5 = document.querySelector("#color5");
 const setting_colorEmpty = document.querySelector("#colorEmpty");
 
-const setting_squareSize = document.querySelector("#squareSizeInput");
-const setting_showMonthLabels = document.querySelector("#showMonthLabelsCheckbox");
-const setting_showLegend = document.querySelector("#showLegendCheckbox");
-const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_firstDayOfWeek = document.querySelector("#startOfWeekSelect");
+const setting_squareSize = document.querySelector("#squareSizeInput");
+const setting_borderSize = document.querySelector("#borderSizeInput");
+
+const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_layout = document.querySelector("#layoutSelect");
 
 let pixelsCanvas;
@@ -37,9 +37,10 @@ function get_image_settings() {
             5: setting_color5.value,
             empty: setting_colorEmpty.value
         },
-        scoreType: setting_scoreType.value,
         firstDayOfWeek: parseInt(setting_firstDayOfWeek.value, 10),
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
+        borderSize: parseInt(setting_borderSize.value, 10) || 0,
+        scoreType: setting_scoreType.value,
         layout: setting_layout.value
     };
 }
@@ -52,9 +53,10 @@ function set_image_settings(settings) {
     setting_color4.value = settings.colors[4];
     setting_color5.value = settings.colors[5];
     setting_colorEmpty.value = settings.colors.empty;
-    setting_scoreType.value = settings.scoreType;
     setting_firstDayOfWeek.value = settings.firstDayOfWeek.toString();
     setting_squareSize.value = settings.squareSize.toString();
+    setting_borderSize.value = settings.borderSize.toString();
+    setting_scoreType.value = settings.scoreType;
     setting_layout.value = settings.layout;
 }
 
@@ -79,22 +81,27 @@ function get_user_colors(scores_map = null) {
 }
 
 
-function get_pixel_color(pixel, colors, scoreType) {
+function get_pixel_color(scores, colors, scoreType) {
 
-    if (!pixel || !Array.isArray(pixel.scores) || pixel.scores.length === 0) {
+    if (!Array.isArray(scores) || scores.length === 0) {
         return colors.empty;
     }
 
     let score;
-
-    if (scoreType == "avg") {
-        score = average(pixel.scores);
+    if (scoreType == "max") {
+        score = maximum(scores);
     }
-    else if (scoreType == "max") {
-        score = maximum(pixel.scores);
+    else if (scoreType == "min") {
+        score = minimum(scores);
     }
     else if (scoreType == "first") {
-        score = pixel.scores[0];
+        score = scores[0];
+    }
+    else if (scoreType == "last") {
+        score = scores[scores.length - 1];
+    }
+    else { // avg, gradient, etc
+        score = average(scores);
     }
 
     if (!Number.isInteger(score)) {
@@ -116,10 +123,11 @@ function get_pixel_color(pixel, colors, scoreType) {
 function generate_pixels_PNG(data) {
     const {
         colors,
-        layout,
-        scoreType,
-        squareSize,
         firstDayOfWeek,
+        squareSize,
+        borderSize,
+        scoreType,
+        layout
     } = get_image_settings();
 
     // Choose layout and direction
@@ -186,15 +194,16 @@ function generate_pixels_PNG(data) {
     const ctx = pixelsCanvas.getContext("2d");
 
     // Draw the grid
-    let firstPixelDrawn = false;
+    let firstPixelDrawn = true;
     for (let i = 0; i < pixels_groups.length; i++) {
         const days = pixels_groups[i];
         for (let j = 0; j < days.length; j++) {
             const d = days[j];
-            const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7; // + 7 to handle negative values
             const normalizedDate = normalize_date(d);
             const pixel = pixel_map.get(normalizedDate);
-            const color = get_pixel_color(pixel, colors, scoreType);
+
+            const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7; // + 7 to handle negative values
+            const color = get_pixel_color(pixel?.scores, colors, scoreType);
 
             let x, y;
             if (direction === "col") {
@@ -206,6 +215,7 @@ function generate_pixels_PNG(data) {
                 x = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
             }
 
+            // Avoid drawing the first pixels if they are empty
             if (!firstPixelDrawn) {
                 if (color === colors.empty) {
                     continue;
@@ -215,8 +225,31 @@ function generate_pixels_PNG(data) {
                 }
             }
 
-            ctx.fillStyle = color;
+            // Draw a gradient if scores are available
+            if ((scoreType == "gradient") && pixel && pixel.scores && pixel.scores.length > 1) {
+                const gradient = ctx.createLinearGradient(x, y, x + squareSize, y); // horizontal
+
+                const scores = pixel.scores;
+                const step = 1 / (scores.length - 1);
+
+                scores.forEach((score, idx) => {
+                    const color = get_pixel_color([score], colors, scoreType);
+                    gradient.addColorStop(idx * step, color);
+                });
+
+                ctx.fillStyle = gradient;
+            }
+            else {
+                ctx.fillStyle = color;
+            }
+
             ctx.fillRect(x, y, squareSize, squareSize);
+
+            if (borderSize > 0) {
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = borderSize;
+                ctx.strokeRect(x + 0.5, y + 0.5, squareSize - 1, squareSize - 1);
+            }
         }
     }
 
