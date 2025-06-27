@@ -100,6 +100,9 @@ function get_pixel_color(scores, colors, scoreType) {
     else if (scoreType == "last") {
         score = scores[scores.length - 1];
     }
+    else if (scoreType == "rounded") {
+        score = Math.round(average(scores));
+    }
     else { // avg, gradient, etc
         score = average(scores);
     }
