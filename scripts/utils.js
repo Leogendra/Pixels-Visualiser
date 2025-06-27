@@ -95,3 +95,14 @@ function interpolate_RGB(a, b, t) {
 function RGB_to_hex({ r, g, b }) {
     return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
 }
+
+
+function get_contrasting_text_color(bgColor) {
+  const hex = bgColor.replace("#", "");
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+  return luminance > 186 ? "#000000" : "#ffffff";
+}

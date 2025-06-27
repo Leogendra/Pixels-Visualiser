@@ -29,6 +29,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 0.5rem;
         margin-top: 0.5rem;
 
@@ -98,4 +99,30 @@
     gap: 0.5rem;
     padding: 1rem;
     margin: 0 1rem;
+}
+
+
+.calendar-input {
+    overflow-y: auto;
+    max-height: 400px;
+    background-color: white;
+}
+
+
+
+
+@media (max-width: 800px) {
+    .pixel-date-result {
+        margin: 0;
+        padding: 0.5rem;
+    }
+
+    .pixel-card {
+        padding: 1rem 0.5rem;
+        
+        & .pixel-icon {
+            width: 40px !important;
+            height: 40px !important;
+        }
+    }
 }

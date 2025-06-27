@@ -42,7 +42,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 2000;
+const SCROLL_TO = 5000;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -58,12 +58,12 @@ let tagsPercentage = false;
 let nbMaxTags = 10;
 
 // Weekdays
-let firstDayOfWeek = 1;
 let weekdays_stats = {};
+let firstDayOfWeek = 1;
 
 // Months
-let seasonColors = false;
 let months_stats = {};
+let seasonColors = false;
 
 // Wordcloud
 let full_word_frequency = [];
@@ -71,7 +71,7 @@ let wordcloudPercentage = false;
 let wordcloudOrderCount = false;
 let nbMaxWords = 20;
 let nbMinCount = 10;
-let minScore = 1;
+let minScore = 1.0;
 let searchTerm = "";
 
 let wordcloudSize = 4;
@@ -151,6 +151,7 @@ function filter_pixels(numberOfDays) {
         create_weekday_chart(firstDayOfWeek);
         create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        setup_date_calendar();
     }
 }
 
@@ -198,6 +199,8 @@ async function handle_file_upload(file) {
             create_weekday_chart(firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+            setup_date_calendar();
+
 
             // DEBUGGING
             if (DEV_MODE) {
@@ -215,7 +218,7 @@ async function handle_file_upload(file) {
 async function debug_function() {
     const first_pixel_card = await create_pixel_card(current_data[0]);
     content_container.appendChild(first_pixel_card);
-    console.log("First pixel card:", first_pixel_card);
+    console.debug("First pixel card:", first_pixel_card);
 }
 
 
@@ -383,8 +386,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     min_score_slider.addEventListener("input", (e) => {
-        minScore = (parseInt(e.target.value) / 10).toFixed(1);
-        min_score_slider_text_value.textContent = minScore;
+        minScore = parseInt(e.target.value) / 10;
+        min_score_slider_text_value.textContent = minScore.toFixed(1);
         get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
     });
@@ -434,10 +437,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    // Save settings whe a field is changed
+    // Save settings when a field is changed
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {
+        if (input.type === "file") return;
         input.addEventListener('input', store_settings);
     });
 });
