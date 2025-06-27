@@ -85,11 +85,11 @@ async function load_settings() {
         // Min score
         minScore = settings.minScore || 1.0;
         min_score_slider.value = 10 * minScore;
-        min_score_slider_text_value.textContent = minScore;
+        min_score_slider_text_value.textContent = minScore.toFixed(1);
 
         // Stopwords settings
         stopwordsLanguage = settings.stopwordsLanguage || "en";
-        default_stopwords = new Set(settings.default_stopwords || []);
+        default_stopwords = new Set(settings.default_stopwords || await get_default_stopwords(stopwordsLanguage));
         custom_stopwords = new Set(settings.custom_stopwords || []);
         STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
         set_stopwords_settings();

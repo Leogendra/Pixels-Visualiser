@@ -16,15 +16,26 @@ let STOP_WORDS = new Set([]);
 
 async function set_stopwords_settings() {
     words_stopwords_language_select.value = stopwordsLanguage;
-    set_default_stopwords(default_stopwords);
+    if (default_stopwords.size === 0) {
+        get_and_set_default_stopwords(stopwordsLanguage);
+    } 
+    else {
+        set_default_stopwords(default_stopwords);
+    }
     set_custom_stopwords(custom_stopwords);
 }
 
 
 async function get_stopwords_settings() {
     stopwordsLanguage = words_stopwords_language_select.value;
-    custom_stopwords = new Set(custom_stopwords_textarea.value.split("\n").map(word => word.trim()).filter(word => word !== ""));
-    default_stopwords = new Set(default_stopwords_textarea.value.split("\n").map(word => word.trim()).filter(word => word !== ""));
+    custom_stopwords = new Set(custom_stopwords_textarea.value
+                                                        .split(/\s+/)
+                                                        .map(word => normalize_string(word))
+                                                        .filter(word => word !== ""));
+    default_stopwords = new Set(default_stopwords_textarea.value
+                                                          .split(/\s+/)
+                                                          .map(word => normalize_string(word))
+                                                          .filter(word => word !== ""));
     STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
     get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
     create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
@@ -32,7 +43,7 @@ async function get_stopwords_settings() {
 
 
 async function get_default_stopwords(language) {
-    if (language === "no") {
+    if (language === "none") {
         return new Set();
     }
     stopwords_path = `scripts/stopwords/${language}.txt`;
@@ -40,8 +51,10 @@ async function get_default_stopwords(language) {
         return await fetch(stopwords_path)
             .then(response => response.text())
             .then(text => {
-                let language_stopwords = new Set(text.split("\n").map(word => word.trim()).filter(word => word !== ""));
-                language_stopwords = new Set(Array.from(language_stopwords).sort()); // Sort alphabetically
+                const language_stopwords = new Set(text.split(/\s+/)
+                                                      .map(word => normalize_string(word))
+                                                      .filter(word => word !== "")
+                                                      .sort());
                 return language_stopwords;
             });
     }
