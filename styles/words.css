@@ -56,3 +56,27 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 }
+
+
+
+
+@media (max-width: 800px) {
+    .words-container {
+        padding: 0.5rem 0;
+        margin: 0 0.5rem;
+    }
+
+    .word-card {
+        min-width: 80px;
+        padding: 0.5rem 0.3rem;
+
+        & h4 {
+            margin: 0 0 4px;
+            font-size: 0.9rem;
+        }
+        & p {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+        }
+    }
+}

@@ -318,8 +318,8 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
             }
             return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                 <h4>${capitalize(word.word)}</h4>
-                <p title="Number of apearance">${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
-                <p title="Average score">${(word.avg_score).toFixed(2)}</p>
+                <p title="Number of apearance">count: ${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                 </div>`
         }
         ).join("")}`

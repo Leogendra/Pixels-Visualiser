@@ -42,7 +42,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 20000;
+const SCROLL_TO = 5000;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
