@@ -1,3 +1,8 @@
+let update_wordcloud_timeout;
+
+
+
+
 function calculate_mood_distribution(moodCounts) {
     const nbMoods = moodCounts.length;
 
@@ -212,7 +217,7 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
         .filter(word => word);
 
     let searchPattern = null;
-    if (searchTextLower.includes("*")) {
+    if (searchTextLower.includes("*") && searchTextLower.length > 1) {
         const pattern = searchTextLower
             .split("*")
             .map(escape_regex)
@@ -221,6 +226,9 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
     }
 
     data.forEach(entry => {
+        const average_score = average(entry.scores);
+        if (average_score < minScore) { return; }
+
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
 
@@ -241,14 +249,11 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
 
         // Filter words of the notes
         let words = notesLower
-            .replace(/[.,\/#!$%\^&\*;:{}="+_`~()]/g, " ")
-            .replace(/-/g, " ")
+            .replace(/[^a-zA-Z0-9]+/g, " ")
             .split(/\s+/)
             .filter(word =>
                 (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
                 (!STOP_WORDS.has(word)) && // Word is not a stop word
-                (searchTextLower !== word) && // Word is not the search term (already counted above)
-                (average(entry.scores) >= minScore) && // Word meets min score requirement
                 (
                     (searchWords.length === 0) || // Either no search words or
                     searchWords.some((sw, i) => {
@@ -266,21 +271,29 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
         if (searchPattern) {
             let match;
             while ((match = searchPattern.exec(notesLower)) !== null) {
-                const capturedWord = match[1]; // Word after the asterisk
-                if (capturedWord) {
-                    words.push(capturedWord);
+                // one or more words captured by the pattern
+                for (let i = 1; i < match.length; i++) {
+                    const capturedWord = match[i];
+                    if (!capturedWord) continue;
+
+                    if (!(capturedWord in wordData)) {
+                        wordData[capturedWord] = { count: 0, scores: [] };
+                    }
+
+                    wordData[capturedWord].count += 1;
+                    wordData[capturedWord].scores.push(average_score);
                 }
             }
         }
 
+
         // Add each word to the count
-        const normalizedWords = words.map(word => normalize_string(word));
-        normalizedWords.forEach(word => {
+        words.forEach(word => {
             if (!(word in wordData)) {
                 wordData[word] = { count: 0, scores: [] };
             }
             wordData[word].count += 1;
-            wordData[word].scores.push(average(entry.scores));
+            wordData[word].scores.push(average_score);
         });
     });
 
@@ -326,7 +339,14 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
     }
     else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }
 
-    update_wordcloud(minCount, inPercentage);
+
+    // Avoid updating the wordcloud too frequently
+    if (update_wordcloud_timeout) {
+        clearTimeout(update_wordcloud_timeout);
+    }
+    update_wordcloud_timeout = setTimeout(() => {
+        update_wordcloud(minCount, inPercentage);
+    }, 1000);
 }
 
 
