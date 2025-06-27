@@ -91,12 +91,12 @@ function calculate_and_display_stats(data) {
 
 
 async function create_scores_pie_chart() {
-    const rawScores = current_data.reduce((acc, entry) => {
-        entry.scores.forEach(score => {
-            acc[score] = (acc[score] || 0) + 1;
-        });
-        return acc;
-    }, {});
+    const rawScores = current_data
+                    .flatMap(entry => entry.scores)
+                    .reduce((acc, score) => {
+                        acc[score] = (acc[score] || 0) + 1;
+                        return acc;
+                    }, {});
 
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
@@ -109,7 +109,7 @@ async function create_scores_pie_chart() {
             datasets: [{
                 label: "Scores",
                 data: values,
-                backgroundColor: get_user_colors(),
+                backgroundColor: get_user_colors(rawScores),
                 borderColor: "#000000",
                 borderWidth: 1
             }]

@@ -59,8 +59,8 @@ function set_image_settings(settings) {
 }
 
 
-function get_user_colors() {
-    return [
+function get_user_colors(scores_map = null) {
+    const colors_array = [
         setting_color1.value,
         setting_color2.value,
         setting_color3.value,
@@ -68,6 +68,14 @@ function get_user_colors() {
         setting_color5.value,
         setting_colorEmpty.value
     ];
+    if (scores_map) {
+        return colors_array.filter((color, index) => {
+            return (scores_map[index + 1] !== undefined);
+        });
+    }
+    else {
+        return colors_array;
+    }
 }
 
 
