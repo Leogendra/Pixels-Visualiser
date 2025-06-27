@@ -71,9 +71,10 @@ function get_user_colors() {
 }
 
 
-function get_pixel_color(pixel, scoreType, colorMap) {
+function get_pixel_color(pixel, colors, scoreType) {
+
     if (!pixel || !Array.isArray(pixel.scores) || pixel.scores.length === 0) {
-        return colorMap.empty;
+        return colors.empty;
     }
 
     let score;
@@ -93,13 +94,13 @@ function get_pixel_color(pixel, scoreType, colorMap) {
         const ceil = Math.ceil(score);
         const t = score - floor;
 
-        const colorA = hex_to_RGB(colorMap[floor] || colorMap.empty);
-        const colorB = hex_to_RGB(colorMap[ceil] || colorMap.empty);
+        const colorA = hex_to_RGB(colors[floor] || colors.empty);
+        const colorB = hex_to_RGB(colors[ceil] || colors.empty);
         const blended = interpolate_RGB(colorA, colorB, t);
         return RGB_to_hex(blended);
     }
 
-    return colorMap[score] || colorMap.empty;
+    return colors[score] || colors.empty;
 }
 
 
@@ -185,7 +186,7 @@ function generate_pixels_PNG(data) {
             const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7; // + 7 to handle negative values
             const normalizedDate = normalize_date(d);
             const pixel = pixel_map.get(normalizedDate);
-            const color = get_pixel_color(pixel, scoreType, colors);
+            const color = get_pixel_color(pixel, colors, scoreType);
 
             let x, y;
             if (direction === "col") {

@@ -344,10 +344,14 @@
                 <div class="chart-container">
                     <h2>📅 Search Pixels by date</h2>
 
+                    <div class="option-item">
+                        <label for="dateSearchInput" title="Colors and score type can be selected above">Select date</label>
+                        <input type="date" id="dateSearchInput" class="input-date"">
+                    </div>
+
                     <div class="options">
                         <div class="option-item">
-                            <label for="dateSearchInput" title="Select a date to display the corresponding pixel">Select date</label>
-                            <input type="date" id="dateSearchInput" class="input-date">
+                            <div id="calendar" class="calendar-input"></div>
                         </div>
                     </div>
 
@@ -371,13 +375,18 @@
         <div class="version">Last update: 2025-06-27</div>
     </footer>
 
-    <!-- Charts.js -->
+    <!-- Charts.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-    <!-- Wordcloud2.js -->
+    <!-- Wordcloud2.js for wordcloud -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+
+    <!-- Fullcalendar.js for date input -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <script src="scripts/utils.js"></script>
     <script src="scripts/stopwords.js"></script>

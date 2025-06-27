@@ -42,7 +42,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 2000;
+const SCROLL_TO = 20000;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -151,6 +151,7 @@ function filter_pixels(numberOfDays) {
         create_weekday_chart(firstDayOfWeek);
         create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        setup_date_calendar();
     }
 }
 
@@ -198,6 +199,8 @@ async function handle_file_upload(file) {
             create_weekday_chart(firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+            setup_date_calendar();
+
 
             // DEBUGGING
             if (DEV_MODE) {
