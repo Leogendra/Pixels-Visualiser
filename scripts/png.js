@@ -199,7 +199,7 @@ function generate_pixels_PNG(data) {
 
     const ctx = pixelsCanvas.getContext("2d");
     ctx.fillStyle = "black";
-    ctx.font = "8px sans-serif";
+    ctx.font = `${squareSize * 0.25}px sans-serif`;
     ctx.textAlign = "center";
     ctx.fillStyle = colors.empty;
     ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);   
@@ -209,11 +209,9 @@ function generate_pixels_PNG(data) {
     // Draw the grid
     let lastYear = null;
     let lastMonth = null;
-    let lastColumnWrote = false;
     let firstPixelDrawn = true;
     pixels_groups.forEach((days, i) => {
-        for (let j = 0; j < days.length; j++) {
-            const d = days[j];
+        days.forEach((d, j) => {
             const normalizedDate = normalize_date(d);
             const pixel = pixel_map.get(normalizedDate);
 
@@ -221,14 +219,14 @@ function generate_pixels_PNG(data) {
             const color = get_pixel_color(pixel?.scores, colors, scoreType);
 
             // Labels for legend
-            const year = days[0].getFullYear();
+            const year = d.getFullYear();
             const month = d.getMonth();
             const monthLabel = d.toLocaleString("default", { month: "short" });
 
             // Avoid drawing the first pixels if they are empty
             if (!firstPixelDrawn) {
                 if (color === colors.empty) {
-                    continue;
+                    return; // "continue" for the foreach
                 }
                 else {
                     firstPixelDrawn = true;
@@ -251,26 +249,24 @@ function generate_pixels_PNG(data) {
 
 
             // Draw the legend labels for month and year
-            if (lastColumnWrote !== (direction === "col" ? i : j)) {
+            if (j == days.length - 1) {
+                
+                ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
 
                 if (year !== lastYear) {
                     ctx.fillStyle = "black";
                     const yearLabelX = direction === "col" ? i * squareSize + legendPadding + squareSize / 2 : legendPadding / 2;
                     const yearLabelY = direction === "col" ? 10 : i * squareSize + legendPadding + squareSize / 2;
                     
-                    ctx.font = "bold 12px sans-serif";
                     if (direction === "col") {
                         ctx.fillText(year, yearLabelX, 10);
                     } 
                     else {
                         ctx.save();
-                        ctx.translate(10, yearLabelY);
-                        ctx.rotate(-Math.PI / 2);
+                        ctx.translate(20, yearLabelY - (squareSize * 0.05));
                         ctx.fillText(year, 0, 0);
                         ctx.restore();
                     }
-
-                    lastYear = year;
                 }
                 if (month !== lastMonth) {
                     ctx.fillStyle = "grey";
@@ -282,14 +278,18 @@ function generate_pixels_PNG(data) {
                     } 
                     else {
                         ctx.save();
-                        ctx.translate(legendPadding / 2, monthLabelY);
-                        ctx.rotate(-Math.PI / 2);
+                        if (year !== lastYear) {
+                            ctx.translate(legendPadding / 2, monthLabelY + (squareSize * 0.35));
+                        }
+                        else {
+                            ctx.translate(legendPadding / 2, monthLabelY + (squareSize * 0.1));
+                        }
                         ctx.fillText(monthLabel, 0, 0);
                         ctx.restore();
                     }
+                    lastYear = year;
                     lastMonth = month;
                 }
-                lastColumnWrote = direction === "col" ? i : j
             }
 
 
@@ -317,8 +317,16 @@ function generate_pixels_PNG(data) {
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = borderSize;
                 ctx.strokeRect(x + 0.5, y + 0.5, squareSize - 1, squareSize - 1);
+
+                // write the day of month number in the midle of the square
+                ctx.fillStyle = "black";
+                ctx.font = `bold ${squareSize * 0.25}px sans-serif`;
+                ctx.textAlign = "center";
+                const labelX = x + squareSize / 2;
+                const labelY = y + squareSize / 2 + (squareSize * 0.1); 
+                ctx.fillText(d.getDate().toString(), labelX, labelY);
             }
-        }
+        });
     });
 
 
