@@ -134,6 +134,20 @@ async function setup_date_calendar() {
 }
 
 
+function show_pixel_card_and_scroll(dateStr) {
+
+    if (!input_date || !div_date_result) return;
+
+    input_date.value = dateStr;
+    input_date.dispatchEvent(new Event("change", { bubbles: true }));
+
+    setTimeout(() => {
+        div_date_result.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+}
+
+
+
 
 
 
