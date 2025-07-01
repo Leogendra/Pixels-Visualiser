@@ -157,7 +157,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
                     const labelText = mood_chart_instance.data.labels[pointIndex];
                     const dateText = normalize_date(labelText);
 
-                    show_pixel_card_and_scroll(dateText)
+                    show_pixel_card(dateText, scroll=true);
                 }
             },
             plugins: {
