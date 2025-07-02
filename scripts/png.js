@@ -25,6 +25,14 @@ const setting_showDays = document.querySelector("#showDaysCheckbox");
 const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_layout = document.querySelector("#layoutSelect");
 
+// Compare settings
+const compareSelect1 = document.querySelector("#compareSelect1");
+const compareWordInput1 = document.querySelector("#compareWordInput1");
+const compareTagSelect1 = document.querySelector("#compareTagSelect1");
+const compareSelect2 = document.querySelector("#compareSelect2");
+const compareWordInput2 = document.querySelector("#compareWordInput2");
+const compareTagSelect2 = document.querySelector("#compareTagSelect2");
+
 let pixelsCanvas;
 
 
@@ -42,7 +50,7 @@ function get_image_settings() {
         },
         firstDayOfWeek: parseInt(setting_firstDayOfWeek.value, 10),
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
-        borderSize: parseInt(setting_borderSize.value, 10) || 0,
+        borderSize: parseInt(setting_borderSize.value, 10) || 1,
         showBorder: setting_showBorder.checked,
         showLegend: setting_showLegend.checked,
         showDays: setting_showDays.checked,
@@ -134,8 +142,32 @@ function get_pixel_color(scores, colors, scoreType) {
 }
 
 
+async function set_tags_selects() {
+    const all_tags = Object.keys(tag_stats.counts);
+    if (!all_tags || all_tags.length === 0) {
+        compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
+        compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
+        return;
+    }
+    compareTagSelect1.innerHTML = "<option value=''>Select a tag</option>";
+    compareTagSelect2.innerHTML = "<option value=''>Select a tag</option>";
+    all_tags.forEach(tag => {
+        const option1 = document.createElement("option");
+        option1.value = tag;
+        option1.textContent = tag;
+        compareTagSelect1.appendChild(option1);
+        const option2 = document.createElement("option");
+        option2.value = tag;
+        option2.textContent = tag;
+        compareTagSelect2.appendChild(option2);
+    });
+    compareTagSelect1.value = "";
+    compareTagSelect2.value = "";
+}
 
-function generate_pixels_PNG(data) {
+
+
+async function generate_pixels_PNG(data) {
     const {
         colors,
         firstDayOfWeek,
@@ -148,10 +180,13 @@ function generate_pixels_PNG(data) {
         layout
     } = get_image_settings();
 
+    data = get_compare_settings(data);
+
     // Choose layout and direction
     const direction = layout.includes("vertical") ? "col" : "row";
     const isWeek = layout.includes("weeks");
     const textColor = get_contrasting_text_color(colors.empty);
+    const lightTextColor = get_contrasting_text_color(colors.empty, less=true);
 
     // Create a map of pixels by date
     const pixel_map = new Map();
@@ -162,7 +197,9 @@ function generate_pixels_PNG(data) {
 
     // Obtain all dates from the pixel map
     const dates = [...pixel_map.keys()].map(d => new Date(d));
-    if (dates.length === 0) return;
+    if (dates.length === 0) { 
+        return; 
+    }
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
 
@@ -199,7 +236,6 @@ function generate_pixels_PNG(data) {
     // Dimensions of the grid
     const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
     if (pixels_groups.length === 0) {
-        console.warn("No groups found for the selected layout.");
         return;
     }
 
@@ -285,7 +321,7 @@ function generate_pixels_PNG(data) {
                     }
                 }
                 if (month !== lastMonth) {
-                    ctx.fillStyle = textColor;
+                    ctx.fillStyle = lightTextColor;
                     const monthLabelX = direction === "col" ? (i * squareSize + legendPadding + squareSize / 2) : (legendPadding / 2);
                     const monthLabelY = direction === "col" ? (legendPadding / 2) : (i * squareSize + legendPadding + squareSize / 2);
 
@@ -375,7 +411,7 @@ function generate_pixels_PNG(data) {
 
     // Write legend of weekdays or month days on the side/top
     if (showLegend) {
-        ctx.fillStyle = textColor;
+        ctx.fillStyle = lightTextColor;
         ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
         if (isWeek) {
             const weekdays = 7;
@@ -418,7 +454,6 @@ function generate_pixels_PNG(data) {
         result_png.style.height = "600px"; // avoid overflow of the image
     }
 
-
     btn_download_png.style.display = "block";
 }
 
@@ -432,6 +467,132 @@ async function download_pixels_PNG() {
     link.download = "pixels.png";
     link.href = pixelsCanvas.toDataURL("image/png");
     link.click();
+}
+
+
+function filter_pixels_by_keyword(data, keyword, isTag=false) {
+    if (!keyword || (keyword.trim() === "") || (data.length === 0)) { return []; }
+    const result = [];
+    const firstDate = normalize_date(data[0].date);
+    const lastDate = normalize_date(data[data.length - 1].date);
+    result.push({ date: firstDate, scores: [] });
+    result.push({ date: lastDate, scores: [] });
+    
+    const target = normalize_string(keyword);
+    data.forEach(pixel => {
+        const date = normalize_date(pixel.date);
+        const scores = pixel.scores || [];
+        const notes = normalize_string(pixel.notes || "");
+        
+        let hasMatch = false;
+        if (isTag) {
+            if (Array.isArray(pixel.tags)) {
+                hasMatch = pixel.tags.some(tagObj =>
+                    Array.isArray(tagObj.entries) &&
+                    tagObj.entries.some(tag => normalize_string(tag) === target)
+                );
+            }
+        }
+        else {
+            hasMatch = notes.includes(target);
+        }
+
+        if (hasMatch) {
+            result.push({ date, scores });
+        }
+    });
+
+    return result;
+}
+
+
+function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false, isTag2 = false) {
+    if (
+        !keyword1 || keyword1.trim() === "" ||
+        !keyword2 || keyword2.trim() === "" ||
+        data.length === 0
+    ) { return []; }
+    const result = [];
+    const firstDate = normalize_date(data[0].date);
+    const lastDate = normalize_date(data[data.length - 1].date);
+    result.push({ date: firstDate, scores: [] });
+    result.push({ date: lastDate, scores: [] });
+
+    const target1 = normalize_string(keyword1);
+    const target2 = normalize_string(keyword2);
+
+    data.forEach(pixel => {
+        const date = normalize_date(pixel.date);
+        const scores = pixel.scores || [];
+
+        let match1 = false;
+        let match2 = false;
+
+        if (isTag1) {
+            if (Array.isArray(pixel.tags)) {
+                match1 = pixel.tags.some(tagObj =>
+                    Array.isArray(tagObj.entries) &&
+                    tagObj.entries.some(tag => normalize_string(tag) === target1)
+                );
+            }
+        } 
+        else {
+            const notes = normalize_string(pixel.notes || "");
+            match1 = notes.includes(target1);
+        }
+
+        if (isTag2) {
+            if (Array.isArray(pixel.tags)) {
+                match2 = pixel.tags.some(tagObj =>
+                    Array.isArray(tagObj.entries) &&
+                    tagObj.entries.some(tag => normalize_string(tag) === target2)
+                );
+            }
+        } 
+        else {
+            const notes = normalize_string(pixel.notes || "");
+            match2 = notes.includes(target2);
+        }
+
+        if (match1 && match2) {
+            result.push({ date, scores: [3] });
+        } 
+        else if (match1) {
+            result.push({ date, scores: [5] });
+        } 
+        else if (match2) {
+            result.push({ date, scores: [1] });
+        }
+    });
+
+    return result;
+}
+
+
+function get_compare_settings(data) {
+    // if compareWordInput1/compareTagSelect1 and 2 are both set, return filter_pixels_by_two_keywords
+    // if only one is set, return filter_pixels_by_keyword with that keyword
+    // else, returns data
+    const compareTag1 = compareSelect1.value === "tag";
+    const compareTag2 = compareSelect2.value === "tag";
+    const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
+    const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
+    if (value1 && value2) {
+        console.log("Filtering by two keywords:", value1, value2);
+        return filter_pixels_by_two_keywords(data, value1, value2, compareTag1, compareTag2);
+    }
+    else if (value1) {
+        console.log("Filtering by keyword 1:", value1);
+        return filter_pixels_by_keyword(data, value1, compareTag1);
+    }
+    else if (value2) {
+        console.log("Filtering by keyword 2:", value2);
+        return filter_pixels_by_keyword(data, value2, compareTag2);
+    }
+    else {
+        console.log("No keywords set, returning original data.");
+        return data;
+    }
 }
 
 
@@ -481,4 +642,17 @@ btn_generate_png.addEventListener("click", () => {
 
 btn_download_png.addEventListener("click", () => {
     download_pixels_PNG();
+});
+
+
+["1", "2"].forEach(id => {
+    const select = document.querySelector(`#compareSelect${id}`);
+    const inputWrapper = document.querySelector(`#compareWordInput${id}`);
+    const tagWrapper = document.querySelector(`#compareTagSelect${id}`);
+
+    select.addEventListener("change", () => {
+        const isTag = select.value === "tag";
+        inputWrapper.style.display = isTag ? "none" : "block";
+        tagWrapper.style.display = isTag ? "block" : "none";
+    });
 });

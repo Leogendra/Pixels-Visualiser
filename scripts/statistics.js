@@ -172,6 +172,7 @@ function compute_tag_stats(data) {
         scores: tagScores,
         totalPixels: data.length
     };
+    set_tags_selects();
 }
 
 

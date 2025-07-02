@@ -223,6 +223,9 @@ input[type="color"], select {
     }
 }
 
+#compareSearchOptions2 {
+    margin-top: -2rem !important;
+}
 
 @media (max-width: 800px) {
     .input-nb.input-large {

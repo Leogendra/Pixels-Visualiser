@@ -367,9 +367,36 @@
                         </div>
                     </div>
 
+                    <hr>
+
+                    <div class="options grid-options" id="compareSearchOptions1">
+                        <div class="option-item">
+                            <label for="compareSelect1" title="Select whether you want to search a tag or a word">Compare</label>
+                            <select id="compareSelect1" class="select">
+                                <option value="word">Word</option>
+                                <option value="tag">Tag</option>
+                            </select>
+                            <input type="text" id="compareWordInput1" class="input-nb input-large" placeholder="enter a word">
+                            <select id="compareTagSelect1" class="select" style="display: none;"></select>
+                        </div>
+                    </div>
+
+                    <div class="options grid-options" id="compareSearchOptions2">
+                        <div class="option-item">
+                            <label for="compareSelect2" title="Select whether you want to search a tag or a word">With</label>
+                            <select id="compareSelect2" class="select">
+                                <option value="word">Word</option>
+                                <option value="tag">Tag</option>
+                            </select>
+                            <input type="text" id="compareWordInput2" class="input-nb input-large" placeholder="enter a word">
+                            <select id="compareTagSelect2" class="select" style="display: none;"></select>
+                        </div>
+                    </div>
+
+
                     <div id="pixelGridResults" class="div-results-img">
-                        <button class="button" id="btnDownloadPixelGrid">Download</button>
                         <div class="pixel-png-img"></div>
+                        <button class="button" id="btnDownloadPixelGrid">Download</button>
                     </div>
                 </div>
 
@@ -408,7 +435,7 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.3.10</div>
+        <div class="version">Version: v1.4.0</div>
         <div class="version">Last update: 2025-07-02</div>
     </footer>
 
