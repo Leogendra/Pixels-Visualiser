@@ -7,6 +7,23 @@
     <title>Pixels Visualiser</title>
     <link rel="icon" href="assets/favicon.png" type="image/png">
 
+    <!-- Primary Meta Tags  -->
+    <meta name="title" content="Pixels Visualiser" />
+    <meta name="description" content="Visualise your Pixels data with charts, word clouds, and more." />
+    <meta name="theme-color" content="#2fa1ff" />
+    <!-- Open Graph / Facebook  -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pixels-visualiser.gatienh.fr/" />
+    <meta property="og:title" content="Pixels Visualiser" />
+    <meta property="og:image" content="https://pixels-visualiser.gatienh.fr/assets/meta_tags_image.png" />
+    <meta property="og:description" content="Visualise your Pixels data with charts, word clouds, and more." />
+    <!-- Twitter  -->
+    <meta property="twitter:title" content="Pixels Visualiser" />
+    <meta property="twitter:card" content="div_large_image" />
+    <meta property="twitter:image" content="https://pixels-visualiser.gatienh.fr/assets/meta_tags_image.png" />
+    <meta property="twitter:url" content="https://pixels-visualiser.gatienh.fr/" />
+    <meta property="twitter:description" content="Visualise your Pixels data with charts, word clouds, and more." />
+
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/words.css">
@@ -69,14 +86,12 @@
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
 
                         <div class="option-item">
-                            <label for="showAverageCheckbox"
-                                title="Show an horizontal line to visualise your average score">Show average</label>
+                            <label for="showAverageCheckbox" title="Show an horizontal line to visualise your average score">Show average</label>
                             <input type="checkbox" id="showAverageCheckbox" class="checkbox">
                         </div>
 
                         <div class="option-item">
-                            <label for="showYearsCheckbox"
-                                title="Show a vertical line for each 1st of January of each year">Show years</label>
+                            <label for="showYearsCheckbox" title="Show a vertical line for each 1st of January of each year">Show years</label>
                             <input type="checkbox" id="showYearsCheckbox" class="checkbox">
                         </div>
                     </div>
@@ -252,32 +267,13 @@
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
-                    <h2>🖼️ Export Pixels image</h2>
+                    <h2>🖼️ Create Pixels image</h2>
 
                     <div class="options grid-options">
                         <div class="option-item">
                             <button class="button open-settings" id="openImageSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
                             </button>
-                        </div>
-
-                        <div class="option-item">
-                            <label for="scoreTypeSelect" title="Choose how the score of each Pixel is calculated">Score type</label>
-                            <select id="scoreTypeSelect" class="select">
-                                <option value="avg">Average score</option>
-                                <option value="first">First score of the day</option>
-                                <option value="max">Max score</option>
-                            </select>
-                        </div>
-
-                        <div class="option-item">
-                            <label for="layoutSelect" title="Select how you want your image to look">Orientation</label>
-                            <select id="layoutSelect" class="select">
-                                <option value="vertical-weeks">Vertical weeks</option>
-                                <option value="vertical-months">Vertical months</option>
-                                <option value="horizontal-weeks">Horizontal weeks</option>
-                                <option value="horizontal-months">Horizontal months</option>
-                            </select>
                         </div>
 
                         <dialog id="dialogSettings" class="div-dialog-settings">
@@ -301,25 +297,41 @@
                                     <label for="color5">Score 5</label>
                                     <input type="color" id="color5" value="#039d07">
                                     
-                                    <label for="colorEmpty">Empty days</label>
+                                    <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty" value="#f0f2f6">
                                     
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
                                     
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100" value="50">
+
+                                    <!-- Advanced setting, hidden -->
+                                    <label for="borderSizeInput" style="display: none;" title="The size of the border on each Pixels">Border size (px)</label>
+                                    <input type="number" id="borderSizeInput" style="display: none;" class="input-nb" min="0" max="10" value="0">
+
+                                    <label for="showBorderCheckbox" title="Show a border around each Pixel">Show border</label>
+                                    <input type="checkbox" id="showBorderCheckbox" class="checkbox">
+
+                                    <label for="showLegendCheckbox" title="Show month and year legend on the image">Show legend</label>
+                                    <input type="checkbox" id="showLegendCheckbox" class="checkbox">
+
+                                    <label for="showDaysCheckbox" title="Show each day of the month on the image">Show days</label>
+                                    <input type="checkbox" id="showDaysCheckbox" class="checkbox">
                                     
-                                    <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
-                                    <select id="startOfWeekSelect" class="select">
-                                        <option value="1">Monday</option>
-                                        <option value="2">Tuesday</option>
-                                        <option value="3">Wednesday</option>
-                                        <option value="4">Thursday</option>
-                                        <option value="5">Friday</option>
-                                        <option value="6">Saturday</option>
-                                        <option value="0">Sunday</option>
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
+
+                                    <!-- <label for="showDisplayCheckbox" title="Select one word to show on the image, or two words to compare">Display words</label>
+                                    <input type="checkbox" id="showDisplayCheckbox" class="checkbox"> -->
+
+                                    <label for="showFilterSelect" title="Select one word to show on the image, or two words to compare">Advanced filter</label>
+                                    <select id="showFilterSelect" class="select">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Filter word</option>
+                                        <option value="2">Compare words</option>
                                     </select>
+
                                 </div>
                                 
                                 <div class="dialog-buttons">
@@ -331,13 +343,62 @@
                         </dialog>
 
                         <div class="option-item">
+                            <label for="scoreTypeSelect" title="Choose how the score of each Pixel is calculated">Score type</label>
+                            <select id="scoreTypeSelect" class="select">
+                                <option value="gradient">Gradient</option>
+                                <option value="avg">Blend average</option>
+                                <option value="rounded">Rounded average</option>
+                                <option value="first">First score of day</option>
+                                <option value="last">Last score of day</option>
+                                <option value="max">Max score</option>
+                            </select>
+                        </div>
+
+                        <div class="option-item">
+                            <label for="layoutSelect" title="Select how you want your image to look">Orientation</label>
+                            <select id="layoutSelect" class="select">
+                                <option value="vertical-weeks">Vertical weeks</option>
+                                <option value="vertical-months">Vertical months</option>
+                                <option value="horizontal-weeks">Horizontal weeks</option>
+                                <option value="horizontal-months">Horizontal months</option>
+                            </select>
+                        </div>
+
+                        <div class="option-item">
                             <button class="button" id="btnGeneratePixelGrid">Generate</button>
                         </div>
                     </div>
 
+                    <hr id="hr-filter" style="display: none;">
+
+                    <div class="options grid-options" id="compareSearchOptions1" style="display: none;">
+                        <div class="option-item">
+                            <label for="compareSelect1" id="labelCompareSelect1" title="Select whether you want to search a tag or a word">Compare</label>
+                            <select id="compareSelect1" class="select">
+                                <option value="word">Word</option>
+                                <option value="tag">Tag</option>
+                            </select>
+                            <input type="text" id="compareWordInput1" class="input-nb input-large" placeholder="enter a word">
+                            <select id="compareTagSelect1" class="select" style="display: none;"></select>
+                        </div>
+                    </div>
+
+                    <div class="options grid-options" id="compareSearchOptions2" style="display: none;">
+                        <div class="option-item">
+                            <label for="compareSelect2" id="labelCompareSelect2" title="Select whether you want to search a tag or a word">With</label>
+                            <select id="compareSelect2" class="select">
+                                <option value="word">Word</option>
+                                <option value="tag">Tag</option>
+                            </select>
+                            <input type="text" id="compareWordInput2" class="input-nb input-large" placeholder="enter a word">
+                            <select id="compareTagSelect2" class="select" style="display: none;"></select>
+                        </div>
+                    </div>
+
+
                     <div id="pixelGridResults" class="div-results-img">
-                        <button class="button" id="btnDownloadPixelGrid">Download</button>
                         <div class="pixel-png-img"></div>
+                        <button class="button" id="btnDownloadPixelGrid">Download</button>
                     </div>
                 </div>
 
@@ -353,6 +414,11 @@
                         <div class="option-item">
                             <div id="calendar" class="calendar-input"></div>
                         </div>
+                    </div>
+
+                    <div class="nav-buttons-card">
+                        <button id="btnPixelPrev" class="nav-button">&lt; Previous</button>
+                        <button id="btnPixelNext" class="nav-button">Next ></button>
                     </div>
 
                     <div id="dateSearchResult" class="pixel-date-result"></div>
@@ -371,8 +437,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.3.3</div>
-        <div class="version">Last update: 2025-06-27</div>
+        <div class="version">Version: v1.4.2</div>
+        <div class="version">Last update: 2025-07-03</div>
     </footer>
 
     <!-- Charts.js for graphs -->
@@ -385,7 +451,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <!-- Fullcalendar.js for date input -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <script src="scripts/utils.js"></script>

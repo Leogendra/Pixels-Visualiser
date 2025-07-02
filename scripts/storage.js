@@ -1,34 +1,46 @@
+let storeSettingsTimeout = false;
+
+
+
+
 async function store_settings() {
-    const settings = {
-        averagingValue,
-        showAverage,
-        showYears,
+    // Ensure all inputs are updated and avoid multiple rapid calls
+    if (storeSettingsTimeout) {
+        clearTimeout(storeSettingsTimeout);
+    }
 
-        tagsPercentage,
-        nbMaxTags,
+    storeSettingsTimeout = setTimeout(() => {
+        const settings = {
+            averagingValue,
+            showAverage,
+            showYears,
 
-        firstDayOfWeek,
-        seasonColors,
+            tagsPercentage,
+            nbMaxTags,
 
-        wordcloudPercentage,
-        wordcloudOrderCount,
-        nbMaxWords,
-        nbMinCount,
-        minScore,
+            seasonColors,
 
-        stopwordsLanguage,
-        default_stopwords: Array.from(default_stopwords),
-        custom_stopwords: Array.from(custom_stopwords),
+            wordcloudPercentage,
+            wordcloudOrderCount,
+            nbMaxWords,
+            nbMinCount,
+            minScore,
 
-        wordcloudSize,
-        wordcloudSpacing,
+            stopwordsLanguage,
+            default_stopwords: Array.from(default_stopwords),
+            custom_stopwords: Array.from(custom_stopwords),
 
-        png_settings,
-    };
+            wordcloudSize,
+            wordcloudSpacing,
 
-    localStorage.setItem("pixelSettings", JSON.stringify(settings));
+            png_settings,
+        };
 
-    setup_date_calendar();
+        localStorage.setItem("pixelSettings", JSON.stringify(settings));
+
+        setup_calendar_frame();
+    }, 1000);
+
 }
 
 
@@ -59,10 +71,6 @@ async function load_settings() {
         // Max tags
         nbMaxTags = settings.nbMaxTags || 10;
         nb_tags_inputs.forEach(input => input.value = nbMaxTags);
-
-        // First day of week
-        firstDayOfWeek = settings.firstDayOfWeek || 1;
-        weekday_frequency_select.value = firstDayOfWeek;
 
         // Season colors
         seasonColors = settings.seasonColors || false;

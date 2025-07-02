@@ -1,3 +1,4 @@
+const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const privacy_notice = document.querySelector("#privacyNotice");
@@ -42,7 +43,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 5000;
+const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -59,7 +60,6 @@ let nbMaxTags = 10;
 
 // Weekdays
 let weekdays_stats = {};
-let firstDayOfWeek = 1;
 
 // Months
 let months_stats = {};
@@ -78,6 +78,8 @@ let wordcloudSize = 4;
 let wordcloudSpacing = 2;
 let wordcloudBgColor = "#f0f2f6"; // not editable
 let maxWordcloudWords = 150; // not editable
+
+// PNG
 const png_default_settings = {
     colors: {
         1: "#e22230",
@@ -87,12 +89,19 @@ const png_default_settings = {
         5: "#039d07",
         empty: "#f0f2f6"
     },
-    scoreType: "avg",
     firstDayOfWeek: 1,
-    squareSize: 20,
+    squareSize: 50,
+    borderSize: 0,
+    showBorder: false,
+    showLegend: false,
+    showDays: false,
+    scoreType: "avg",
     layout: "vertical-weeks"
 };
 let png_settings = png_default_settings;
+
+// Card
+let getDynamicBorders = true
 
 
 
@@ -148,10 +157,10 @@ function filter_pixels(numberOfDays) {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
         create_tag_score_chart(nbMaxTags);
-        create_weekday_chart(firstDayOfWeek);
+        create_weekday_chart(png_settings.firstDayOfWeek);
         create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-        setup_date_calendar();
+        setup_calendar_frame();
     }
 }
 
@@ -196,10 +205,10 @@ async function handle_file_upload(file) {
             create_mood_chart(current_data, averagingValue, showAverage, showYears);
             create_tag_frequency_chart(tagsPercentage, nbMaxTags);
             create_tag_score_chart(nbMaxTags);
-            create_weekday_chart(firstDayOfWeek);
+            create_weekday_chart(png_settings.firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-            setup_date_calendar();
+            setup_calendar_frame();
 
 
             // DEBUGGING
@@ -275,16 +284,16 @@ document.addEventListener("DOMContentLoaded", () => {
         await handle_file_upload(file);
     });
 
-    drag_and_drop_zone.addEventListener("dragover", (e) => {
+    body.addEventListener("dragover", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.add("dragover");
     });
 
-    drag_and_drop_zone.addEventListener("dragleave", () => {
+    body.addEventListener("dragleave", () => {
         drag_and_drop_zone.classList.remove("dragover");
     });
 
-    drag_and_drop_zone.addEventListener("drop", (e) => {
+    body.addEventListener("drop", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.remove("dragover");
 
@@ -351,8 +360,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
-        firstDayOfWeek = parseInt(e.target.value);
-        create_weekday_chart(firstDayOfWeek);
+        png_settings.firstDayOfWeek = parseInt(e.target.value);
+        create_weekday_chart(png_settings.firstDayOfWeek);
     });
 
 
@@ -441,7 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {
-        if (input.type === "file") return;
+        if (input.type === "file") { return; }
         input.addEventListener('input', store_settings);
     });
 });

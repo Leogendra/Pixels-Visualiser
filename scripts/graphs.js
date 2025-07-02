@@ -150,6 +150,16 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
                     max: 5
                 }
             },
+            onClick: (event, elements) => {
+                const points = mood_chart_instance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+                if (points.length > 0) {
+                    const pointIndex = points[0].index;
+                    const labelText = mood_chart_instance.data.labels[pointIndex];
+                    const dateText = normalize_date(labelText);
+
+                    show_pixel_card(dateText, scroll=true);
+                }
+            },
             plugins: {
                 legend: {
                     display: false

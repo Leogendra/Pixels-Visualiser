@@ -2,12 +2,19 @@ const input_date = document.querySelector("#dateSearchInput");
 const calendar_element = document.querySelector("#calendar");
 const div_date_result = document.querySelector("#dateSearchResult");
 
-let calendar;
+const div_btn_pixel_nav = document.querySelector(".nav-buttons-card");
+const btn_pixel_prev = document.querySelector("#btnPixelPrev");
+const btn_pixel_next = document.querySelector("#btnPixelNext");
+
+let calendar = null;
 
 
 
 
-async function load_colored_SVG(score) {
+async function load_colored_score_SVG(score) {
+    if (!score || (typeof score !== "number") || (score < 1) || (score > 5)) {
+        return document.createElement("span");
+    }
     const path = `assets/pixels/score_${score}.svg`;
     const res = await fetch(path);
     const text = await res.text();
@@ -23,7 +30,6 @@ async function load_colored_SVG(score) {
 
 
 async function create_pixel_card(pixel) {
-    const getDynamicBorders = true; // TODO: add this parameter
     const card = document.createElement("div");
     card.className = "pixel-card";
 
@@ -36,12 +42,12 @@ async function create_pixel_card(pixel) {
     title.textContent = formattedDate;
     card.appendChild(title);
 
-    if (pixel.scores.length > 0) {
+    if (pixel.scores?.length) {
         const scoreWrapper = document.createElement("div");
         scoreWrapper.className = "div-pixel-score-icons";
 
         for (const score of pixel.scores) {
-            const svg = await load_colored_SVG(score);
+            const svg = await load_colored_score_SVG(score);
             svg.classList.add("pixel-icon");
 
             const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
@@ -81,7 +87,7 @@ async function create_pixel_card(pixel) {
             squareSize,
             firstDayOfWeek,
         } = get_image_settings();
-        const pixelColor = get_pixel_color(pixel, colors, scoreType);
+        const pixelColor = get_pixel_color(pixel.scores, colors, scoreType);
         card.style.borderColor = pixelColor;
     }
 
@@ -89,44 +95,52 @@ async function create_pixel_card(pixel) {
 }
 
 
-async function get_pixel_by_date(date) {
-    const found = current_data.find(p => normalize_date(p.date) === date);
+async function show_pixel_card(dateStr, scroll = false) {
+    input_date.value = dateStr;
+    div_btn_pixel_nav.style.display = "flex";
 
+    const found = current_data.find(p => normalize_date(p.date) === dateStr);
     if (found) {
         const card = await create_pixel_card(found);
         div_date_result.innerHTML = card.outerHTML;
-    }
+        calendar.gotoDate(dateStr);
+    } 
     else {
         div_date_result.textContent = "No entry found for this date.";
     }
+
+    if (scroll) {
+        setTimeout(() => {
+            div_date_result.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+    }
 }
 
-async function setup_date_calendar() {
-    const pixels_dates = current_data.map(p => normalize_date(p.date));
-    const tagColors = {};
+
+async function setup_calendar_frame() {
     const { colors, scoreType } = get_image_settings();
 
-    for (const pixel of current_data) {
+    const events = current_data.map(pixel => {
         const date = normalize_date(pixel.date);
-        tagColors[date] = get_pixel_color(pixel, colors, scoreType);
-    }
+        const color = get_pixel_color(pixel.scores, colors, scoreType);
 
-    const events = pixels_dates.map(date => ({
-        title: "",
-        start: date,
-        display: "background",
-        backgroundColor: tagColors[date],
-        borderColor: tagColors[date]
-    }));
+        return {
+            title: "",
+            start: date,
+            display: "background",
+            backgroundColor: color,
+            borderColor: color
+        };
+    });
 
     calendar = new FullCalendar.Calendar(calendar_element, {
         initialView: "multiMonthYear",
         height: "auto",
         events: events,
+        firstDay: png_settings.firstDayOfWeek,
         dateClick: function (info) {
             const clickedDate = info.dateStr;
-            input_date.value = clickedDate;
-            input_date.dispatchEvent(new Event("change", { bubbles: true }));
+            show_pixel_card(clickedDate);
         }
     });
 
@@ -134,15 +148,25 @@ async function setup_date_calendar() {
 }
 
 
+function shift_pixel_date(days) {
+    const current_date = input_date.value;
+    if (!current_date) return;
+    const date = new Date(current_date);
+    date.setDate(date.getDate() + days);
+    show_pixel_card(normalize_date(date));
+}
 
 
 
 
 input_date.addEventListener("change", () => {
     const selected_date = normalize_date(input_date.value);
-    const [year, month, day] = selected_date.split("-");
+    const year = selected_date.split("-")[0];
     if (year.length !== 4) { return; }
 
-    calendar.gotoDate(selected_date);
-    get_pixel_by_date(selected_date);
+    show_pixel_card(selected_date);
 });
+
+
+btn_pixel_prev.addEventListener("click", () => shift_pixel_date(-1));
+btn_pixel_next.addEventListener("click", () => shift_pixel_date(+1));
