@@ -1,3 +1,4 @@
+const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const privacy_notice = document.querySelector("#privacyNotice");
@@ -283,16 +284,16 @@ document.addEventListener("DOMContentLoaded", () => {
         await handle_file_upload(file);
     });
 
-    drag_and_drop_zone.addEventListener("dragover", (e) => {
+    body.addEventListener("dragover", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.add("dragover");
     });
 
-    drag_and_drop_zone.addEventListener("dragleave", () => {
+    body.addEventListener("dragleave", () => {
         drag_and_drop_zone.classList.remove("dragover");
     });
 
-    drag_and_drop_zone.addEventListener("drop", (e) => {
+    body.addEventListener("drop", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.remove("dragover");
 
