@@ -438,18 +438,12 @@ function open_dialog_settings() {
 }
 
 
-function close_dialog_settings() {
-    set_image_settings(png_settings);
-    dialog_settings.close();
+function close_dialog_settings(save = false) {
     dialog_settings.removeEventListener('click', handle_click_dialog);
-}
-
-
-function close_and_save_dialog_settings() {
-    png_settings = get_image_settings();
+    if (save) { png_settings = get_image_settings(); }
+    set_image_settings(png_settings);
     store_settings();
     dialog_settings.close();
-    dialog_settings.removeEventListener('click', handle_click_dialog);
 }
 
 
@@ -475,7 +469,7 @@ btn_cancel_dialog_settings.addEventListener("click", () => {
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {
-    close_and_save_dialog_settings();
+    close_dialog_settings(save=true);
 });
 
 btn_generate_png.addEventListener("click", () => {

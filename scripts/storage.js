@@ -1,36 +1,47 @@
+let storeSettingsTimeout = false;
+
+
+
+
 async function store_settings() {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Ensure all inputs are updated
+    // Ensure all inputs are updated and avoid multiple rapid calls
+    if (storeSettingsTimeout) {
+        clearTimeout(storeSettingsTimeout);
+    }
 
-    const settings = {
-        averagingValue,
-        showAverage,
-        showYears,
+    storeSettingsTimeout = setTimeout(() => {
+        const settings = {
+            averagingValue,
+            showAverage,
+            showYears,
 
-        tagsPercentage,
-        nbMaxTags,
+            tagsPercentage,
+            nbMaxTags,
 
-        firstDayOfWeek,
-        seasonColors,
+            firstDayOfWeek,
+            seasonColors,
 
-        wordcloudPercentage,
-        wordcloudOrderCount,
-        nbMaxWords,
-        nbMinCount,
-        minScore,
+            wordcloudPercentage,
+            wordcloudOrderCount,
+            nbMaxWords,
+            nbMinCount,
+            minScore,
 
-        stopwordsLanguage,
-        default_stopwords: Array.from(default_stopwords),
-        custom_stopwords: Array.from(custom_stopwords),
+            stopwordsLanguage,
+            default_stopwords: Array.from(default_stopwords),
+            custom_stopwords: Array.from(custom_stopwords),
 
-        wordcloudSize,
-        wordcloudSpacing,
+            wordcloudSize,
+            wordcloudSpacing,
 
-        png_settings,
-    };
+            png_settings,
+        };
 
-    localStorage.setItem("pixelSettings", JSON.stringify(settings));
+        localStorage.setItem("pixelSettings", JSON.stringify(settings));
 
-    setup_calendar_frame();
+        setup_calendar_frame();
+    }, 1000);
+
 }
 
 
