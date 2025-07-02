@@ -303,17 +303,6 @@
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
                                     
-                                    <label for="startOfWeekSelect" title="Which day do you want the week to start on">Start of week</label>
-                                    <select id="startOfWeekSelect" class="select">
-                                        <option value="1">Monday</option>
-                                        <option value="2">Tuesday</option>
-                                        <option value="3">Wednesday</option>
-                                        <option value="4">Thursday</option>
-                                        <option value="5">Friday</option>
-                                        <option value="6">Saturday</option>
-                                        <option value="0">Sunday</option>
-                                    </select>
-                                    
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100" value="50">
 
@@ -329,6 +318,19 @@
 
                                     <label for="showDaysCheckbox" title="Show each day of the month on the image">Show days</label>
                                     <input type="checkbox" id="showDaysCheckbox" class="checkbox">
+                                    
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
+
+                                    <!-- <label for="showDisplayCheckbox" title="Select one word to show on the image, or two words to compare">Display words</label>
+                                    <input type="checkbox" id="showDisplayCheckbox" class="checkbox"> -->
+
+                                    <label for="showFilterSelect" title="Select one word to show on the image, or two words to compare">Advanced filter</label>
+                                    <select id="showFilterSelect" class="select">
+                                        <option value="0">Hide</option>
+                                        <option value="1">Filter word</option>
+                                        <option value="2">Compare words</option>
+                                    </select>
 
                                 </div>
                                 
@@ -367,11 +369,11 @@
                         </div>
                     </div>
 
-                    <hr>
+                    <hr id="hr-filter" style="display: none;">
 
-                    <div class="options grid-options" id="compareSearchOptions1">
+                    <div class="options grid-options" id="compareSearchOptions1" style="display: none;">
                         <div class="option-item">
-                            <label for="compareSelect1" title="Select whether you want to search a tag or a word">Compare</label>
+                            <label for="compareSelect1" id="labelCompareSelect1" title="Select whether you want to search a tag or a word">Compare</label>
                             <select id="compareSelect1" class="select">
                                 <option value="word">Word</option>
                                 <option value="tag">Tag</option>
@@ -381,9 +383,9 @@
                         </div>
                     </div>
 
-                    <div class="options grid-options" id="compareSearchOptions2">
+                    <div class="options grid-options" id="compareSearchOptions2" style="display: none;">
                         <div class="option-item">
-                            <label for="compareSelect2" title="Select whether you want to search a tag or a word">With</label>
+                            <label for="compareSelect2" id="labelCompareSelect2" title="Select whether you want to search a tag or a word">With</label>
                             <select id="compareSelect2" class="select">
                                 <option value="word">Word</option>
                                 <option value="tag">Tag</option>
@@ -435,8 +437,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.4.0</div>
-        <div class="version">Last update: 2025-07-02</div>
+        <div class="version">Version: v1.4.1</div>
+        <div class="version">Last update: 2025-07-03</div>
     </footer>
 
     <!-- Charts.js for graphs -->

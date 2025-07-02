@@ -15,20 +15,26 @@ const setting_color4 = document.querySelector("#color4");
 const setting_color5 = document.querySelector("#color5");
 const setting_colorEmpty = document.querySelector("#colorEmpty");
 
-const setting_firstDayOfWeek = document.querySelector("#startOfWeekSelect");
 const setting_squareSize = document.querySelector("#squareSizeInput");
 const setting_borderSize = document.querySelector("#borderSizeInput");
 const setting_showBorder = document.querySelector("#showBorderCheckbox");
 const setting_showLegend = document.querySelector("#showLegendCheckbox");
 const setting_showDays = document.querySelector("#showDaysCheckbox");
+const setting_showFilter = document.querySelector("#showFilterSelect");
 
 const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_layout = document.querySelector("#layoutSelect");
 
 // Compare settings
+const hr_filter = document.querySelector("#hr-filter");
+const div_compareSearchOptions1 = document.querySelector("#compareSearchOptions1");
+const label_compareSelect1 = document.querySelector("#labelCompareSelect1");
 const compareSelect1 = document.querySelector("#compareSelect1");
 const compareWordInput1 = document.querySelector("#compareWordInput1");
 const compareTagSelect1 = document.querySelector("#compareTagSelect1");
+
+const div_compareSearchOptions2 = document.querySelector("#compareSearchOptions2");
+const label_compareSelect2 = document.querySelector("#labelCompareSelect2");
 const compareSelect2 = document.querySelector("#compareSelect2");
 const compareWordInput2 = document.querySelector("#compareWordInput2");
 const compareTagSelect2 = document.querySelector("#compareTagSelect2");
@@ -48,12 +54,13 @@ function get_image_settings() {
             5: setting_color5.value,
             empty: setting_colorEmpty.value
         },
-        firstDayOfWeek: parseInt(setting_firstDayOfWeek.value, 10),
+        firstDayOfWeek: parseInt(weekday_frequency_select.value, 10),
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
         borderSize: parseInt(setting_borderSize.value, 10) || 1,
         showBorder: setting_showBorder.checked,
         showLegend: setting_showLegend.checked,
         showDays: setting_showDays.checked,
+        showFilter: setting_showFilter.value,
         scoreType: setting_scoreType.value,
         layout: setting_layout.value
     };
@@ -67,17 +74,19 @@ function set_image_settings(settings) {
     setting_color4.value = settings.colors[4];
     setting_color5.value = settings.colors[5];
     setting_colorEmpty.value = settings.colors.empty;
-    setting_firstDayOfWeek.value = settings.firstDayOfWeek.toString();
     setting_squareSize.value = settings.squareSize.toString();
     setting_borderSize.value = settings.borderSize.toString();
     setting_showBorder.checked = settings.showBorder;
     setting_showLegend.checked = settings.showLegend;
     setting_showDays.checked = settings.showDays;
+    setting_showFilter.value = settings.showFilter.toString();
     setting_scoreType.value = settings.scoreType;
     setting_layout.value = settings.layout;
 
     // First day of week
     weekday_frequency_select.value = settings.firstDayOfWeek.toString();
+
+    set_filter_display();
 }
 
 
@@ -374,6 +383,7 @@ async function generate_pixels_PNG(data) {
             }
 
             /*
+            // Draw the day number in the center of the square
             if (showDays) {
                 const dayNumber = d.getDate().toString();
                 ctx.fillStyle = "black";
@@ -385,6 +395,7 @@ async function generate_pixels_PNG(data) {
             }
             */
 
+            // Draw the day number in the bottom right corner of the square
             if (showDays) {
                 const dayNumber = d.getDate().toString();
 
@@ -570,30 +581,36 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
 
 
 function get_compare_settings(data) {
-    // if compareWordInput1/compareTagSelect1 and 2 are both set, return filter_pixels_by_two_keywords
-    // if only one is set, return filter_pixels_by_keyword with that keyword
-    // else, returns data
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
     if (value1 && value2) {
-        console.log("Filtering by two keywords:", value1, value2);
         return filter_pixels_by_two_keywords(data, value1, value2, compareTag1, compareTag2);
     }
     else if (value1) {
-        console.log("Filtering by keyword 1:", value1);
         return filter_pixels_by_keyword(data, value1, compareTag1);
     }
     else if (value2) {
-        console.log("Filtering by keyword 2:", value2);
         return filter_pixels_by_keyword(data, value2, compareTag2);
     }
     else {
-        console.log("No keywords set, returning original data.");
         return data;
     }
 }
+
+
+async function set_filter_display() {
+    const filterState = setting_showFilter.value;
+    hr_filter.style.display = (filterState === "0") ? "none" : "block";
+    div_compareSearchOptions1.style.display = (filterState === "0") ? "none" : "flex";
+    div_compareSearchOptions2.style.display = ((filterState === "0") || (filterState === "1")) ? "none" : "flex";
+    label_compareSelect1.innerText = (filterState === "2") ? "Compare" : "Filter";
+
+    label_compareSelect1.style.color = (filterState === "2") ? png_settings.colors[5] : "black";
+    label_compareSelect2.style.color = (filterState === "2") ? png_settings.colors[1] : "black";
+}
+
 
 
 function open_dialog_settings() {
@@ -642,6 +659,11 @@ btn_generate_png.addEventListener("click", () => {
 
 btn_download_png.addEventListener("click", () => {
     download_pixels_PNG();
+});
+
+
+setting_showFilter.addEventListener("change", () => {
+    set_filter_display();
 });
 
 
