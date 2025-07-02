@@ -78,6 +78,8 @@ let wordcloudSize = 4;
 let wordcloudSpacing = 2;
 let wordcloudBgColor = "#f0f2f6"; // not editable
 let maxWordcloudWords = 150; // not editable
+
+// PNG
 const png_default_settings = {
     colors: {
         1: "#e22230",
@@ -87,13 +89,19 @@ const png_default_settings = {
         5: "#039d07",
         empty: "#f0f2f6"
     },
-    scoreType: "avg",
     firstDayOfWeek: 1,
-    squareSize: 20,
+    squareSize: 50,
     borderSize: 0,
+    showBorder: false,
+    showLegend: false,
+    showDays: false,
+    scoreType: "avg",
     layout: "vertical-weeks"
 };
 let png_settings = png_default_settings;
+
+// Card
+let getDynamicBorders = true
 
 
 
@@ -152,7 +160,7 @@ function filter_pixels(numberOfDays) {
         create_weekday_chart(firstDayOfWeek);
         create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-        setup_date_calendar();
+        setup_calendar_frame();
     }
 }
 
@@ -200,7 +208,7 @@ async function handle_file_upload(file) {
             create_weekday_chart(firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-            setup_date_calendar();
+            setup_calendar_frame();
 
 
             // DEBUGGING

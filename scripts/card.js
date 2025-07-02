@@ -2,6 +2,7 @@ const input_date = document.querySelector("#dateSearchInput");
 const calendar_element = document.querySelector("#calendar");
 const div_date_result = document.querySelector("#dateSearchResult");
 
+const div_btn_pixel_nav = document.querySelector(".nav-buttons-card");
 const btn_pixel_prev = document.querySelector("#btnPixelPrev");
 const btn_pixel_next = document.querySelector("#btnPixelNext");
 
@@ -10,8 +11,10 @@ let calendar = null;
 
 
 
-async function load_colored_SVG(score) {
-    if (!score || (typeof score !== "number")) { return document.createElement("span"); }
+async function load_colored_score_SVG(score) {
+    if (!score || (typeof score !== "number") || (score < 1) || (score > 5)) {
+        return document.createElement("span");
+    }
     const path = `assets/pixels/score_${score}.svg`;
     const res = await fetch(path);
     const text = await res.text();
@@ -27,7 +30,6 @@ async function load_colored_SVG(score) {
 
 
 async function create_pixel_card(pixel) {
-    const getDynamicBorders = true; // TODO: add this parameter
     const card = document.createElement("div");
     card.className = "pixel-card";
 
@@ -45,7 +47,7 @@ async function create_pixel_card(pixel) {
         scoreWrapper.className = "div-pixel-score-icons";
 
         for (const score of pixel.scores) {
-            const svg = await load_colored_SVG(score);
+            const svg = await load_colored_score_SVG(score);
             svg.classList.add("pixel-icon");
 
             const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
@@ -93,20 +95,29 @@ async function create_pixel_card(pixel) {
 }
 
 
-async function get_pixel_by_date(date) {
-    const found = current_data.find(p => normalize_date(p.date) === date);
+async function show_pixel_card(dateStr, scroll = false) {
+    input_date.value = dateStr;
+    div_btn_pixel_nav.style.display = "flex";
 
+    const found = current_data.find(p => normalize_date(p.date) === dateStr);
     if (found) {
-        // Avoid blink effect by clearing previous content
         const card = await create_pixel_card(found);
         div_date_result.innerHTML = card.outerHTML;
-    }
+        calendar.gotoDate(dateStr);
+    } 
     else {
         div_date_result.textContent = "No entry found for this date.";
     }
+
+    if (scroll) {
+        setTimeout(() => {
+            div_date_result.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+    }
 }
 
-async function setup_date_calendar() {
+
+async function setup_calendar_frame() {
     const { colors, scoreType } = get_image_settings();
 
     const events = current_data.map(pixel => {
@@ -126,6 +137,7 @@ async function setup_date_calendar() {
         initialView: "multiMonthYear",
         height: "auto",
         events: events,
+        firstDay: png_settings.firstDayOfWeek,
         dateClick: function (info) {
             const clickedDate = info.dateStr;
             show_pixel_card(clickedDate);
@@ -133,22 +145,6 @@ async function setup_date_calendar() {
     });
 
     calendar.render();
-}
-
-
-function show_pixel_card(dateStr, scroll=false) {
-
-    if (!input_date || !div_date_result) return;
-
-    input_date.value = dateStr;
-    input_date.dispatchEvent(new Event("change", { bubbles: true }));
-
-    if (scroll) {
-
-        setTimeout(() => {
-            div_date_result.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
-    }
 }
 
 
@@ -165,11 +161,10 @@ function shift_pixel_date(days) {
 
 input_date.addEventListener("change", () => {
     const selected_date = normalize_date(input_date.value);
-    const [year, month, day] = selected_date.split("-");
+    const year = selected_date.split("-")[0];
     if (year.length !== 4) { return; }
 
-    calendar.gotoDate(selected_date);
-    get_pixel_by_date(selected_date);
+    show_pixel_card(selected_date);
 });
 
 

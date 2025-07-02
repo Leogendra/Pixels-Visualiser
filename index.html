@@ -86,14 +86,12 @@
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
 
                         <div class="option-item">
-                            <label for="showAverageCheckbox"
-                                title="Show an horizontal line to visualise your average score">Show average</label>
+                            <label for="showAverageCheckbox" title="Show an horizontal line to visualise your average score">Show average</label>
                             <input type="checkbox" id="showAverageCheckbox" class="checkbox">
                         </div>
 
                         <div class="option-item">
-                            <label for="showYearsCheckbox"
-                                title="Show a vertical line for each 1st of January of each year">Show years</label>
+                            <label for="showYearsCheckbox" title="Show a vertical line for each 1st of January of each year">Show years</label>
                             <input type="checkbox" id="showYearsCheckbox" class="checkbox">
                         </div>
                     </div>
@@ -269,7 +267,7 @@
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
-                    <h2>🖼️ Export Pixels image</h2>
+                    <h2>🖼️ Create Pixels image</h2>
 
                     <div class="options grid-options">
                         <div class="option-item">
@@ -299,7 +297,7 @@
                                     <label for="color5">Score 5</label>
                                     <input type="color" id="color5" value="#039d07">
                                     
-                                    <label for="colorEmpty">Empty days</label>
+                                    <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty" value="#f0f2f6">
                                     
                                     <div class="empty-line"><hr></div>
@@ -319,8 +317,18 @@
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="50" value="20">
 
-                                    <label for="borderSizeInput" title="The size of the border on each Pixels">Border size (px)</label>
-                                    <input type="number" id="borderSizeInput" class="input-nb" min="0" max="10" value="0">
+                                    <!-- Advanced setting, hidden -->
+                                    <label for="borderSizeInput" style="display: none;" title="The size of the border on each Pixels">Border size (px)</label>
+                                    <input type="number" id="borderSizeInput" style="display: none;" class="input-nb" min="0" max="10" value="0">
+
+                                    <label for="showBorderCheckbox" title="Show a border around each Pixel">Show border</label>
+                                    <input type="checkbox" id="showBorderCheckbox" class="checkbox">
+
+                                    <label for="showLegendCheckbox" title="Show month and year legend on the image">Show legend</label>
+                                    <input type="checkbox" id="showLegendCheckbox" class="checkbox">
+
+                                    <label for="showDaysCheckbox" title="Show each day of the month on the image">Show days</label>
+                                    <input type="checkbox" id="showDaysCheckbox" class="checkbox">
 
                                 </div>
                                 
@@ -379,7 +387,7 @@
                         </div>
                     </div>
 
-                    <div class="nav-buttons">
+                    <div class="nav-buttons-card">
                         <button id="btnPixelPrev" class="nav-button">&lt; Previous</button>
                         <button id="btnPixelNext" class="nav-button">Next ></button>
                     </div>
@@ -400,8 +408,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.3.7</div>
-        <div class="version">Last update: 2025-07-01</div>
+        <div class="version">Version: v1.3.8</div>
+        <div class="version">Last update: 2025-07-02</div>
     </footer>
 
     <!-- Charts.js for graphs -->

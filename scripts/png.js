@@ -18,6 +18,9 @@ const setting_colorEmpty = document.querySelector("#colorEmpty");
 const setting_firstDayOfWeek = document.querySelector("#startOfWeekSelect");
 const setting_squareSize = document.querySelector("#squareSizeInput");
 const setting_borderSize = document.querySelector("#borderSizeInput");
+const setting_showBorder = document.querySelector("#showBorderCheckbox");
+const setting_showLegend = document.querySelector("#showLegendCheckbox");
+const setting_showDays = document.querySelector("#showDaysCheckbox");
 
 const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_layout = document.querySelector("#layoutSelect");
@@ -40,6 +43,9 @@ function get_image_settings() {
         firstDayOfWeek: parseInt(setting_firstDayOfWeek.value, 10),
         squareSize: parseInt(setting_squareSize.value, 10) || 20,
         borderSize: parseInt(setting_borderSize.value, 10) || 0,
+        showBorder: setting_showBorder.checked,
+        showLegend: setting_showLegend.checked,
+        showDays: setting_showDays.checked,
         scoreType: setting_scoreType.value,
         layout: setting_layout.value
     };
@@ -56,6 +62,9 @@ function set_image_settings(settings) {
     setting_firstDayOfWeek.value = settings.firstDayOfWeek.toString();
     setting_squareSize.value = settings.squareSize.toString();
     setting_borderSize.value = settings.borderSize.toString();
+    setting_showBorder.checked = settings.showBorder;
+    setting_showLegend.checked = settings.showLegend;
+    setting_showDays.checked = settings.showDays;
     setting_scoreType.value = settings.scoreType;
     setting_layout.value = settings.layout;
 }
@@ -129,6 +138,9 @@ function generate_pixels_PNG(data) {
         firstDayOfWeek,
         squareSize,
         borderSize,
+        showBorder,
+        showLegend,
+        showDays,
         scoreType,
         layout
     } = get_image_settings();
@@ -136,6 +148,7 @@ function generate_pixels_PNG(data) {
     // Choose layout and direction
     const direction = layout.includes("vertical") ? "col" : "row";
     const isWeek = layout.includes("weeks");
+    const textColor = get_contrasting_text_color(colors.empty);
 
     // Create a map of pixels by date
     const pixel_map = new Map();
@@ -193,12 +206,12 @@ function generate_pixels_PNG(data) {
 
     pixelsCanvas = document.createElement("canvas");
 
-    const legendPadding = 40;
-    pixelsCanvas.width = cols * squareSize + legendPadding;
-    pixelsCanvas.height = rows * squareSize + legendPadding;
+    const legendPadding = showLegend ? (squareSize * 1.3) : (squareSize * 0.3);
+    pixelsCanvas.width = cols * squareSize + legendPadding + (squareSize * 0.3); // Add padding for style in the bottom/right
+    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3);
 
     const ctx = pixelsCanvas.getContext("2d");
-    ctx.fillStyle = "black";
+    ctx.fillStyle = textColor;
     ctx.font = `${squareSize * 0.25}px sans-serif`;
     ctx.textAlign = "center";
     ctx.fillStyle = colors.empty;
@@ -249,32 +262,32 @@ function generate_pixels_PNG(data) {
 
 
             // Draw the legend labels for month and year
-            if (j == days.length - 1) {
+            if (showLegend && (j === (days.length - 1))) {
                 
                 ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
 
                 if (year !== lastYear) {
-                    ctx.fillStyle = "black";
-                    const yearLabelX = direction === "col" ? i * squareSize + legendPadding + squareSize / 2 : legendPadding / 2;
-                    const yearLabelY = direction === "col" ? 10 : i * squareSize + legendPadding + squareSize / 2;
+                    ctx.fillStyle = textColor;
+                    const yearLabelX = direction === "col" ? (i * squareSize + legendPadding + squareSize / 2) : (legendPadding / 2);
+                    const yearLabelY = direction === "col" ? (legendPadding / 2) : (i * squareSize + legendPadding + squareSize / 2);
                     
                     if (direction === "col") {
-                        ctx.fillText(year, yearLabelX, 10);
+                        ctx.fillText(year, yearLabelX, yearLabelY - (squareSize * 0.1));
                     } 
                     else {
                         ctx.save();
-                        ctx.translate(20, yearLabelY - (squareSize * 0.05));
+                        ctx.translate(legendPadding / 2, yearLabelY - (squareSize * 0.05));
                         ctx.fillText(year, 0, 0);
                         ctx.restore();
                     }
                 }
                 if (month !== lastMonth) {
-                    ctx.fillStyle = "grey";
-                    const monthLabelX = direction === "col" ? i * squareSize + legendPadding + squareSize / 2 : legendPadding / 2;
-                    const monthLabelY = direction === "col" ? legendPadding / 2 : i * squareSize + legendPadding + squareSize / 2;
+                    ctx.fillStyle = textColor;
+                    const monthLabelX = direction === "col" ? (i * squareSize + legendPadding + squareSize / 2) : (legendPadding / 2);
+                    const monthLabelY = direction === "col" ? (legendPadding / 2) : (i * squareSize + legendPadding + squareSize / 2);
 
                     if (direction === "col") {
-                        ctx.fillText(monthLabel, monthLabelX, legendPadding / 2);
+                        ctx.fillText(monthLabel, monthLabelX, legendPadding / 2 + (squareSize * 0.3));
                     } 
                     else {
                         ctx.save();
@@ -294,7 +307,7 @@ function generate_pixels_PNG(data) {
 
 
             // Draw a gradient if scores are available
-            if ((scoreType == "gradient") && pixel && pixel.scores && pixel.scores.length > 1) {
+            if ((scoreType == "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
                 const gradient = ctx.createLinearGradient(x, y, x + squareSize, y); // horizontal
 
                 const scores = pixel.scores;
@@ -313,47 +326,77 @@ function generate_pixels_PNG(data) {
 
             ctx.fillRect(x, y, squareSize, squareSize);
 
-            if (borderSize > 0) {
+            if (showBorder && borderSize > 0) {
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = borderSize;
-                ctx.strokeRect(x + 0.5, y + 0.5, squareSize - 1, squareSize - 1);
+                const borderX = x + (borderSize % 2 == 0 ? 0 : 0.5);
+                const borderY = y + (borderSize % 2 == 0 ? 0 : 0.5);
+                ctx.strokeRect(borderX, borderY, squareSize - 1, squareSize - 1);
+            }
 
-                // write the day of month number in the midle of the square
+            /*
+            if (showDays) {
+                const dayNumber = d.getDate().toString();
                 ctx.fillStyle = "black";
                 ctx.font = `bold ${squareSize * 0.25}px sans-serif`;
                 ctx.textAlign = "center";
                 const labelX = x + squareSize / 2;
                 const labelY = y + squareSize / 2 + (squareSize * 0.1); 
-                ctx.fillText(d.getDate().toString(), labelX, labelY);
+                ctx.fillText(dayNumber, labelX, labelY);
             }
+            */
+
+            if (showDays) {
+                const dayNumber = d.getDate().toString();
+
+                const radius = squareSize * 0.15;
+                const centerX = x + squareSize - radius - 2;
+                const centerY = y + squareSize - radius - 2;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = colors.empty;
+                ctx.fill();
+
+                ctx.fillStyle = textColor;
+                ctx.font = `bold ${radius * 1.2}px sans-serif`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(dayNumber, centerX, centerY);
+                ctx.textBaseline = "alphabetic"; // Reset baseline to default
+            }
+
         });
     });
 
 
     // Write legend of weekdays or month days on the side/top
-    ctx.fillStyle = "black";
-    if (isWeek) {
-        const weekdays = 7;
-        for (let i = 0; i < weekdays; i++) {
-            const date = new Date(2024, 0, 7 + ((i + firstDayOfWeek) % 7));
-            const label = date.toLocaleDateString("default", { weekday: "short" });
-            if (direction === "row") {
-                ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
-            } 
-            else {
-                ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+    if (showLegend) {
+        ctx.fillStyle = textColor;
+        ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
+        if (isWeek) {
+            const weekdays = 7;
+            for (let i = 0; i < weekdays; i++) {
+                const date = new Date(2024, 0, 7 + ((i + firstDayOfWeek) % 7));
+                const label = date.toLocaleDateString("default", { weekday: "short" });
+                if (direction === "row") {
+                    ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
+                } 
+                else {
+                    ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+                }
             }
         }
-    }
-    else {
-        const maxDays = 31;
-        for (let i = 0; i < maxDays; i++) {
-            const label = (i + 1).toString();
-            if (direction === "row") {
-                ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
-            } 
-            else {
-                ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+        else {
+            const maxDays = 31;
+            for (let i = 0; i < maxDays; i++) {
+                const label = (i + 1).toString();
+                if (direction === "row") {
+                    ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2 + (squareSize * 0.2));
+                } 
+                else {
+                    ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+                }
             }
         }
     }
@@ -364,8 +407,14 @@ function generate_pixels_PNG(data) {
 
     result_png.innerHTML = "";
     result_png.appendChild(img);
-    if (direction === "row") { result_png.style.height = "600px"; }
-    else { result_png.style.height = "auto"; }
+
+    if ((pixelsCanvas.height < 600) || (pixelsCanvas.width > pixelsCanvas.height * 3)) { // if image is landscape or small enough
+        result_png.style.height = "fit-content";
+    } 
+    else {
+        result_png.style.height = "600px"; // avoid overflow of the image
+    }
+
 
     btn_download_png.style.display = "block";
 }

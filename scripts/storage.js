@@ -30,7 +30,7 @@ async function store_settings() {
 
     localStorage.setItem("pixelSettings", JSON.stringify(settings));
 
-    setup_date_calendar();
+    setup_calendar_frame();
 }
 
 
