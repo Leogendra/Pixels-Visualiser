@@ -18,7 +18,6 @@ async function store_settings() {
             tagsPercentage,
             nbMaxTags,
 
-            firstDayOfWeek,
             seasonColors,
 
             wordcloudPercentage,
@@ -72,10 +71,6 @@ async function load_settings() {
         // Max tags
         nbMaxTags = settings.nbMaxTags || 10;
         nb_tags_inputs.forEach(input => input.value = nbMaxTags);
-
-        // First day of week
-        firstDayOfWeek = settings.firstDayOfWeek || 1;
-        weekday_frequency_select.value = firstDayOfWeek;
 
         // Season colors
         seasonColors = settings.seasonColors || false;

@@ -59,7 +59,6 @@ let nbMaxTags = 10;
 
 // Weekdays
 let weekdays_stats = {};
-let firstDayOfWeek = 1;
 
 // Months
 let months_stats = {};
@@ -157,7 +156,7 @@ function filter_pixels(numberOfDays) {
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
         create_tag_score_chart(nbMaxTags);
-        create_weekday_chart(firstDayOfWeek);
+        create_weekday_chart(png_settings.firstDayOfWeek);
         create_month_chart(seasonColors);
         create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
         setup_calendar_frame();
@@ -205,7 +204,7 @@ async function handle_file_upload(file) {
             create_mood_chart(current_data, averagingValue, showAverage, showYears);
             create_tag_frequency_chart(tagsPercentage, nbMaxTags);
             create_tag_score_chart(nbMaxTags);
-            create_weekday_chart(firstDayOfWeek);
+            create_weekday_chart(png_settings.firstDayOfWeek);
             create_month_chart(seasonColors);
             create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
             setup_calendar_frame();
@@ -360,8 +359,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
-        firstDayOfWeek = parseInt(e.target.value);
-        create_weekday_chart(firstDayOfWeek);
+        png_settings.firstDayOfWeek = parseInt(e.target.value);
+        create_weekday_chart(png_settings.firstDayOfWeek);
     });
 
 

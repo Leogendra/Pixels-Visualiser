@@ -67,6 +67,9 @@ function set_image_settings(settings) {
     setting_showDays.checked = settings.showDays;
     setting_scoreType.value = settings.scoreType;
     setting_layout.value = settings.layout;
+
+    // First day of week
+    weekday_frequency_select.value = settings.firstDayOfWeek.toString();
 }
 
 
@@ -449,7 +452,7 @@ function close_dialog_settings(save = false) {
 
 function handle_click_dialog(e) {
     if (e.target === dialog_settings) {
-        close_dialog_settings();
+        close_dialog_settings(save=true); // When clicking outside: save settings
     }
 }
 
