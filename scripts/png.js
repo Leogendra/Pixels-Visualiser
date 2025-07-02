@@ -153,6 +153,7 @@ function get_pixel_color(scores, colors, scoreType) {
 
 async function set_tags_selects() {
     const all_tags = Object.keys(tag_stats.counts);
+    all_tags.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
     if (!all_tags || all_tags.length === 0) {
         compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
         compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
