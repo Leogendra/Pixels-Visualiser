@@ -107,7 +107,9 @@
     background-color: white;
 }
 
-
+.fc-day:has(.fc-event) {
+    cursor: pointer;
+}
 
 
 @media (max-width: 800px) {

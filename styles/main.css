@@ -212,10 +212,10 @@ a:hover {
     font-size: 1rem;
     color: #ffffff;
     cursor: pointer;
-    transition: all 0.2s, color 0.2s;
+    transition: all 0.2s;
 
     &:hover {
-        opacity: 0.9;
+        background-color: var(--primary-color-hover);
     }
 }
 
