@@ -11,10 +11,10 @@ const range_pills = document.querySelectorAll(".pill");
 const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
-
-const tag_grid_charts = document.querySelector(".grid-charts");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
+const select_time_option = document.querySelector("#timeOptionSelect");
+
 const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
@@ -52,6 +52,7 @@ let current_data = [];
 let averagingValue = 1;
 let showAverage = false;
 let showYears = false;
+let timeOption = "mood";
 
 // Tags
 let tag_stats = {};
@@ -101,7 +102,7 @@ const png_default_settings = {
 let png_settings = png_default_settings;
 
 // Card
-let getDynamicBorders = true
+let getDynamicBorders = true; // not editable
 
 
 
@@ -336,6 +337,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     show_years_checkbox.addEventListener("change", (e) => {
         showYears = e.target.checked;
+        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+    });
+
+    select_time_option.addEventListener("change", (e) => {
+        timeOption = e.target.value;
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
     });
 

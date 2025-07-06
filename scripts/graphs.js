@@ -63,7 +63,39 @@ function fill_missing_dates(data) {
 async function create_mood_chart(data, rollingAverage, displayAverage, displayYears) {
     data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
-    const rawScores = data.map(entry => average(entry.scores));
+
+    let rawScores;
+    let minValue;
+    let maxValue;
+    if (timeOption === "mood") {
+        rawScores = data.map(entry => average(entry.scores));
+        minValue = 1;
+        maxValue = 5;
+    }
+    else if (timeOption === "words") { // number of words
+       rawScores = data.map(entry => {
+            if (!entry || !entry.notes) { return null; }
+            const words = entry.notes
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9]+/g, " ")
+                .split(/\s+/)
+                .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3);
+            return words.length;
+        });
+        minValue = maximum(rawScores);
+        maxValue = minimum(rawScores);
+    }
+    else if (timeOption === "tags") { // number of tags
+        rawScores = data.map(entry => {
+            if (!entry || !entry.tags) { return null; }
+            return entry.tags.reduce((count, tag) => {
+                if (!Array.isArray(tag.entries)) return count;
+                return count + tag.entries.length;
+            }, 0);
+        });
+        minValue = maximum(rawScores);
+        maxValue = minimum(rawScores);
+    }
 
     const annotations = {};
     if (displayAverage) {
@@ -71,9 +103,27 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
             type: "line",
             mode: "horizontal",
             scaleID: "y",
-            value: average(data.map(entry => average(entry.scores))),
+            value: average(rawScores.filter(score => (score !== null))),
             borderColor: "#ff4444",
             borderWidth: 2,
+            label: {
+                enabled: false,
+                content: `Mean: ${average(rawScores.filter(score => (score !== null))).toFixed(2)}`,
+                position: "top",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                font: {
+                    size: 10,
+                    weight: "bold"
+                }
+            },
+            enter(ctx) {
+                ctx.element.options.label.enabled = true;
+                ctx.chart.draw();
+            },
+            leave(ctx) {
+                ctx.element.options.label.enabled = false;
+                ctx.chart.draw();
+            }
         }
     }
 
@@ -146,8 +196,8 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
             scales: {
                 y: {
                     beginAtZero: true,
-                    min: 1,
-                    max: 5
+                    min: minValue,
+                    max: maxValue
                 }
             },
             onClick: (event, elements) => {

@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h2>📈 Mood evolution</h2>
+                    <h2>📈 Time evolution</h2>
                     <div class="options">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
@@ -93,6 +93,15 @@
                         <div class="option-item">
                             <label for="showYearsCheckbox" title="Show a vertical line for each 1st of January of each year">Show years</label>
                             <input type="checkbox" id="showYearsCheckbox" class="checkbox">
+                        </div>
+
+                        <div class="option-item">
+                            <label for="timeOptionSelect" title="Which statistic do you want to visualise">Option to display</label>
+                            <select id="timeOptionSelect" class="select">
+                                <option value="mood">Mood</option>
+                                <option value="words">Number of words</option>
+                                <option value="tags">Number of tags</option>
+                            </select>
                         </div>
                     </div>
                     <canvas id="moodChart"></canvas>
@@ -437,8 +446,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.4.3</div>
-        <div class="version">Last update: 2025-07-03</div>
+        <div class="version">Version: v1.5.0</div>
+        <div class="version">Last update: 2025-07-06</div>
     </footer>
 
     <!-- Charts.js for graphs -->
