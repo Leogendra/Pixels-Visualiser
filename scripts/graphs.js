@@ -18,6 +18,9 @@ let tags_score_chart_instance = null;
 let week_score_chart_instance = null;
 let month_score_chart_instance = null;
 
+let isCardPinned = false;
+let hoverDelay = false;
+
 
 
 
@@ -63,7 +66,39 @@ function fill_missing_dates(data) {
 async function create_mood_chart(data, rollingAverage, displayAverage, displayYears) {
     data = fill_missing_dates(data);
     const dates = data.map(entry => entry.date);
-    const rawScores = data.map(entry => average(entry.scores));
+
+    let rawScores;
+    let minValue;
+    let maxValue;
+    if (timeOption === "mood") {
+        rawScores = data.map(entry => average(entry.scores));
+        minValue = 1;
+        maxValue = 5;
+    }
+    else if (timeOption === "words") { // number of words
+       rawScores = data.map(entry => {
+            if (!entry || !entry.notes) { return null; }
+            const words = entry.notes
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9]+/g, " ")
+                .split(/\s+/)
+                .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3);
+            return words.length;
+        });
+        minValue = maximum(rawScores);
+        maxValue = minimum(rawScores);
+    }
+    else if (timeOption === "tags") { // number of tags
+        rawScores = data.map(entry => {
+            if (!entry || !entry.tags) { return null; }
+            return entry.tags.reduce((count, tag) => {
+                if (!Array.isArray(tag.entries)) return count;
+                return count + tag.entries.length;
+            }, 0);
+        });
+        minValue = maximum(rawScores);
+        maxValue = minimum(rawScores);
+    }
 
     const annotations = {};
     if (displayAverage) {
@@ -71,9 +106,27 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
             type: "line",
             mode: "horizontal",
             scaleID: "y",
-            value: average(data.map(entry => average(entry.scores))),
+            value: average(rawScores.filter(score => (score !== null))),
             borderColor: "#ff4444",
             borderWidth: 2,
+            label: {
+                enabled: false,
+                content: `Mean: ${average(rawScores.filter(score => (score !== null))).toFixed(2)}`,
+                position: "top",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                font: {
+                    size: 10,
+                    weight: "bold"
+                }
+            },
+            enter(ctx) {
+                ctx.element.options.label.enabled = true;
+                ctx.chart.draw();
+            },
+            leave(ctx) {
+                ctx.element.options.label.enabled = false;
+                ctx.chart.draw();
+            }
         }
     }
 
@@ -146,11 +199,13 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
             scales: {
                 y: {
                     beginAtZero: true,
-                    min: 1,
-                    max: 5
+                    min: minValue,
+                    max: maxValue
                 }
             },
-            onClick: (event, elements) => {
+            onClick: async (event, chartElement) => {
+                // Legacy function to scroll to Pixel card
+                /*
                 const points = mood_chart_instance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
                 if (points.length > 0) {
                     const pointIndex = points[0].index;
@@ -159,6 +214,15 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
 
                     show_pixel_card(dateText, scroll=true);
                 }
+                */
+                display_floating_card(data, chartElement, pinCard=true);
+
+                hoverDelay = true;
+                setTimeout(() => {hoverDelay = false}, 1000);
+            },
+            onHover: async function (event, chartElement) {
+                if (!showPixelCard) { return; }
+                display_floating_card(data, chartElement);
             },
             plugins: {
                 legend: {
@@ -352,3 +416,31 @@ async function create_month_chart(colorsByMonth) {
         }
     });
 }
+
+
+
+
+    canvas_mood.addEventListener("mousemove", async (e) => {
+        if (isCardPinned || hoverDelay) { return; }
+        const x = e.clientX + window.scrollX;
+        const y = e.clientY + window.scrollY;
+        const margin = -10;
+        
+        container_floating_card.style.top = `${y + margin}px`;
+        if (2*x > window.innerWidth) {
+            container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
+            container_floating_card.style.left = "auto";
+        }
+        else {
+            container_floating_card.style.left = `${x + margin}px`;
+            container_floating_card.style.right = "auto";
+        }
+    });
+
+
+container_floating_card.addEventListener("mouseleave", () => {
+    if (!hoverDelay) {
+        container_floating_card.style.display = "none";
+        container_floating_card.innerHTML = "";
+    }
+});

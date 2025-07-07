@@ -1,3 +1,5 @@
+const div_pixel_export_container = document.querySelector("#pixelGridExportContainer");
+
 const dialog_settings = document.querySelector("#dialogSettings");
 const btn_open_dialog_settings = document.querySelector("#openImageSettingsDialog");
 const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
@@ -153,6 +155,7 @@ function get_pixel_color(scores, colors, scoreType) {
 
 async function set_tags_selects() {
     const all_tags = Object.keys(tag_stats.counts);
+    all_tags.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
     if (!all_tags || all_tags.length === 0) {
         compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
         compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
@@ -355,7 +358,7 @@ async function generate_pixels_PNG(data) {
 
 
             // Draw a gradient if scores are available
-            if ((scoreType == "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
+            if ((scoreType === "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
                 const gradient = ctx.createLinearGradient(x, y, x + squareSize, y); // horizontal
 
                 const scores = pixel.scores;
@@ -581,17 +584,18 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
 
 
 function get_compare_settings(data) {
+    const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
-    if (value1 && value2) {
+    if ((showFilter > 1) && value1 && value2) {
         return filter_pixels_by_two_keywords(data, value1, value2, compareTag1, compareTag2);
     }
-    else if (value1) {
+    else if ((showFilter > 0) && value1) {
         return filter_pixels_by_keyword(data, value1, compareTag1);
     }
-    else if (value2) {
+    else if ((showFilter > 0) && value2) {
         return filter_pixels_by_keyword(data, value2, compareTag2);
     }
     else {
@@ -624,6 +628,7 @@ function close_dialog_settings(save = false) {
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
     store_settings();
+    setup_calendar_frame();
     dialog_settings.close();
 }
 
@@ -677,4 +682,11 @@ setting_showFilter.addEventListener("change", () => {
         inputWrapper.style.display = isTag ? "none" : "block";
         tagWrapper.style.display = isTag ? "block" : "none";
     });
+});
+
+div_pixel_export_container.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        btn_generate_png.click();
+    }
 });

@@ -77,6 +77,14 @@
     }
 }
 
+#hoverCardContainer {
+    display: none;
+    position: absolute;
+    z-index: 999;
+    transform: translate(12px, 12px);
+}
+
+
 
 .input-date {
     padding: 0.5rem 0.8rem;
@@ -107,7 +115,9 @@
     background-color: white;
 }
 
-
+.fc-day:has(.fc-event) {
+    cursor: pointer;
+}
 
 
 @media (max-width: 800px) {
@@ -118,10 +128,22 @@
 
     .pixel-card {
         padding: 1rem 0.5rem;
-        
+
+        & h3 {
+            font-size: 1.1rem;
+        }
+
         & .pixel-icon {
             width: 40px !important;
             height: 40px !important;
+        }
+
+        & .div-pixel-notes {
+            font-size: 0.9rem;
+        }
+
+        & .tag-pill {
+            font-size: 0.8rem !important;
         }
     }
 }

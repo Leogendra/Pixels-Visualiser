@@ -60,12 +60,35 @@ input[type="color"], select {
         white-space: nowrap;
     }
 
-    & .checkbox {
+    & .checkbox:checked {
         width: 20px;
-        height: 30px;
+        height: 20px;
         accent-color: var(--primary-color);
         cursor: pointer;
+        transition: all 0.2s;
     }
+
+    & .checkbox:checked:hover {
+        accent-color: var(--primary-color-hover);
+    }
+
+    & .checkbox:not(:checked) {
+        border: 2px solid var(--primary-color);
+        width: 20px;
+        height: 20px;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        outline: none;
+        border-radius: 3px;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+    & .checkbox:not(:checked):hover {
+        border: 3px solid var(--primary-color-hover);
+    }
+
 }
 
 

@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h2>📈 Mood evolution</h2>
+                    <h2>📈 Time evolution</h2>
                     <div class="options">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
@@ -94,9 +94,25 @@
                             <label for="showYearsCheckbox" title="Show a vertical line for each 1st of January of each year">Show years</label>
                             <input type="checkbox" id="showYearsCheckbox" class="checkbox">
                         </div>
+
+                        <div class="option-item">
+                            <label for="showPixelCheckbox" title="Show a card that displays the Pixel of the day when hovering on a point. Hover the card to fix it">Show Pixel</label>
+                            <input type="checkbox" id="showPixelCheckbox" class="checkbox">
+                        </div>
+
+                        <div class="option-item">
+                            <label for="timeOptionSelect" title="Which statistic do you want to visualise">Option to display</label>
+                            <select id="timeOptionSelect" class="select">
+                                <option value="mood">Mood</option>
+                                <option value="words">Number of words</option>
+                                <option value="tags">Number of tags</option>
+                            </select>
+                        </div>
                     </div>
                     <canvas id="moodChart"></canvas>
                 </div>
+
+                <div id="hoverCardContainer"></div>
 
                 <div class="grid-charts">
                     <div class="chart-container" id="tagFrequencyContainer">
@@ -322,10 +338,7 @@
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
 
-                                    <!-- <label for="showDisplayCheckbox" title="Select one word to show on the image, or two words to compare">Display words</label>
-                                    <input type="checkbox" id="showDisplayCheckbox" class="checkbox"> -->
-
-                                    <label for="showFilterSelect" title="Select one word to show on the image, or two words to compare">Advanced filter</label>
+                                    <label for="showFilterSelect" title="Select one word to show on the image, or two words to compare">Word filter</label>
                                     <select id="showFilterSelect" class="select">
                                         <option value="0">Hide</option>
                                         <option value="1">Filter word</option>
@@ -437,8 +450,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.4.2</div>
-        <div class="version">Last update: 2025-07-03</div>
+        <div class="version">Version: v1.5.5</div>
+        <div class="version">Last update: 2025-07-07</div>
     </footer>
 
     <!-- Charts.js for graphs -->

@@ -1,20 +1,20 @@
-function minimum(tableau) {
-    if (tableau.length === 0) return 0;
-    return tableau.reduce((acc, val) => Math.min(acc, val), tableau[0]);
+function minimum(array) {
+    if (array.length === 0) return 0;
+    return array.reduce((acc, val) => Math.min(acc, val), array[0]);
 }
 
 
-function maximum(tableau) {
-    if (tableau.length === 0) return 0;
-    return tableau.reduce((acc, val) => Math.max(acc, val), tableau[0]);
+function maximum(array) {
+    if (array.length === 0) return 0;
+    return array.reduce((acc, val) => Math.max(acc, val), array[0]);
 }
 
 
-function average(tableau) {
-    tableau = tableau.filter(val => val !== null && val !== undefined);
-    if (tableau.length === 0) return null;
-    const somme = tableau.reduce((acc, val) => acc + val, 0);
-    return somme / tableau.length;
+function average(array) {
+    array = array.filter(val => val !== null && val !== undefined);
+    if (array.length === 0) return null;
+    const somme = array.reduce((acc, val) => acc + val, 0);
+    return somme / array.length;
 };
 
 

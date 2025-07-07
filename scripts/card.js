@@ -117,6 +117,26 @@ async function show_pixel_card(dateStr, scroll = false) {
 }
 
 
+async function display_floating_card(pixels_data, chartElement, pinCard = false) {
+    if (hoverDelay) { return; }
+
+    if (chartElement.length === 0) {
+        container_floating_card.style.display = "none";
+        container_floating_card.innerHTML = "";
+        return;
+    }
+
+    const pixelIndex = chartElement[0].index;
+    const pixel = pixels_data[pixelIndex];
+    const card = await create_pixel_card(pixel);
+
+    container_floating_card.innerHTML = "";
+    container_floating_card.appendChild(card);
+    container_floating_card.style.display = "block";
+    isCardPinned = pinCard;
+}
+
+
 async function setup_calendar_frame() {
     const { colors, scoreType } = get_image_settings();
 
