@@ -1,3 +1,5 @@
+const div_pixel_export_container = document.querySelector("#pixelGridExportContainer");
+
 const dialog_settings = document.querySelector("#dialogSettings");
 const btn_open_dialog_settings = document.querySelector("#openImageSettingsDialog");
 const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
@@ -680,4 +682,11 @@ setting_showFilter.addEventListener("change", () => {
         inputWrapper.style.display = isTag ? "none" : "block";
         tagWrapper.style.display = isTag ? "block" : "none";
     });
+});
+
+div_pixel_export_container.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        btn_generate_png.click();
+    }
 });
