@@ -18,6 +18,9 @@ let tags_score_chart_instance = null;
 let week_score_chart_instance = null;
 let month_score_chart_instance = null;
 
+let isCardPinned = false;
+let hoverDelay = false;
+
 
 
 
@@ -200,7 +203,9 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
                     max: maxValue
                 }
             },
-            onClick: (event, elements) => {
+            onClick: async (event, chartElement) => {
+                // Legacy function to scroll to Pixel card
+                /*
                 const points = mood_chart_instance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
                 if (points.length > 0) {
                     const pointIndex = points[0].index;
@@ -209,6 +214,13 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
 
                     show_pixel_card(dateText, scroll=true);
                 }
+                */
+                display_floating_card(data, chartElement, pinCard=true);
+                hoverDelay = true;
+                setTimeout(() => {hoverDelay = false}, 1000);
+            },
+            onHover: async function (event, chartElement) {
+                display_floating_card(data, chartElement);
             },
             plugins: {
                 legend: {
@@ -402,3 +414,31 @@ async function create_month_chart(colorsByMonth) {
         }
     });
 }
+
+
+
+
+canvas_mood.addEventListener("mousemove", async (e) => {
+    if (isCardPinned || hoverDelay) { return; }
+    const x = e.clientX + window.scrollX;
+    const y = e.clientY + window.scrollY;
+    const margin = -10;
+    
+    container_floating_card.style.top = `${y + margin}px`;
+    if (2*x > window.innerWidth) {
+        container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
+        container_floating_card.style.left = "auto";
+    }
+    else {
+        container_floating_card.style.left = `${x + margin}px`;
+        container_floating_card.style.right = "auto";
+    }
+});
+
+
+container_floating_card.addEventListener("mouseleave", () => {
+    if (!hoverDelay) {
+        container_floating_card.style.display = "none";
+        container_floating_card.innerHTML = "";
+    }
+});

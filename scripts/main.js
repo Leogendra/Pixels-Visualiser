@@ -14,6 +14,7 @@ const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
+const container_floating_card = document.getElementById("hoverCardContainer");
 
 const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
