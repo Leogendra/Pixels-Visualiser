@@ -250,10 +250,10 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
 
         // Filter words of the notes
         let words = notesLower
-            .replace(/[^a-zA-Z0-9]+/g, " ")
+            .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
             .split(/\s+/)
             .filter(word =>
-                (word.replace(/[^a-zA-Z]/g, "").length >= 3) && // Word is at least 3 letters long
+                (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
                 (!STOP_WORDS.has(word)) && // Word is not a stop word
                 (
                     (searchWords.length === 0) || // Either no search words or
