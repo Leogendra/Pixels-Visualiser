@@ -13,6 +13,7 @@ const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
+const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
 const container_floating_card = document.getElementById("hoverCardContainer");
 
@@ -54,6 +55,7 @@ let averagingValue = 1;
 let showAverage = false;
 let showYears = false;
 let timeOption = "mood";
+let showPixelCard = true;
 
 // Tags
 let tag_stats = {};
@@ -339,6 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
     show_years_checkbox.addEventListener("change", (e) => {
         showYears = e.target.checked;
         create_mood_chart(current_data, averagingValue, showAverage, showYears);
+    });
+
+    show_pixel_checkbox.addEventListener("change", (e) => {
+        showPixelCard = e.target.checked;
     });
 
     select_time_option.addEventListener("change", (e) => {

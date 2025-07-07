@@ -216,10 +216,12 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
                 }
                 */
                 display_floating_card(data, chartElement, pinCard=true);
+
                 hoverDelay = true;
                 setTimeout(() => {hoverDelay = false}, 1000);
             },
             onHover: async function (event, chartElement) {
+                if (!showPixelCard) { return; }
                 display_floating_card(data, chartElement);
             },
             plugins: {
@@ -418,22 +420,22 @@ async function create_month_chart(colorsByMonth) {
 
 
 
-canvas_mood.addEventListener("mousemove", async (e) => {
-    if (isCardPinned || hoverDelay) { return; }
-    const x = e.clientX + window.scrollX;
-    const y = e.clientY + window.scrollY;
-    const margin = -10;
-    
-    container_floating_card.style.top = `${y + margin}px`;
-    if (2*x > window.innerWidth) {
-        container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
-        container_floating_card.style.left = "auto";
-    }
-    else {
-        container_floating_card.style.left = `${x + margin}px`;
-        container_floating_card.style.right = "auto";
-    }
-});
+    canvas_mood.addEventListener("mousemove", async (e) => {
+        if (isCardPinned || hoverDelay) { return; }
+        const x = e.clientX + window.scrollX;
+        const y = e.clientY + window.scrollY;
+        const margin = -10;
+        
+        container_floating_card.style.top = `${y + margin}px`;
+        if (2*x > window.innerWidth) {
+            container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
+            container_floating_card.style.left = "auto";
+        }
+        else {
+            container_floating_card.style.left = `${x + margin}px`;
+            container_floating_card.style.right = "auto";
+        }
+    });
 
 
 container_floating_card.addEventListener("mouseleave", () => {
