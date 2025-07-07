@@ -582,17 +582,18 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
 
 
 function get_compare_settings(data) {
+    const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
-    if (value1 && value2) {
+    if ((showFilter > 1) && value1 && value2) {
         return filter_pixels_by_two_keywords(data, value1, value2, compareTag1, compareTag2);
     }
-    else if (value1) {
+    else if ((showFilter > 0) && value1) {
         return filter_pixels_by_keyword(data, value1, compareTag1);
     }
-    else if (value2) {
+    else if ((showFilter > 0) && value2) {
         return filter_pixels_by_keyword(data, value2, compareTag2);
     }
     else {

@@ -99,6 +99,7 @@ const png_default_settings = {
     showBorder: false,
     showLegend: false,
     showDays: false,
+    showFilter: 0,
     scoreType: "avg",
     layout: "vertical-weeks"
 };
