@@ -62,7 +62,7 @@ input[type="color"], select {
 
     & .checkbox:checked {
         width: 20px;
-        height: 30px;
+        height: 20px;
         accent-color: var(--primary-color);
         cursor: pointer;
         transition: all 0.2s;
