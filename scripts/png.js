@@ -356,7 +356,7 @@ async function generate_pixels_PNG(data) {
 
 
             // Draw a gradient if scores are available
-            if ((scoreType == "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
+            if ((scoreType === "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
                 const gradient = ctx.createLinearGradient(x, y, x + squareSize, y); // horizontal
 
                 const scores = pixel.scores;
@@ -625,6 +625,7 @@ function close_dialog_settings(save = false) {
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
     store_settings();
+    setup_calendar_frame();
     dialog_settings.close();
 }
 

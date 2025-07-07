@@ -39,8 +39,6 @@ async function store_settings() {
         };
 
         localStorage.setItem("pixelSettings", JSON.stringify(settings));
-
-        setup_calendar_frame();
     }, 1000);
 
 }
@@ -109,7 +107,6 @@ async function load_settings() {
         custom_stopwords = new Set(settings.custom_stopwords || []);
         STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
         set_stopwords_settings();
-
 
         png_settings = settings.png_settings || png_default_settings;
         set_image_settings(png_settings);
