@@ -34,6 +34,7 @@ async function store_settings() {
 
             wordcloudSize,
             wordcloudSpacing,
+            wordcloudCompression,
 
             png_settings,
         };
@@ -101,6 +102,9 @@ async function load_settings() {
 
         wordcloudSpacing = settings.wordcloudSpacing || wordcloudSpacing;
         wordcloud_spacing_input.value = wordcloudSpacing;
+
+        wordcloudCompression = settings.wordcloudCompression || wordcloudCompression;
+        wordcloud_compression_input.value = wordcloudCompression;
 
         stopwordsLanguage = settings.stopwordsLanguage || stopwordsLanguage;
         default_stopwords = new Set(settings.default_stopwords || await get_default_stopwords(stopwordsLanguage));

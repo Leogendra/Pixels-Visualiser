@@ -380,7 +380,7 @@ async function update_wordcloud(minCount) {
     if (!wordcloudOrderCount) {
         const minimumCount = words[words.length - 1][1];
         adjustedWords = words.map(([word, count]) => {
-            const adjustedCount = Math.sqrt(count - minimumCount + 1) + 1;
+            const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression+2))) + 1;
             return [word, adjustedCount];
         });
     }
@@ -394,7 +394,7 @@ async function update_wordcloud(minCount) {
         weightFactor: wordcloudSize,
         fontFamily: 'Segoe UI',
         color: 'random-dark',
-        backgroundColor: wordcloudBgColor,
+        backgroundColor: png_settings.colors.empty,
         outOfBound: false,
     });
 }
