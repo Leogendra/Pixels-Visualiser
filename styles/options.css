@@ -1,4 +1,10 @@
 /* Slider average */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
 input[type="range"]::-webkit-slider-runnable-track {
     height: 6px;
     background: var(--primary-color);

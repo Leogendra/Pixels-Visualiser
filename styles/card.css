@@ -109,14 +109,56 @@
 }
 
 
+/* Calendar */
+:root {
+  --fc-button-bg-color: var(--primary-color);
+  --fc-button-hover-bg-color: var(--primary-color-hover);
+  --fc-today-bg-color: var(--bg-color);
+}
+
 .calendar-input {
     overflow-y: auto;
     max-height: 400px;
+    border: 1px solid #ccc;
     background-color: white;
+    border-radius: 8px;
 }
+
+.fc-header-toolbar {
+    position: sticky;
+    top: 0;
+    margin-bottom: 0 !important;
+    background-color: var(--bg-color);
+    z-index: 10;
+}
+
+.fc-toolbar-title {
+    margin: 0.5rem !important;
+}
+
+.fc-multiMonthYear-view {
+    border: none !important;
+    margin: 0;
+}
+
+.fc-multimonth-month {}
+
+.fc-multimonth-title {}
+
+.fc-col-header-cell {
+    font-weight: 500;
+}
+
+.fc-multimonth-daygrid {}
+
+.fc-daygrid-day-frame {}
 
 .fc-day:has(.fc-event) {
     cursor: pointer;
+}
+
+.fc-day-today {
+    border: 2px solid var(--primary-color) !important;
 }
 
 
