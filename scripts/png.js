@@ -627,8 +627,10 @@ function close_dialog_settings(save = false) {
     dialog_settings.removeEventListener('click', handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
-    store_settings();
+    generate_pixels_PNG(current_data);
+    update_wordcloud(nbMinCount);
     setup_calendar_frame();
+    store_settings();
     dialog_settings.close();
 }
 
