@@ -225,6 +225,10 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
             .join("(\\w+)");
         searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
     }
+    else if (searchTextLower.length > 0) {
+        const pattern = escape_regex(searchTextLower);
+        searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
+    }
 
     data.forEach(entry => {
         const average_score = average(entry.scores);
@@ -244,6 +248,7 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
                 wordData[searchTextLower].scores.push(average(entry.scores));
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
+                // Save time by skipping this entry if no search words match
                 return;
             }
         }
@@ -255,6 +260,7 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
             .filter(word =>
                 (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
                 (!STOP_WORDS.has(word)) && // Word is not a stop word
+                ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term
                 (
                     (searchWords.length === 0) || // Either no search words or
                     searchWords.some((sw, i) => {
@@ -275,8 +281,7 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
                 // one or more words captured by the pattern
                 for (let i = 1; i < match.length; i++) {
                     const capturedWord = match[i];
-                    if (!capturedWord) continue;
-
+                    if (!capturedWord) { continue; }
                     if (!(capturedWord in wordData)) {
                         wordData[capturedWord] = { count: 0, scores: [] };
                     }
@@ -296,7 +301,9 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
             wordData[word].count += 1;
             wordData[word].scores.push(average_score);
         });
+        
     });
+
 
     full_word_frequency = Object.entries(wordData)
         .map(([word, info]) => {
