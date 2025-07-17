@@ -25,13 +25,17 @@ body {
 }
 
 a {
+    text-decoration: none;
+}
+
+.link-ext {
     color: var(--primary-color);
     text-decoration: underline;
     text-decoration-color: var(--primary-color);
     transition: color 0.2s;
 }
 
-a:hover {
+.link-ext:hover {
     color: var(--primary-color-hover);
 }
 

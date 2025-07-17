@@ -40,6 +40,7 @@ const wordcloud_container = document.querySelector("#wordcloudContainer");
 const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
 const wordcloud_size_input = document.querySelector("#wordcloudSize");
 const wordcloud_spacing_input = document.querySelector("#wordcloudSpacing");
+const wordcloud_compression_input = document.querySelector("#wordcloudCompression");
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
@@ -80,7 +81,7 @@ let searchTerm = "";
 
 let wordcloudSize = 4;
 let wordcloudSpacing = 2;
-let wordcloudBgColor = "#f0f2f6"; // not editable
+let wordcloudCompression = 2;
 let maxWordcloudWords = 150; // not editable
 
 // PNG
@@ -440,6 +441,11 @@ document.addEventListener("DOMContentLoaded", () => {
         update_wordcloud(nbMinCount);
     });
 
+    wordcloud_compression_input.addEventListener("input", (e) => {
+        wordcloudCompression = parseInt(e.target.value);
+        update_wordcloud(nbMinCount);
+    });
+
     btn_download_wordcloud.addEventListener("click", () => {
         download_wordcloud();
     });
@@ -453,10 +459,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Export PNG
     setting_scoreType.addEventListener("change", (e) => {
         png_settings = get_image_settings();
+        generate_pixels_PNG(current_data);
     });
 
     setting_layout.addEventListener("input", (e) => {
         png_settings = get_image_settings();
+        generate_pixels_PNG(current_data);
     });
 
 

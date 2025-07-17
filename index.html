@@ -83,7 +83,7 @@
                     <h2>📈 Time evolution</h2>
                     <div class="options">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
-                        <input type="range" id="rollingSlider" class="range-slider" min="1" max="60" value="1">
+                        <input type="range" id="rollingSlider" class="range-slider" min="1" max="60">
 
                         <div class="option-item">
                             <label for="showAverageCheckbox" title="Show an horizontal line to visualise your average score">Show average</label>
@@ -138,7 +138,7 @@
                         <div class="options">
                             <div class="option-item">
                                 <label for="maxTagsInput2" title="Number of tags to display">Number of tags</label>
-                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1" value="10">
+                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1">
                             </div>
                         </div>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
@@ -203,7 +203,7 @@
                                     <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
                                     
                                     <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
-                                    <input type="number" id="minCountInput" class="input-nb" min="1" value="10">
+                                    <input type="number" id="minCountInput" class="input-nb" min="1">
 
                                     <label for="openStopwordsSettingsDialog" title="Choose which words you want to exclude from the word list">Customise stopwords</label>
                                     <button class="button" id="openStopwordsSettingsDialog">Stopwords</button>
@@ -247,12 +247,12 @@
 
                         <div class="option-item">
                             <label for="maxWordsInput" title="Number of words to display">Number of words</label>
-                            <input type="number" id="maxWordsInput" class="input-nb" min="1" value="20">
+                            <input type="number" id="maxWordsInput" class="input-nb" min="1">
                         </div>
 
                         <div class="option-item">
                             <label for="minScoreSlider" title="Only count words appearing in a Pixel with a score above the defined threshold">Min score: <span id="minScoreValue">1</span></label>
-                            <input type="range" id="minScoreSlider" class="range-slider" min="10" max="50" value="10">
+                            <input type="range" id="minScoreSlider" class="range-slider" min="10" max="50">
                         </div>
                         
                         <div class="option-item">
@@ -267,12 +267,17 @@
                         <div class="options">
                             <div class="option-item">
                                 <label for="wordcloudSize" title="Size of displayed words">Word size</label>
-                                <input type="number" id="wordcloudSize" class="input-nb" min="1" value="4">
+                                <input type="number" id="wordcloudSize" class="input-nb" min="1">
                             </div>
 
                             <div class="option-item">
                                 <label for="wordcloudSpacing" title="How close the wordcloud words are to each other">Word spacing</label>
-                                <input type="number" id="wordcloudSpacing" class="input-nb" min="1" value="2">
+                                <input type="number" id="wordcloudSpacing" class="input-nb" min="1">
+                            </div>
+
+                            <div class="option-item">
+                                <label for="wordcloudCompression" title="How much the differences between word sizes are reduced">Words compression</label>
+                                <input type="number" id="wordcloudCompression" class="input-nb" min="1" max="10">
                             </div>
                         </div>
 
@@ -299,32 +304,32 @@
                                 
                                 <div class="dialog-settings-group">
                                     <label for="color1">Score 1</label>
-                                    <input type="color" id="color1" value="#e22230">
+                                    <input type="color" id="color1">
                                     
                                     <label for="color2">Score 2</label>
-                                    <input type="color" id="color2" value="#e28422">
+                                    <input type="color" id="color2">
                                     
                                     <label for="color3">Score 3</label>
-                                    <input type="color" id="color3" value="#fbee45">
+                                    <input type="color" id="color3">
                                     
                                     <label for="color4">Score 4</label>
-                                    <input type="color" id="color4" value="#a0e865">
+                                    <input type="color" id="color4">
                                     
                                     <label for="color5">Score 5</label>
-                                    <input type="color" id="color5" value="#039d07">
+                                    <input type="color" id="color5">
                                     
                                     <label for="colorEmpty">Background</label>
-                                    <input type="color" id="colorEmpty" value="#f0f2f6">
+                                    <input type="color" id="colorEmpty">
                                     
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
                                     
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100" value="50">
+                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100">
 
-                                    <!-- Advanced setting, hidden -->
+                                    <!-- hidden setting -->
                                     <label for="borderSizeInput" style="display: none;" title="The size of the border on each Pixels">Border size (px)</label>
-                                    <input type="number" id="borderSizeInput" style="display: none;" class="input-nb" min="0" max="10" value="0">
+                                    <input type="number" id="borderSizeInput" style="display: none;" class="input-nb" min="0" max="10">
 
                                     <label for="showBorderCheckbox" title="Show a border around each Pixel">Show border</label>
                                     <input type="checkbox" id="showBorderCheckbox" class="checkbox">
@@ -424,9 +429,7 @@
                     </div>
 
                     <div class="options">
-                        <div class="option-item">
-                            <div id="calendar" class="calendar-input"></div>
-                        </div>
+                        <div id="calendar" class="calendar-input"></div>
                     </div>
 
                     <div class="nav-buttons-card">
@@ -450,8 +453,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.5</div>
-        <div class="version">Last update: 2025-07-07</div>
+        <div class="version">Version: v1.5.7</div>
+        <div class="version">Last update: 2025-07-09</div>
     </footer>
 
     <!-- Charts.js for graphs -->
@@ -460,7 +463,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- Wordcloud2.js for wordcloud -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
 
     <!-- Fullcalendar.js for date input -->
