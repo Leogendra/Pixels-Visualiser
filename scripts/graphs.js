@@ -78,12 +78,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
     else if (timeOption === "words") { // number of words
        rawScores = data.map(entry => {
             if (!entry || !entry.notes) { return null; }
-            const words = entry.notes
-                .toLowerCase()
-                .replace(/[^a-zA-Z0-9]+/g, " ")
-                .split(/\s+/)
-                .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3);
-            return words.length;
+            return entry.notes.split(/\s+/).length;
         });
         minValue = maximum(rawScores);
         maxValue = minimum(rawScores);
