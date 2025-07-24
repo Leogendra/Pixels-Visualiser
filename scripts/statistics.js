@@ -393,7 +393,6 @@ async function update_wordcloud(minCount) {
     }
 
     wordcloud_container.style.display = "flex";
-    // TODO: Add padding to wordcloud
 
     WordCloud(wordcloud_canvas, {
         list: adjustedWords,

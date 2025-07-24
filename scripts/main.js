@@ -310,7 +310,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 handle_file_upload(file);
             } 
             else {
-                // TODO: add a CSS-UX-friendly message
                 alert("Please drop a valid .json file");
             }
         }
