@@ -43,8 +43,8 @@ async function create_pixel_card(pixel) {
     card.appendChild(title);
 
     if (pixel.scores?.length) {
-        const scoreWrapper = document.createElement("div");
-        scoreWrapper.className = "div-pixel-score-icons";
+        const div_scores = document.createElement("div");
+        div_scores.className = "div-pixel-score-icons";
 
         for (const score of pixel.scores) {
             const svg = await load_colored_score_SVG(score);
@@ -54,29 +54,33 @@ async function create_pixel_card(pixel) {
             title.textContent = `Score: ${score}`;
             svg.appendChild(title);
 
-            scoreWrapper.appendChild(svg);
+            div_scores.appendChild(svg);
         }
 
-        card.appendChild(scoreWrapper);
+        card.appendChild(div_scores);
     }
 
     if (pixel.notes) {
-        const notes = document.createElement("div");
-        notes.className = "div-pixel-notes";
-        notes.innerHTML += pixel.notes.replace(/\n/g, "<br>");
-        card.appendChild(notes);
+        const div_notes = document.createElement("div");
+        div_notes.className = "div-pixel-notes";
+        div_notes.innerHTML += pixel.notes.replace(/\n/g, "<br>");
+        card.appendChild(div_notes);
     }
 
     if (pixel.tags.length > 0) {
-        const tags = document.createElement("div");
-        tags.className = "div-pixel-tags";
+        const div_tags = document.createElement("div");
+        div_tags.className = "div-pixel-tags";
 
         const tagStrings = pixel.tags.flatMap(tag => {
-            return tag.entries.map(entry => `<span class="tag-pill" title="${tag.type}">${entry}</span>`);
+            let tag_category = "<div class='tag-category'>";
+            // let tag_category = "";
+            tag_category += tag.entries.map(entry => `<span class="tag-pill" title="${tag.type}">${entry}</span>`).join("");
+            tag_category += "</div>";
+            return tag_category;
         });
 
-        tags.innerHTML += tagStrings.join("");
-        card.appendChild(tags);
+        div_tags.innerHTML += tagStrings.join("");
+        card.appendChild(div_tags);
     }
 
     if (getDynamicBorders) {
