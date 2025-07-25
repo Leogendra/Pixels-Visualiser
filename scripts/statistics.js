@@ -144,32 +144,49 @@ async function create_scores_pie_chart() {
 
 
 function compute_tag_stats(data) {
-    const tagCounts = {};
-    const tagScores = {};
+    const tag_counts = {};
+    const tag_scores = {};
+    const tag_categories = {};
+    const categories = new Set();
 
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
 
         if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            entry.tags.forEach(tagCategory => {
+                if (tagCategory.entries && tagCategory.entries.length > 0) {
+                    categories.add(tagCategory.type);
 
-                        if (!tagScores[tag]) {
-                            tagScores[tag] = { total: 0, count: 0 };
+                    tagCategory.entries.forEach(tag => {
+                        tag_counts[tag] = (tag_counts[tag] || 0) + 1;
+                        tag_categories[tag] = tagCategory.type;
+
+                        if (!tag_scores[tag]) {
+                            tag_scores[tag] = { total: 0, count: 0 };
                         }
-                        tagScores[tag].total += avgScore;
-                        tagScores[tag].count += 1;
+                        tag_scores[tag].total += avgScore;
+                        tag_scores[tag].count += 1;
                     });
                 }
             });
         }
     });
 
+    selects_tag_category.forEach(select_tag => {
+        select_tag.innerHTML = '<option value="all">All</option>';
+        categories.forEach(category => {
+            const tag_option = document.createElement("option");
+            tag_option.value = category;
+            tag_option.textContent = category;
+            select_tag.appendChild(tag_option);
+        })
+    })
+
     tag_stats = {
-        counts: tagCounts,
-        scores: tagScores,
+        counts: tag_counts,
+        scores: tag_scores,
+        tag_categories: tag_categories,
+        categories: categories,
         totalPixels: data.length
     };
     set_tags_selects();

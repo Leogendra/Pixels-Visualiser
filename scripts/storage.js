@@ -73,7 +73,7 @@ async function load_settings() {
         tag_frequency_checkbox.checked = tagsPercentage;
 
         nbMaxTags = settings.nbMaxTags || nbMaxTags;
-        nb_tags_inputs.forEach(input => input.value = nbMaxTags);
+        inputs_nb_tags.forEach(input => input.value = nbMaxTags);
 
 
         seasonColors = settings.seasonColors || seasonColors;

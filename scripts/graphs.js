@@ -236,6 +236,7 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
     const tagCounts = tag_stats.counts;
     const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
+        .filter(tag => (tagCategory === "all") || (tagCategory === tag_stats.tag_categories[tag[0]]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
 
@@ -274,6 +275,7 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
 async function create_tag_score_chart(maxTags) {
     const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
+        .filter(tag => (tagCategory === "all") || (tagCategory === tag_stats.tag_categories[tag[0]]))
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
@@ -309,11 +311,52 @@ async function create_tag_score_chart(maxTags) {
                 }
             }
         });
+
+        // if (tags_frequency_chart_instance && tags_score_chart_instance) {
+        //     sync_charts_hover(tags_frequency_chart_instance, tags_score_chart_instance);
+        //     sync_charts_hover(tags_score_chart_instance, tags_frequency_chart_instance);
+        // }
     }
     else {
         tag_scores_container.style.display = "none";
     }
 };
+
+
+/*
+async function sync_charts_hover(sourceChart, targetChart) {
+    async function remove_tooltip_target() {
+        targetChart.setActiveElements([]);
+        targetChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+        targetChart.draw();
+    }
+
+    sourceChart.canvas.addEventListener("mousemove", (e) => {
+        const tooltipActive = sourceChart.tooltip.getActiveElements();
+        const activePoints = sourceChart.getElementsAtEventForMode(e, 'index', { intersect: false, axis: 'y' }, false);
+        if ((tooltipActive.length === 0) || (activePoints.length === 0)) { 
+            remove_tooltip_target(); 
+            return;
+        }
+
+        const index = activePoints[0].index;
+        const label = sourceChart.data.labels[index];
+        console.log(label);
+
+        const targetIndex = targetChart.data.labels.indexOf(label);
+        if (targetIndex === -1) { return; } // label not found in the second graph
+
+
+        targetChart.setActiveElements([{ datasetIndex: 0, index: targetIndex }]);
+        targetChart.tooltip.setActiveElements([{ datasetIndex: 0, index: targetIndex }], { x: 0, y: 0 });
+        targetChart.draw();
+    });
+
+    sourceChart.canvas.addEventListener("mouseleave", () => {
+        remove_tooltip_target();
+    });
+}
+*/
 
 
 async function create_weekday_chart(firstDayOfWeek) {

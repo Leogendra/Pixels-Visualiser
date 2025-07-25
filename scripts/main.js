@@ -17,7 +17,8 @@ const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
 const container_floating_card = document.getElementById("hoverCardContainer");
 
-const nb_tags_inputs = document.querySelectorAll(".input-max-tag");
+const inputs_nb_tags = document.querySelectorAll(".input-max-tag");
+const selects_tag_category = document.querySelectorAll("#selectTagCategory");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
@@ -62,6 +63,7 @@ let showPixelCard = true;
 let tag_stats = {};
 let tagsPercentage = false;
 let nbMaxTags = 10;
+let tagCategory = "all";
 
 // Weekdays
 let weekdays_stats = {};
@@ -81,7 +83,7 @@ let searchTerm = "";
 
 let wordcloudSize = 4;
 let wordcloudSpacing = 2;
-let wordcloudCompression = 2;
+let wordcloudCompression = 4;
 let maxWordcloudWords = 150; // not editable
 
 // PNG
@@ -360,11 +362,22 @@ document.addEventListener("DOMContentLoaded", () => {
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
     });
 
-    nb_tags_inputs.forEach(input => {
+    inputs_nb_tags.forEach(input => {
         input.addEventListener("input", (e) => {
             nbMaxTags = parseInt(e.target.value);
-            nb_tags_inputs.forEach(input => {
+            inputs_nb_tags.forEach(input => {
                 input.value = nbMaxTags;
+            });
+            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+            create_tag_score_chart(nbMaxTags);
+        });
+    });
+
+    selects_tag_category.forEach(input => {
+        input.addEventListener("input", (e) => {
+            tagCategory = e.target.value;
+            selects_tag_category.forEach(input => {
+                input.value = tagCategory;
             });
             create_tag_frequency_chart(tagsPercentage, nbMaxTags);
             create_tag_score_chart(nbMaxTags);
