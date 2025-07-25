@@ -147,7 +147,7 @@ function compute_tag_stats(data) {
     const tag_counts = {};
     const tag_scores = {};
     const tag_categories = {};
-    const categories = new Set();
+    list_categories = new Set(["All"]);
 
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
@@ -155,7 +155,7 @@ function compute_tag_stats(data) {
         if (entry.tags && entry.tags.length > 0) {
             entry.tags.forEach(tagCategory => {
                 if (tagCategory.entries && tagCategory.entries.length > 0) {
-                    categories.add(tagCategory.type);
+                    list_categories.add(tagCategory.type);
 
                     tagCategory.entries.forEach(tag => {
                         tag_counts[tag] = (tag_counts[tag] || 0) + 1;
@@ -172,24 +172,31 @@ function compute_tag_stats(data) {
         }
     });
 
-    selects_tag_category.forEach(select_tag => {
-        select_tag.innerHTML = '<option value="all">All</option>';
-        categories.forEach(category => {
-            const tag_option = document.createElement("option");
-            tag_option.value = category;
-            tag_option.textContent = category;
-            select_tag.appendChild(tag_option);
-        })
-    })
-
     tag_stats = {
         counts: tag_counts,
         scores: tag_scores,
-        tag_categories: tag_categories,
-        categories: categories,
+        categories: tag_categories,
         totalPixels: data.length
     };
     set_tags_selects();
+    setup_tag_categories();
+}
+
+
+async function setup_tag_categories() {
+    select_tag_category.innerHTML = "";
+    list_categories.forEach(category => {
+        const tag_option = document.createElement("option");
+        tag_option.value = category;
+        tag_option.textContent = category;
+        select_tag_category.appendChild(tag_option);
+    })
+    if (list_categories.has(tagCategory)) {
+        select_tag_category.value = tagCategory;
+    }
+    else {
+        tagCategory = "All";
+    }
 }
 
 

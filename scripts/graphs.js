@@ -236,7 +236,7 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
     const tagCounts = tag_stats.counts;
     const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
-        .filter(tag => (tagCategory === "all") || (tagCategory === tag_stats.tag_categories[tag[0]]))
+        .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
 
@@ -275,7 +275,7 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
 async function create_tag_score_chart(maxTags) {
     const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
-        .filter(tag => (tagCategory === "all") || (tagCategory === tag_stats.tag_categories[tag[0]]))
+        .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);

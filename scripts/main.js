@@ -17,8 +17,8 @@ const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
 const container_floating_card = document.getElementById("hoverCardContainer");
 
-const inputs_nb_tags = document.querySelectorAll(".input-max-tag");
-const selects_tag_category = document.querySelectorAll("#selectTagCategory");
+const input_nb_tags = document.querySelector("#maxTagsInput");
+const select_tag_category = document.querySelector("#selectTagCategory");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
@@ -63,7 +63,8 @@ let showPixelCard = true;
 let tag_stats = {};
 let tagsPercentage = false;
 let nbMaxTags = 10;
-let tagCategory = "all";
+let list_categories = new Set(["All"]);
+let tagCategory = "All";
 
 // Weekdays
 let weekdays_stats = {};
@@ -362,26 +363,16 @@ document.addEventListener("DOMContentLoaded", () => {
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
     });
 
-    inputs_nb_tags.forEach(input => {
-        input.addEventListener("input", (e) => {
-            nbMaxTags = parseInt(e.target.value);
-            inputs_nb_tags.forEach(input => {
-                input.value = nbMaxTags;
-            });
-            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-            create_tag_score_chart(nbMaxTags);
-        });
+    input_nb_tags.addEventListener("input", (e) => {
+        nbMaxTags = parseInt(e.target.value);
+        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        create_tag_score_chart(nbMaxTags);
     });
 
-    selects_tag_category.forEach(input => {
-        input.addEventListener("input", (e) => {
-            tagCategory = e.target.value;
-            selects_tag_category.forEach(input => {
-                input.value = tagCategory;
-            });
-            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-            create_tag_score_chart(nbMaxTags);
-        });
+    select_tag_category.addEventListener("input", (e) => {
+        tagCategory = e.target.value;
+        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        create_tag_score_chart(nbMaxTags);
     });
 
 
