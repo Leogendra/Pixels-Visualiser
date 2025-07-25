@@ -242,6 +242,7 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
+            detach_chart_hover(tags_frequency_chart_instance);
             tags_frequency_chart_instance.destroy();
         }
 
@@ -282,6 +283,7 @@ async function create_tag_score_chart(maxTags) {
 
     if (averages.length > 0) {
         if (tags_score_chart_instance) {
+            detach_chart_hover(tags_score_chart_instance);
             tags_score_chart_instance.destroy();
         }
 
@@ -311,11 +313,6 @@ async function create_tag_score_chart(maxTags) {
                 }
             }
         });
-
-        // if (tags_frequency_chart_instance && tags_score_chart_instance) {
-        //     sync_charts_hover(tags_frequency_chart_instance, tags_score_chart_instance);
-        //     sync_charts_hover(tags_score_chart_instance, tags_frequency_chart_instance);
-        // }
     }
     else {
         tag_scores_container.style.display = "none";
@@ -323,40 +320,70 @@ async function create_tag_score_chart(maxTags) {
 };
 
 
-/*
-async function sync_charts_hover(sourceChart, targetChart) {
-    async function remove_tooltip_target() {
+function sync_tag_hover(sourceChart, targetChart) {
+    function remove_tooltip_target() {
         targetChart.setActiveElements([]);
-        targetChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+        targetChart.tooltip.setActiveElements([], {});
         targetChart.draw();
     }
 
-    sourceChart.canvas.addEventListener("mousemove", (e) => {
+    function set_tooltip_target(e) {
+        // check if sourceChart still exists
+        if (!sourceChart?.canvas) {
+            return;
+        }
         const tooltipActive = sourceChart.tooltip.getActiveElements();
-        const activePoints = sourceChart.getElementsAtEventForMode(e, 'index', { intersect: false, axis: 'y' }, false);
-        if ((tooltipActive.length === 0) || (activePoints.length === 0)) { 
-            remove_tooltip_target(); 
+        const activePoints = sourceChart.getElementsAtEventForMode(e, "index", { intersect: false, axis: "y" }, false);
+        if ((tooltipActive.length === 0) || (activePoints.length === 0)) {
+            remove_tooltip_target();
             return;
         }
 
         const index = activePoints[0].index;
         const label = sourceChart.data.labels[index];
-        console.log(label);
-
         const targetIndex = targetChart.data.labels.indexOf(label);
-        if (targetIndex === -1) { return; } // label not found in the second graph
+        if (targetIndex === -1) { return; }
 
+        const canvasRect = targetChart.canvas.getBoundingClientRect();
+        const sourceRect = sourceChart.canvas.getBoundingClientRect();
+        const relativeY = e.clientY - sourceRect.top;
+        const centerX = canvasRect.left + canvasRect.width / 2;
 
         targetChart.setActiveElements([{ datasetIndex: 0, index: targetIndex }]);
-        targetChart.tooltip.setActiveElements([{ datasetIndex: 0, index: targetIndex }], { x: 0, y: 0 });
-        targetChart.draw();
-    });
+        targetChart.tooltip.setActiveElements(
+            [{ datasetIndex: 0, index: targetIndex }],
+            { x: centerX, y: canvasRect.top + relativeY }
+        );
+        targetChart.update();
+    }
 
-    sourceChart.canvas.addEventListener("mouseleave", () => {
-        remove_tooltip_target();
-    });
+    sourceChart.canvas.addEventListener("mousemove", set_tooltip_target);
+    sourceChart.canvas.addEventListener("mouseleave", remove_tooltip_target);
+
+    // Add hover handlers to the source chart
+    sourceChart._hoverHandlers = {
+        mousemove: set_tooltip_target,
+        mouseleave: remove_tooltip_target
+    };
 }
-*/
+
+
+function detach_chart_hover(chartInstance) {
+    const handlers = chartInstance._hoverHandlers;
+    if (handlers) {
+        chartInstance.canvas.removeEventListener("mousemove", handlers.mousemove);
+        chartInstance.canvas.removeEventListener("mouseleave", handlers.mouseleave);
+        delete chartInstance._hoverHandlers;
+    }
+}
+
+
+async function sync_tag_charts_hover() {
+    if (tags_frequency_chart_instance && tags_score_chart_instance) {
+        sync_tag_hover(tags_frequency_chart_instance, tags_score_chart_instance);
+        sync_tag_hover(tags_score_chart_instance, tags_frequency_chart_instance);
+    }
+}
 
 
 async function create_weekday_chart(firstDayOfWeek) {

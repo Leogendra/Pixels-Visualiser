@@ -140,7 +140,7 @@ function fill_empty_dates(data) {
 }
 
 
-function filter_pixels(numberOfDays) {
+async function filter_pixels(numberOfDays) {
     const lastPixelDate = new Date(current_data[current_data.length - 1].date);
     current_data = initial_data.filter(entry => {
         const entryDate = new Date(entry.date);
@@ -157,19 +157,25 @@ function filter_pixels(numberOfDays) {
         stats_content_container.style.display = "block";
 
         fill_empty_dates(current_data);
-        compute_tag_stats(current_data);
-        compute_weekdays_stats(current_data);
-        compute_months_stats(current_data);
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
 
-        calculate_and_display_stats(current_data);
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-        create_tag_score_chart(nbMaxTags);
-        create_weekday_chart(png_settings.firstDayOfWeek);
-        create_month_chart(seasonColors);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-        setup_calendar_frame();
+        await Promise.all([
+            calculate_and_display_stats(data),
+            compute_tag_stats(current_data),
+            compute_weekdays_stats(current_data),
+            compute_months_stats(current_data),
+            get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
+
+            // Graphics
+            create_mood_chart(current_data, averagingValue, showAverage, showYears),
+            create_tag_frequency_chart(tagsPercentage, nbMaxTags),
+            create_tag_score_chart(nbMaxTags),
+            create_weekday_chart(png_settings.firstDayOfWeek),
+            create_month_chart(seasonColors),
+            create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
+            setup_calendar_frame(),
+        ]);
+
+        sync_tag_charts_hover();
     }
 }
 
@@ -204,20 +210,24 @@ async function handle_file_upload(file) {
             await load_settings();
 
             // Stats
-            calculate_and_display_stats(data);
-            compute_tag_stats(current_data);
-            compute_weekdays_stats(current_data);
-            compute_months_stats(current_data);
-            get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
+            await Promise.all([
+                calculate_and_display_stats(data),
+                compute_tag_stats(current_data),
+                compute_weekdays_stats(current_data),
+                compute_months_stats(current_data),
+                get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
 
-            // Graphics
-            create_mood_chart(current_data, averagingValue, showAverage, showYears);
-            create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-            create_tag_score_chart(nbMaxTags);
-            create_weekday_chart(png_settings.firstDayOfWeek);
-            create_month_chart(seasonColors);
-            create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
-            setup_calendar_frame();
+                // Graphics
+                create_mood_chart(current_data, averagingValue, showAverage, showYears),
+                create_tag_frequency_chart(tagsPercentage, nbMaxTags),
+                create_tag_score_chart(nbMaxTags),
+                create_weekday_chart(png_settings.firstDayOfWeek),
+                create_month_chart(seasonColors),
+                create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
+                setup_calendar_frame(),
+            ]);
+
+            sync_tag_charts_hover();
 
 
             // DEBUGGING
@@ -361,18 +371,21 @@ document.addEventListener("DOMContentLoaded", () => {
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        sync_tag_charts_hover();
     });
 
     input_nb_tags.addEventListener("input", (e) => {
         nbMaxTags = parseInt(e.target.value);
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
         create_tag_score_chart(nbMaxTags);
+        sync_tag_charts_hover();
     });
 
     select_tag_category.addEventListener("input", (e) => {
         tagCategory = e.target.value;
         create_tag_frequency_chart(tagsPercentage, nbMaxTags);
         create_tag_score_chart(nbMaxTags);
+        sync_tag_charts_hover();
     });
 
 
