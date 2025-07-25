@@ -114,38 +114,41 @@
 
                 <div id="hoverCardContainer"></div>
 
-                <div class="grid-charts">
-                    <div class="chart-container" id="tagFrequencyContainer">
-                        <h2>🏷️ Tag frequency</h2>
-                        <div class="options">
-                            <div class="option-item">
-                                <label for="tagFrequencyCheckbox"
-                                    title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
-                                <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
-                            </div>
+                <div class="chart-container group-options">
+                    <div class="options small title"><img src="assets/settings_icon_black.svg" alt="Settings" class="icon-settings"><span>Tag options</span></div>
 
-                            <div class="option-item">
-                                <label for="maxTagsInput1" title="Number of tags to display">Number of tags</label>
-                                <input type="number" id="maxTagsInput1" class="input-nb input-max-tag" min="1"
-                                    value="10">
-                            </div>
+                    <div class="options small">
+                        <div class="option-item">
+                            <label for="tagFrequencyCheckbox"
+                            title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
+                            <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
                         </div>
-                        <canvas id="tagChart" class="free-canvas"></canvas>
-                    </div>
-
-                    <div class="chart-container" id="tagScoreContainer">
-                        <h2>😊 Average score per tag</h2>
-                        <div class="options">
-                            <div class="option-item">
-                                <label for="maxTagsInput2" title="Number of tags to display">Number of tags</label>
-                                <input type="number" id="maxTagsInput2" class="input-nb input-max-tag" min="1">
-                            </div>
+                        
+                        <div class="option-item">
+                            <label for="maxTagsInput" title="Number of tags to display">Number of tags</label>
+                            <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
                         </div>
-                        <canvas id="tagScoreChart" class="free-canvas"></canvas>
+                        
+                        <div class="option-item">
+                            <label for="selectTagCategory" title="Choose the category you want to display">Tag category</label>
+                            <select id="selectTagCategory" class="select"></select>
+                        </div>
                     </div>
                 </div>
 
                 <div class="grid-charts">
+                    <div class="chart-container group-options" id="tagFrequencyContainer">
+                        <h2>🏷️ Tag frequency</h2>
+                        <canvas id="tagChart" class="free-canvas"></canvas>
+                    </div>
+
+                    <div class="chart-container group-options" id="tagScoreContainer">
+                        <h2>😊 Average score per tag</h2>
+                        <canvas id="tagScoreChart" class="free-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid-charts group-options">
                     <div class="chart-container" id="WeekdaysContainer">
                         <h2>🔁 Weekdays average scores</h2>
                         <div class="options">
@@ -453,8 +456,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.7</div>
-        <div class="version">Last update: 2025-07-09</div>
+        <div class="version">Version: v1.5.10</div>
+        <div class="version">Last update: 2025-07-25</div>
     </footer>
 
     <!-- Charts.js for graphs -->

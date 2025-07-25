@@ -144,23 +144,28 @@ async function create_scores_pie_chart() {
 
 
 function compute_tag_stats(data) {
-    const tagCounts = {};
-    const tagScores = {};
+    const tag_counts = {};
+    const tag_scores = {};
+    const tag_categories = {};
+    list_categories = new Set(["All"]);
 
     data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
 
         if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagGroup => {
-                if (tagGroup.entries && tagGroup.entries.length > 0) {
-                    tagGroup.entries.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            entry.tags.forEach(tagCategory => {
+                if (tagCategory.entries && tagCategory.entries.length > 0) {
+                    list_categories.add(tagCategory.type);
 
-                        if (!tagScores[tag]) {
-                            tagScores[tag] = { total: 0, count: 0 };
+                    tagCategory.entries.forEach(tag => {
+                        tag_counts[tag] = (tag_counts[tag] || 0) + 1;
+                        tag_categories[tag] = tagCategory.type;
+
+                        if (!tag_scores[tag]) {
+                            tag_scores[tag] = { total: 0, count: 0 };
                         }
-                        tagScores[tag].total += avgScore;
-                        tagScores[tag].count += 1;
+                        tag_scores[tag].total += avgScore;
+                        tag_scores[tag].count += 1;
                     });
                 }
             });
@@ -168,11 +173,30 @@ function compute_tag_stats(data) {
     });
 
     tag_stats = {
-        counts: tagCounts,
-        scores: tagScores,
+        counts: tag_counts,
+        scores: tag_scores,
+        categories: tag_categories,
         totalPixels: data.length
     };
     set_tags_selects();
+    setup_tag_categories();
+}
+
+
+async function setup_tag_categories() {
+    select_tag_category.innerHTML = "";
+    list_categories.forEach(category => {
+        const tag_option = document.createElement("option");
+        tag_option.value = category;
+        tag_option.textContent = category;
+        select_tag_category.appendChild(tag_option);
+    })
+    if (list_categories.has(tagCategory)) {
+        select_tag_category.value = tagCategory;
+    }
+    else {
+        tagCategory = "All";
+    }
 }
 
 
@@ -393,7 +417,6 @@ async function update_wordcloud(minCount) {
     }
 
     wordcloud_container.style.display = "flex";
-    // TODO: Add padding to wordcloud
 
     WordCloud(wordcloud_canvas, {
         list: adjustedWords,

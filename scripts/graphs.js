@@ -78,12 +78,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
     else if (timeOption === "words") { // number of words
        rawScores = data.map(entry => {
             if (!entry || !entry.notes) { return null; }
-            const words = entry.notes
-                .toLowerCase()
-                .replace(/[^a-zA-Z0-9]+/g, " ")
-                .split(/\s+/)
-                .filter(word => word.replace(/[^a-zA-Z]/g, "").length >= 3);
-            return words.length;
+            return entry.notes.split(/\s+/).length;
         });
         minValue = maximum(rawScores);
         maxValue = minimum(rawScores);
@@ -241,11 +236,13 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
     const tagCounts = tag_stats.counts;
     const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
+        .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
+            detach_chart_hover(tags_frequency_chart_instance);
             tags_frequency_chart_instance.destroy();
         }
 
@@ -279,12 +276,14 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
 async function create_tag_score_chart(maxTags) {
     const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
+        .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
         .slice(0, maxTags);
 
     if (averages.length > 0) {
         if (tags_score_chart_instance) {
+            detach_chart_hover(tags_score_chart_instance);
             tags_score_chart_instance.destroy();
         }
 
@@ -319,6 +318,72 @@ async function create_tag_score_chart(maxTags) {
         tag_scores_container.style.display = "none";
     }
 };
+
+
+function sync_tag_hover(sourceChart, targetChart) {
+    function remove_tooltip_target() {
+        targetChart.setActiveElements([]);
+        targetChart.tooltip.setActiveElements([], {});
+        targetChart.draw();
+    }
+
+    function set_tooltip_target(e) {
+        // check if sourceChart still exists
+        if (!sourceChart?.canvas) {
+            return;
+        }
+        const tooltipActive = sourceChart.tooltip.getActiveElements();
+        const activePoints = sourceChart.getElementsAtEventForMode(e, "index", { intersect: false, axis: "y" }, false);
+        if ((tooltipActive.length === 0) || (activePoints.length === 0)) {
+            remove_tooltip_target();
+            return;
+        }
+
+        const index = activePoints[0].index;
+        const label = sourceChart.data.labels[index];
+        const targetIndex = targetChart.data.labels.indexOf(label);
+        if (targetIndex === -1) { return; }
+
+        const canvasRect = targetChart.canvas.getBoundingClientRect();
+        const sourceRect = sourceChart.canvas.getBoundingClientRect();
+        const relativeY = e.clientY - sourceRect.top;
+        const centerX = canvasRect.left + canvasRect.width / 2;
+
+        targetChart.setActiveElements([{ datasetIndex: 0, index: targetIndex }]);
+        targetChart.tooltip.setActiveElements(
+            [{ datasetIndex: 0, index: targetIndex }],
+            { x: centerX, y: canvasRect.top + relativeY }
+        );
+        targetChart.update();
+    }
+
+    sourceChart.canvas.addEventListener("mousemove", set_tooltip_target);
+    sourceChart.canvas.addEventListener("mouseleave", remove_tooltip_target);
+
+    // Add hover handlers to the source chart
+    sourceChart._hoverHandlers = {
+        mousemove: set_tooltip_target,
+        mouseleave: remove_tooltip_target
+    };
+}
+
+
+function detach_chart_hover(chartInstance) {
+    const handlers = chartInstance._hoverHandlers;
+    if (handlers) {
+        chartInstance.canvas.removeEventListener("mousemove", handlers.mousemove);
+        chartInstance.canvas.removeEventListener("mouseleave", handlers.mouseleave);
+        delete chartInstance._hoverHandlers;
+    }
+}
+
+
+async function sync_tag_charts_hover() {
+    if (tags_frequency_chart_instance && tags_score_chart_instance) {
+        sync_tag_hover(tags_frequency_chart_instance, tags_score_chart_instance);
+        sync_tag_hover(tags_score_chart_instance, tags_frequency_chart_instance);
+    }
+}
 
 
 async function create_weekday_chart(firstDayOfWeek) {

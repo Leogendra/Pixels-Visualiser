@@ -56,24 +56,52 @@
     }
 
     & .div-pixel-tags {
-        flex-direction: row;
-        flex-wrap: wrap;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
 
-        & .tag-pill {
-            margin: 3px;
-            padding: 5px 10px;
-            border-radius: 999px;
-            color: #fff;
-            background-color: var(--primary-color);
-            font-size: 0.9rem;
-            white-space: nowrap;
-            cursor: default;
-            transition: background-color 0.2s;
+        & .tag-category {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.3rem;
+            
+            & .tag-category-title {
+                content: attr(data-category);
+                display: block;
+                width: fit-content;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--primary-color);
+                text-transform: uppercase;
+                opacity: 0.8;
+            }
+
+            & .tag-category-tags {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 4px;
+                margin: 0px;
+                padding: 0px;
+                
+                & .tag-pill {
+                    padding: 5px 10px;
+                    border-radius: 999px;
+                    color: #fff;
+                    background-color: var(--primary-color);
+                    font-size: 0.9rem;
+                    white-space: nowrap;
+                    cursor: default;
+                    transition: background-color 0.2s;
+                }
+                
+                & .tag-pill:hover {
+                    background-color: var(--primary-color-hover);
+                }
+            }
         }
 
-        & .tag-pill:hover {
-            background-color: var(--primary-color-hover);
-        }
     }
 }
 

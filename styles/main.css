@@ -169,9 +169,13 @@ a {
     background-color: var(--secondary-bg);
     padding: 1rem;
     border-radius: 8px;
-    margin-bottom: 2rem;
     min-height: 100px;
     max-width: 100%;
+    margin-bottom: 3rem;
+
+    &.group-options {
+        margin-bottom: 0.6rem;
+    }
 
     & canvas {
         max-width: 100%;
@@ -193,7 +197,8 @@ a {
 .grid-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1rem;
+    gap: 0.6rem;
+    margin-bottom: 3rem;
 
     &.grid-single-column {
         grid-template-columns: 1fr !important;
