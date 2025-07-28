@@ -486,6 +486,12 @@ async function download_pixels_PNG() {
 
 function filter_pixels_by_keyword(keyword, isTag=false) {
     if (!keyword || (keyword.trim() === "") || (current_data.length === 0)) { return []; }
+    const keywordRegex = keyword.split("||")
+                                .map(part => 
+                                    part.trim()
+                                        .split("&&")
+                                        .map(s => s.trim())
+                                );
     const result = [];
     const firstDate = normalize_date(current_data[0].date);
     const lastDate = normalize_date(current_data[current_data.length - 1].date);
@@ -502,17 +508,19 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
         if (isTag) {
             if (Array.isArray(pixel.tags)) {
                 hasMatch = pixel.tags.some(tagObj =>
-                    Array.isArray(tagObj.entries) &&
                     tagObj.entries.some(tag => normalize_string(tag) === target)
                 );
             }
         }
         else {
-            hasMatch = notes.includes(target);
+            hasMatch = keywordRegex.some(andGroup =>
+                andGroup.every(term => notes.includes(term))
+            );
         }
-
+        
         if (hasMatch) {
             result.push({ date, scores });
+            console.log(`Checking pixel on ${date} for keyword "${keyword}": ${hasMatch}`);
         }
     });
 
@@ -532,8 +540,12 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target1 = normalize_string(keyword1);
-    const target2 = normalize_string(keyword2);
+    const target1 = normalize_string(keyword1)
+                                .split("||")
+                                .map(part => part.trim().split("&&").map(s => s.trim()));
+    const target2 = normalize_string(keyword2)
+                                .split("||")
+                                .map(part => part.trim().split("&&").map(s => s.trim()));
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -552,7 +564,9 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match1 = notes.includes(target1);
+            match1 = target1.some(andGroup =>
+                andGroup.every(term => notes.includes(term))
+            );
         }
 
         if (isTag2) {
@@ -565,7 +579,9 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match2 = notes.includes(target2);
+            match2 = target2.some(andGroup =>
+                andGroup.every(term => notes.includes(term))
+            );
         }
 
         if (match1 && match2) {
