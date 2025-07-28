@@ -67,9 +67,9 @@ function calculate_streaks(dateStrings) {
 }
 
 
-function calculate_and_display_stats(data) {
-    const allScores = data.flatMap(entry => entry.scores);
-    const allDates = data.map(entry => entry.date);
+function calculate_and_display_stats() {
+    const allScores = current_data.flatMap(entry => entry.scores);
+    const allDates = current_data.map(entry => entry.date);
     const streaks = calculate_streaks(allDates);
     const moodCounts = {};
 
@@ -78,7 +78,7 @@ function calculate_and_display_stats(data) {
     });
 
     stats = [
-        ["Number of Pixels", `<p>${data.length}</p>`],
+        ["Number of Pixels", `<p>${current_data.length}</p>`],
         ["Average score", `<p>${average(allScores).toFixed(2)}</p>`],
         ["Streaks", `<p>Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}</p>`],
         ["Score distribution", "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"],
@@ -143,19 +143,19 @@ async function create_scores_pie_chart() {
 
 
 
-function compute_tag_stats(data) {
+function compute_tag_stats() {
     const tag_counts = {};
     const tag_scores = {};
     const tag_categories = {};
-    list_categories = new Set(["All"]);
+    tag_list_categories = new Set(["All"]);
 
-    data.forEach(entry => {
+    current_data.forEach(entry => {
         const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
 
         if (entry.tags && entry.tags.length > 0) {
             entry.tags.forEach(tagCategory => {
                 if (tagCategory.entries && tagCategory.entries.length > 0) {
-                    list_categories.add(tagCategory.type);
+                    tag_list_categories.add(tagCategory.type);
 
                     tagCategory.entries.forEach(tag => {
                         tag_counts[tag] = (tag_counts[tag] || 0) + 1;
@@ -176,7 +176,7 @@ function compute_tag_stats(data) {
         counts: tag_counts,
         scores: tag_scores,
         categories: tag_categories,
-        totalPixels: data.length
+        totalPixels: current_data.length
     };
     set_tags_selects();
     setup_tag_categories();
@@ -185,13 +185,13 @@ function compute_tag_stats(data) {
 
 async function setup_tag_categories() {
     select_tag_category.innerHTML = "";
-    list_categories.forEach(category => {
+    tag_list_categories.forEach(category => {
         const tag_option = document.createElement("option");
         tag_option.value = category;
         tag_option.textContent = category;
         select_tag_category.appendChild(tag_option);
     })
-    if (list_categories.has(tagCategory)) {
+    if (tag_list_categories.has(tagCategory)) {
         select_tag_category.value = tagCategory;
     }
     else {
@@ -200,10 +200,10 @@ async function setup_tag_categories() {
 }
 
 
-function compute_weekdays_stats(data) {
+function compute_weekdays_stats() {
     weekdays_stats = {};
 
-    data.forEach(entry => {
+    current_data.forEach(entry => {
         const avgScore = average(entry.scores);
         const date = new Date(entry.date);
         const day = date.toLocaleString('en-US', { weekday: 'long' });
@@ -217,10 +217,10 @@ function compute_weekdays_stats(data) {
 }
 
 
-function compute_months_stats(data) {
+function compute_months_stats() {
     months_stats = {};
 
-    data.forEach(entry => {
+    current_data.forEach(entry => {
         const avgScore = average(entry.scores);
         const date = new Date(entry.date);
         const month = date.toLocaleString('en-US', { month: 'long' });
@@ -233,9 +233,9 @@ function compute_months_stats(data) {
 }
 
 
-function get_word_frequency(data, orderByMood, minScore, searchText) {
+function get_word_frequency() {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
-    const searchTextLower = normalize_string(searchText);
+    const searchTextLower = normalize_string(wordSearchText);
     const searchWords = searchTextLower
         .split(/\s+/)
         .map(word => normalize_string(word))
@@ -254,9 +254,9 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
         searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
     }
 
-    data.forEach(entry => {
+    current_data.forEach(entry => {
         const average_score = average(entry.scores);
-        if (average_score < minScore) { return; }
+        if (average_score < wordMinScore) { return; }
 
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
@@ -335,7 +335,7 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
             return { word, count: info.count, avg_score: avg };
         })
         .sort((a, b) => {
-            if (orderByMood) {
+            if (wordOrderByScore) {
                 const diff = b.avg_score - a.avg_score;
                 return (diff !== 0) ? diff : b.count - a.count;
             }
@@ -346,23 +346,23 @@ function get_word_frequency(data, orderByMood, minScore, searchText) {
 }
 
 
-async function create_word_frequency_section(data, maxWords, minCount, inPercentage, searchText) {
+async function create_word_frequency_section() {
     let words_filtered = full_word_frequency
-        .filter(word => (word.count >= minCount))
-        .slice(0, maxWords);
+        .filter(word => (word.count >= wordNbMinCount))
+        .slice(0, wordNbMaxWords);
 
     if (words_filtered.length > 0) {
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
                 let isWordSearched = false;
-                if (searchText) {
-                    isWordSearched = (normalize_string(word.word) === normalize_string(searchText)) ||
-                                    searchText.split(/\s+/)
+                if (wordSearchText) {
+                    isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
+                                    wordSearchText.split(/\s+/)
                                               .some(term => normalize_string(word.word) === (normalize_string(term)));
                 }
                 return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
-                    <p title="Number of apearance">count: ${inPercentage ? (100 * word.count / data.length).toFixed(1) + "%" : word.count}</p>
+                    <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / current_data.length).toFixed(1) + "%" : word.count}</p>
                     <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                     </div>`
             }
@@ -376,25 +376,25 @@ async function create_word_frequency_section(data, maxWords, minCount, inPercent
         clearTimeout(update_wordcloud_timeout);
     }
     update_wordcloud_timeout = setTimeout(() => {
-        update_wordcloud(minCount, inPercentage);
+        update_wordcloud();
     }, 1000);
 }
 
 
-async function update_wordcloud(minCount) {
+async function update_wordcloud() {
     const words = full_word_frequency
-        .filter(word => word.count >= minCount)
+        .filter(word => word.count >= wordNbMinCount)
         .sort((a, b) => {
-            if (wordcloudOrderCount) { // Global variable
+            if (wordOrderByScore) {
                 return b.avg_score - a.avg_score;
             }
             else {
                 return b.count - a.count;
             }
         })
-        .slice(0, maxWordcloudWords) // Max words to display in the wordcloud
+        .slice(0, wordcloudNbMaxWords) // Max words to display in the wordcloud (global setting)
         .map(word => {
-            if (wordcloudOrderCount) {
+            if (wordOrderByScore) {
                 return [word.word, 10 * word.avg_score - 25];
             }
             else {
@@ -408,7 +408,7 @@ async function update_wordcloud(minCount) {
     }
 
     let adjustedWords = words;
-    if (!wordcloudOrderCount) {
+    if (!wordOrderByScore) {
         const minimumCount = words[words.length - 1][1];
         adjustedWords = words.map(([word, count]) => {
             const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression+2))) + 1;

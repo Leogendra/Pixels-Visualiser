@@ -37,7 +37,7 @@ async function get_stopwords_settings() {
                                                           .map(word => normalize_string(word))
                                                           .filter(word => word !== ""));
     STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
-    get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
+    get_word_frequency(minScore, searchTerm);
     create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
 }
 

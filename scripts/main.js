@@ -53,39 +53,38 @@ let initial_data = [];
 let current_data = [];
 
 // Mood chart
-let averagingValue = 1;
-let showAverage = false;
-let showYears = false;
-let timeOption = "mood";
-let showPixelCard = true;
+let moodAveragingValue = 1;
+let moodShowAverage = false;
+let moodShowYears = false;
+let moodTimeOption = "mood";
+let moodShowPixelCard = true;
 
 // Tags
 let tag_stats = {};
 let tagsPercentage = false;
 let nbMaxTags = 10;
-let list_categories = new Set(["All"]);
+let tag_list_categories = new Set(["All"]);
 let tagCategory = "All";
 
 // Weekdays
 let weekdays_stats = {};
-
 // Months
 let months_stats = {};
-let seasonColors = false;
+let monthSeasonColors = false;
 
-// Wordcloud
+// Words
 let full_word_frequency = [];
-let wordcloudPercentage = false;
-let wordcloudOrderCount = false;
-let nbMaxWords = 20;
-let nbMinCount = 10;
-let minScore = 1.0;
-let searchTerm = "";
-
+let wordDisplayPercentage = false;
+let wordOrderByScore = false;
+let wordNbMaxWords = 20;
+let wordNbMinCount = 10;
+let wordMinScore = 1.0;
+let wordSearchText = "";
+// Wordcloud
 let wordcloudSize = 4;
 let wordcloudSpacing = 2;
 let wordcloudCompression = 4;
-let maxWordcloudWords = 150; // not editable
+let wordcloudNbMaxWords = 150; // not editable
 
 // PNG
 const png_default_settings = {
@@ -159,19 +158,19 @@ async function filter_pixels(numberOfDays) {
         fill_empty_dates(current_data);
 
         await Promise.all([
-            calculate_and_display_stats(data),
-            compute_tag_stats(current_data),
-            compute_weekdays_stats(current_data),
-            compute_months_stats(current_data),
-            get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
+            calculate_and_display_stats(),
+            compute_tag_stats(),
+            compute_weekdays_stats(),
+            compute_months_stats(),
+            get_word_frequency(),
 
             // Graphics
-            create_mood_chart(current_data, averagingValue, showAverage, showYears),
-            create_tag_frequency_chart(tagsPercentage, nbMaxTags),
-            create_tag_score_chart(nbMaxTags),
-            create_weekday_chart(png_settings.firstDayOfWeek),
-            create_month_chart(seasonColors),
-            create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
+            create_mood_chart(),
+            create_tag_frequency_chart(),
+            create_tag_score_chart(),
+            create_weekday_chart(),
+            create_month_chart(),
+            create_word_frequency_section(),
             setup_calendar_frame(),
         ]);
 
@@ -211,19 +210,19 @@ async function handle_file_upload(file) {
 
             // Stats
             await Promise.all([
-                calculate_and_display_stats(data),
-                compute_tag_stats(current_data),
-                compute_weekdays_stats(current_data),
-                compute_months_stats(current_data),
-                get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
+                calculate_and_display_stats(),
+                compute_tag_stats(),
+                compute_weekdays_stats(),
+                compute_months_stats(),
+                get_word_frequency(),
 
                 // Graphics
-                create_mood_chart(current_data, averagingValue, showAverage, showYears),
-                create_tag_frequency_chart(tagsPercentage, nbMaxTags),
-                create_tag_score_chart(nbMaxTags),
-                create_weekday_chart(png_settings.firstDayOfWeek),
-                create_month_chart(seasonColors),
-                create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
+                create_mood_chart(),
+                create_tag_frequency_chart(),
+                create_tag_score_chart(),
+                create_weekday_chart(),
+                create_month_chart(),
+                create_word_frequency_section(),
                 setup_calendar_frame(),
             ]);
 
@@ -342,49 +341,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
-        averagingValue = parseInt(e.target.value);
-        rolling_slider_text_value.textContent = averagingValue;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodAveragingValue = parseInt(e.target.value);
+        rolling_slider_text_value.textContent = moodAveragingValue;
+        create_mood_chart();
     });
 
     show_average_checkbox.addEventListener("change", (e) => {
-        showAverage = e.target.checked;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodShowAverage = e.target.checked;
+        create_mood_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
-        showYears = e.target.checked;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodShowYears = e.target.checked;
+        create_mood_chart();
     });
 
     show_pixel_checkbox.addEventListener("change", (e) => {
-        showPixelCard = e.target.checked;
+        moodShowPixelCard = e.target.checked;
     });
 
     select_time_option.addEventListener("change", (e) => {
-        timeOption = e.target.value;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodTimeOption = e.target.value;
+        create_mood_chart();
     });
 
 
     // Tags
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        create_tag_frequency_chart();
         sync_tag_charts_hover();
     });
 
     input_nb_tags.addEventListener("input", (e) => {
         nbMaxTags = parseInt(e.target.value);
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-        create_tag_score_chart(nbMaxTags);
+        create_tag_frequency_chart();
+        create_tag_score_chart();
         sync_tag_charts_hover();
     });
 
     select_tag_category.addEventListener("input", (e) => {
         tagCategory = e.target.value;
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-        create_tag_score_chart(nbMaxTags);
+        create_tag_frequency_chart();
+        create_tag_score_chart();
         sync_tag_charts_hover();
     });
 
@@ -398,44 +397,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Months
     season_colors_checkbox.addEventListener("change", (e) => {
-        seasonColors = e.target.checked;
-        create_month_chart(seasonColors);
+        monthSeasonColors = e.target.checked;
+        create_month_chart();
     });
 
 
     // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {
-        wordcloudPercentage = e.target.checked;
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordDisplayPercentage = e.target.checked;
+        create_word_frequency_section();
     });
 
     words_order_checkbox.addEventListener("change", (e) => {
-        wordcloudOrderCount = e.target.checked;
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordOrderByScore = e.target.checked;
+        get_word_frequency();
+        create_word_frequency_section();
     });
 
     words_words_input.addEventListener("input", (e) => {
-        nbMaxWords = parseInt(e.target.value);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordNbMaxWords = parseInt(e.target.value);
+        create_word_frequency_section();
     });
 
     words_count_input.addEventListener("input", (e) => {
-        nbMinCount = parseInt(e.target.value);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordNbMinCount = parseInt(e.target.value);
+        create_word_frequency_section();
     });
 
     min_score_slider.addEventListener("input", (e) => {
-        minScore = parseInt(e.target.value) / 10;
-        min_score_slider_text_value.textContent = minScore.toFixed(1);
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordMinScore = parseInt(e.target.value) / 10;
+        min_score_slider_text_value.textContent = wordMinScore.toFixed(1);
+        get_word_frequency();
+        create_word_frequency_section();
     });
 
     words_search_input.addEventListener("input", (e) => {
-        searchTerm = e.target.value.toLowerCase();
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordSearchText = e.target.value.toLowerCase();
+        get_word_frequency();
+        create_word_frequency_section();
     });
 
     // Wordcloud
@@ -449,17 +448,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     wordcloud_size_input.addEventListener("input", (e) => {
         wordcloudSize = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     wordcloud_spacing_input.addEventListener("input", (e) => {
         wordcloudSpacing = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     wordcloud_compression_input.addEventListener("input", (e) => {
         wordcloudCompression = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     btn_download_wordcloud.addEventListener("click", () => {
@@ -475,12 +474,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Export PNG
     setting_scoreType.addEventListener("change", (e) => {
         png_settings = get_image_settings();
-        generate_pixels_PNG(current_data);
+        generate_pixels_PNG();
     });
 
     setting_layout.addEventListener("input", (e) => {
         png_settings = get_image_settings();
-        generate_pixels_PNG(current_data);
+        generate_pixels_PNG();
     });
 
 
