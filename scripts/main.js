@@ -114,6 +114,23 @@ let getDynamicBorders = true; // not editable
 
 
 
+function show_popup_message(message, type) {
+    const popup = document.createElement("div");
+    popup.className = "popup-message";
+    if (type === "error") {
+        popup.classList.add("error");
+    }
+    popup.textContent = message;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.classList.add("visible"), 10);
+
+    setTimeout(() => {
+        popup.classList.remove("visible");
+        setTimeout(() => popup.remove(), 3000);
+    }, 10000);
+}
+
+
 function fill_empty_dates(data) {
     const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
@@ -194,7 +211,7 @@ async function handle_file_upload(file) {
             Array.isArray(entry.tags)
         )) {
             const errorFormatTxt = "The file format is invalid. Please ensure the file is exported from the Teo Vogel's Pixels app.";
-            alert(errorFormatTxt);
+            show_popup_message(errorFormatTxt, "error");
             throw new Error(errorFormatTxt);
         }
 
