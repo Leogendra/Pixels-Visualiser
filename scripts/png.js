@@ -687,8 +687,17 @@ setting_showFilter.addEventListener("change", () => {
 });
 
 div_pixel_export_container.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter") && (!dialog_settings.open)) {
+        e.preventDefault();
+        console.log("Enter pressed in div settings");
+        btn_generate_png.click();
+    }
+});
+
+dialog_settings.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         e.preventDefault();
-        btn_generate_png.click();
+        console.log("Enter pressed in words dialog settings");
+        btn_save_dialog_settings.click();
     }
 });

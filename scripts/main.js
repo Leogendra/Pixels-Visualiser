@@ -437,6 +437,13 @@ document.addEventListener("DOMContentLoaded", () => {
         create_word_frequency_section();
     });
 
+    words_dialog_settings.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            btn_save_words_dialog_settings.click();
+        }
+    });
+
     // Wordcloud
     btn_open_words_dialog_settings.addEventListener("click", () => {
         open_words_dialog_settings();
