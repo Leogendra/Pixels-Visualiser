@@ -235,7 +235,12 @@ function compute_months_stats() {
 
 function get_word_frequency() {
     const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
-    const searchTextLower = normalize_string(wordSearchText);
+    let searchTextLower = normalize_string(wordSearchText);
+    let splitWordsFlag = false;
+    if (searchTextLower && searchTextLower.endsWith("/")) {
+        searchTextLower = searchTextLower.slice(0, -1).trim();
+        splitWordsFlag = true;
+    }
     const searchWords = searchTextLower
         .split(/\s+/)
         .map(word => normalize_string(word))
@@ -247,11 +252,7 @@ function get_word_frequency() {
             .split("*")
             .map(escape_regex)
             .join("(\\w+)");
-        searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
-    }
-    else if (searchTextLower.length > 0) {
-        const pattern = escape_regex(searchTextLower);
-        searchPattern = new RegExp("\\b" + pattern + "\\b", "gi");
+        searchPattern = new RegExp(pattern, "gi");
     }
 
     current_data.forEach(entry => {
@@ -284,7 +285,7 @@ function get_word_frequency() {
             .filter(word =>
                 (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
                 (!STOP_WORDS.has(word)) && // Word is not a stop word
-                ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term
+                ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
                 (
                     (searchWords.length === 0) || // Either no search words or
                     searchWords.some((sw, i) => {
@@ -302,14 +303,26 @@ function get_word_frequency() {
         if (searchPattern) {
             let match;
             while ((match = searchPattern.exec(notesLower)) !== null) {
-                // one or more words captured by the pattern
+                if (match.length > 2) {
+                    const fullMatchedText = match[0];
+                    if (!(fullMatchedText in wordData)) {
+                        wordData[fullMatchedText] = { count: 0, scores: [] };
+                    }
+                    wordData[fullMatchedText].count += 1;
+                    wordData[fullMatchedText].scores.push(average_score);
+                }
+
+                // one or more words captured by the pattern (if multiple *)
                 for (let i = 1; i < match.length; i++) {
-                    const capturedWord = match[i];
+                    let capturedWord = match[i];
                     if (!capturedWord) { continue; }
+                    if (splitWordsFlag) {
+                        capturedWord = `${i}-${capturedWord}`; // Prefix the index to the captured word
+                    }
+
                     if (!(capturedWord in wordData)) {
                         wordData[capturedWord] = { count: 0, scores: [] };
                     }
-
                     wordData[capturedWord].count += 1;
                     wordData[capturedWord].scores.push(average_score);
                 }
@@ -358,7 +371,7 @@ async function create_word_frequency_section() {
                 if (wordSearchText) {
                     isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
                                     wordSearchText.split(/\s+/)
-                                              .some(term => normalize_string(word.word) === (normalize_string(term)));
+                                                .some(term => normalize_string(word.word) === (normalize_string(term)));
                 }
                 return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
