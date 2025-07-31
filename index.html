@@ -279,12 +279,13 @@
                             </div>
 
                             <div class="option-item">
-                                <label for="wordcloudCompression" title="How much the differences between word sizes are reduced">Words compression</label>
+                                <label for="wordcloudCompression" title="If this number is high, bigger words will have a more similar size than smaller words">Words compression</label>
                                 <input type="number" id="wordcloudCompression" class="input-nb" min="1" max="10">
                             </div>
                         </div>
 
                         <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
+                        <!-- <div id="wordcloudCanvas" width="1000" height="400" style="width: 1000px; height: 400px;"></div> -->
 
                         <button class="button" id="btnDownloadWordcloud">Download</button>
                     </div>
@@ -456,7 +457,7 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.10</div>
+        <div class="version">Version: v1.5.11</div>
         <div class="version">Last update: 2025-07-25</div>
     </footer>
 
@@ -466,7 +467,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- Wordcloud2.js for wordcloud -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.3/wordcloud2.min.js"></script>
 
     <!-- Fullcalendar.js for date input -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>

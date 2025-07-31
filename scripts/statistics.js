@@ -416,16 +416,16 @@ async function update_wordcloud() {
         });
     }
 
-    wordcloud_container.style.display = "flex";
 
     WordCloud(wordcloud_canvas, {
         list: adjustedWords,
-        gridSize: 3 * wordcloudSpacing,
-        weightFactor: wordcloudSize,
-        fontFamily: 'Segoe UI',
-        color: 'random-dark',
+        gridSize: 3 * wordcloudSpacing, // gap between words
+        weightFactor: wordcloudSize, // size of the words
+        fontFamily: "Segoe UI",
+        color: "random-dark",
         backgroundColor: png_settings.colors.empty,
-        outOfBound: false,
+        drawOutOfBound: false,
+        shrinkToFit: true,
     });
 }
 
