@@ -486,19 +486,16 @@ async function download_pixels_PNG() {
 
 function filter_pixels_by_keyword(keyword, isTag=false) {
     if (!keyword || (keyword.trim() === "") || (current_data.length === 0)) { return []; }
-    const keywordRegex = keyword.split("||")
-                                .map(part => 
-                                    part.trim()
-                                        .split("&&")
-                                        .map(s => s.trim())
-                                );
     const result = [];
     const firstDate = normalize_date(current_data[0].date);
     const lastDate = normalize_date(current_data[current_data.length - 1].date);
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
     
-    const target = normalize_string(keyword);
+    // const target = normalize_string(keyword);
+    const target = parse_logical_string(keyword);
+    console.log(`Parsed AST for keyword: ${JSON.stringify(target)}`);
+
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
         const scores = pixel.scores || [];
@@ -513,14 +510,13 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
             }
         }
         else {
-            hasMatch = keywordRegex.some(andGroup =>
-                andGroup.every(term => notes.includes(term))
+            hasMatch = target.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
             );
         }
         
         if (hasMatch) {
             result.push({ date, scores });
-            console.log(`Checking pixel on ${date} for keyword "${keyword}": ${hasMatch}`);
         }
     });
 
@@ -540,12 +536,19 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
+    /*
     const target1 = normalize_string(keyword1)
                                 .split("||")
                                 .map(part => part.trim().split("&&").map(s => s.trim()));
     const target2 = normalize_string(keyword2)
                                 .split("||")
                                 .map(part => part.trim().split("&&").map(s => s.trim()));
+    */
+    const target1 = parse_logical_string(keyword1);
+    const target2 = parse_logical_string(keyword2);
+
+    console.log(`Parsed AST for keyword1: ${JSON.stringify(target1)}`);
+    console.log(`Parsed AST for keyword2: ${JSON.stringify(target2)}`);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -564,8 +567,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match1 = target1.some(andGroup =>
-                andGroup.every(term => notes.includes(term))
+            match1 = target1.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
             );
         }
 
@@ -579,8 +582,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match2 = target2.some(andGroup =>
-                andGroup.every(term => notes.includes(term))
+            match2 = target2.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
             );
         }
 
@@ -705,7 +708,6 @@ setting_showFilter.addEventListener("change", () => {
 div_pixel_export_container.addEventListener("keydown", function (e) {
     if ((e.key === "Enter") && (!dialog_settings.open)) {
         e.preventDefault();
-        console.log("Enter pressed in div settings");
         btn_generate_png.click();
     }
 });
@@ -713,7 +715,6 @@ div_pixel_export_container.addEventListener("keydown", function (e) {
 dialog_settings.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         e.preventDefault();
-        console.log("Enter pressed in words dialog settings");
         btn_save_dialog_settings.click();
     }
 });
