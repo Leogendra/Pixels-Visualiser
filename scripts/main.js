@@ -7,6 +7,9 @@ const content_container = document.querySelector("#content");
 const stats_content_container = document.querySelector("#stats-content");
 const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
+const div_date_range_filter = document.querySelector("#dateRangeFilter");
+const start_date_filter = document.querySelector("#startDateFilterInput");
+const end_date_filter = document.querySelector("#endDateFilterInput");
 
 const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
@@ -51,6 +54,8 @@ const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
+let last_start_date = null;
+let last_end_date = null;
 
 // Mood chart
 let moodAveragingValue = 1;
@@ -156,14 +161,10 @@ function fill_empty_dates(data) {
 }
 
 
-async function filter_pixels(numberOfDays) {
-    const lastPixelDate = new Date(current_data[current_data.length - 1].date);
-    current_data = initial_data.filter(entry => {
-        const entryDate = new Date(entry.date);
-        const diffDays = Math.round(Math.abs(lastPixelDate - entryDate) / (1000 * 60 * 60 * 24));
-        return diffDays < numberOfDays;
-    });
-
+async function update_stats_and_graphics() {
+    privacy_notice.style.display = "none";
+    content_container.style.display = "block";
+    
     if (current_data.length === 0) {
         data_error_container.style.display = "block";
         stats_content_container.style.display = "none";
@@ -196,6 +197,61 @@ async function filter_pixels(numberOfDays) {
 }
 
 
+async function filter_pixels(numberOfDays) {
+    if (!Array.isArray(initial_data) || initial_data.length === 0) { return; }
+
+    const firstPixelDate = new Date(initial_data[0].date);
+    const lastPixelDate = new Date(initial_data[initial_data.length - 1].date);
+    if (!is_date_valid(firstPixelDate) || !is_date_valid(lastPixelDate)) { return; }
+    
+    let startDate, endDate;
+    if (numberOfDays == 0) {
+        startDate = new Date(start_date_filter.value + " 00:00:00");
+        endDate = new Date(end_date_filter.value + " 00:00:00");
+        
+        if (!is_date_valid(startDate) || !is_date_valid(endDate) ||
+            startDate.getFullYear() < 2015 || endDate.getFullYear() < 2015 ||
+            startDate.getFullYear() > 2100 || endDate.getFullYear() > 2100) {
+            return;
+        }
+
+        if (startDate > endDate) {
+            show_popup_message("Start date cannot be after end date.", "error");
+            return;
+        }
+
+        startDate = startDate < firstPixelDate ? firstPixelDate : startDate;
+        endDate = endDate > lastPixelDate ? lastPixelDate : endDate;
+    }
+    else {
+        endDate = new Date(lastPixelDate);
+        startDate = new Date(lastPixelDate);
+        startDate.setDate(startDate.getDate() - numberOfDays);
+    }
+
+
+    if (last_start_date && last_end_date &&
+        (startDate.getTime() === last_start_date.getTime()) &&
+        (endDate.getTime() === last_end_date.getTime())) {
+        return;
+    }
+
+    last_start_date = new Date(startDate);
+    last_end_date = new Date(endDate);
+
+    current_data = initial_data.filter(entry => {
+        const entryDate = new Date(entry.date);
+        if (!is_date_valid(entryDate)) { return false; }
+
+        return (numberOfDays === 0)
+            ? ((entryDate >= startDate) && (entryDate <= endDate))
+            : (entryDate >= startDate);
+    });
+
+    update_stats_and_graphics();
+}
+
+
 async function handle_file_upload(file) {
     if (!file) return;
 
@@ -218,51 +274,14 @@ async function handle_file_upload(file) {
         else {
             initial_data = data;
             current_data = initial_data;
-
-            content_container.style.display = "block";
-            privacy_notice.style.display = "none";
-
-            // Load saved settings
+            
             await load_settings();
-
-            // Stats
-            await Promise.all([
-                calculate_and_display_stats(),
-                compute_tag_stats(),
-                compute_weekdays_stats(),
-                compute_months_stats(),
-                get_word_frequency(),
-
-                // Graphics
-                create_mood_chart(),
-                create_tag_frequency_chart(),
-                create_tag_score_chart(),
-                create_weekday_chart(),
-                create_month_chart(),
-                create_word_frequency_section(),
-                setup_calendar_frame(),
-            ]);
-
-            sync_tag_charts_hover();
-
-
-            // DEBUGGING
-            if (DEV_MODE) {
-                // debug_function();
-            }
+            update_stats_and_graphics();
         }
     }
     catch (error) {
         console.error(`Error in handle file upload: ${error.message}`);
     }
-}
-
-
-// REMOVE FOR PRODUCTION
-async function debug_function() {
-    const first_pixel_card = await create_pixel_card(current_data[0]);
-    content_container.appendChild(first_pixel_card);
-    console.debug("First pixel card:", first_pixel_card);
 }
 
 
@@ -337,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const file = files[0];
             if (file.type === "application/json" || file.name.endsWith(".json")) {
                 handle_file_upload(file);
-            } 
+            }
             else {
                 alert("Please drop a valid .json file");
             }
@@ -348,11 +367,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pills filter
     range_pills.forEach(pill => {
         pill.addEventListener("click", () => {
-            document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+            range_pills.forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
             const range = pill.dataset.range;
-            filter_pixels(range);
+            if (range > 0) {
+                div_date_range_filter.classList.remove("date-range-open");
+                filter_pixels(range);
+            }
+            else {
+                div_date_range_filter.classList.add("date-range-open");
+                setTimeout(() => { filter_pixels(0) }, 300); // delay to let the animation finish
+            }
         });
+    });
+
+    start_date_filter.addEventListener("change", () => {
+        filter_pixels(0);
+    });
+
+    end_date_filter.addEventListener("change", () => {
+        filter_pixels(0);
     });
 
 

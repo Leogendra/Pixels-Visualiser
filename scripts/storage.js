@@ -11,6 +11,9 @@ async function store_settings() {
 
     storeSettingsTimeout = setTimeout(() => {
         const settings = {
+            startDateFilterInput: start_date_filter.value,
+            endDateFilterInput: end_date_filter.value,
+
             moodAveragingValue,
             moodShowAverage,
             moodShowYears,
@@ -51,6 +54,9 @@ async function load_settings() {
 
     try {
         const settings = JSON.parse(saved);
+
+        start_date_filter.value = settings.startDateFilterInput || "";
+        end_date_filter.value = settings.endDateFilterInput || "";
 
         moodAveragingValue = settings.moodAveragingValue || moodAveragingValue;
         rolling_slider.value = moodAveragingValue;

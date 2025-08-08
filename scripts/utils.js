@@ -117,7 +117,7 @@ function parse_logical_string(expr) {
 
     function flatten_to_array(node) {
         if (node.type === "TERM") {
-            return [[node.value]]; 
+            return [[node.value]];
         }
 
         if (node.type === "OR") {
@@ -142,8 +142,8 @@ function parse_logical_string(expr) {
 
 //////////////// Dates ////////////////
 
-function pixel_format_date(input) {
-    const date = new Date(input);
+function pixel_format_date(input_date) {
+    const date = new Date(input_date);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1);
     const dd = String(date.getDate());
@@ -151,8 +151,8 @@ function pixel_format_date(input) {
 }
 
 
-function normalize_date(input) {
-    const date = new Date(input);
+function normalize_date(input_date) {
+    const date = new Date(input_date);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
@@ -160,16 +160,30 @@ function normalize_date(input) {
 }
 
 
-function get_week_key(date, startOfWeek = 1) {
-    const d = new Date(date);
+function is_date_valid(input_date) {
+    return (input_date instanceof Date) && !isNaN(input_date.getTime());
+}
+
+
+function get_UTC_date(input_date) {
+    const date = new Date(input_date);
+    const yyyy = date.getUTCFullYear();
+    const mm = date.getUTCMonth();
+    const dd = date.getUTCDate();
+    return new Date(Date.UTC(yyyy, mm, dd));
+}
+
+
+function get_week_key(input_date, startOfWeek = 1) {
+    const d = new Date(input_date);
     const day = (d.getDay() - startOfWeek + 7) % 7;
     d.setDate(d.getDate() - day);
     return d.toISOString().split("T")[0];
 }
 
 
-function get_month_key(date) {
-    return `${date.getFullYear()}-${date.getMonth()}`;
+function get_month_key(input_date) {
+    return `${input_date.getFullYear()}-${input_date.getMonth()}`;
 }
 
 
