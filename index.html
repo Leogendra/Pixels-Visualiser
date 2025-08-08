@@ -64,13 +64,28 @@
 
 
         <div id="content" style="display: none;">
-            <div class="pill-selector">
-                <button class="pill" data-range="7">Last week</button>
-                <button class="pill" data-range="30">Last month</button>
-                <button class="pill" data-range="180">Last 6 months</button>
-                <button class="pill" data-range="365">Last year</button>
-                <button class="pill" data-range="1095">Last 3 years</button>
-                <button class="pill active" data-range="99999">All time</button>
+            <div class="div-pill-selector">
+                <div class="pill-selector">
+                    <button class="pill" data-range="0">Custom</button>
+                    <button class="pill" data-range="7">Last week</button>
+                    <button class="pill" data-range="30">Last month</button>
+                    <button class="pill" data-range="180">Last 6 months</button>
+                    <button class="pill" data-range="365">Last year</button>
+                    <button class="pill" data-range="1095">Last 3 years</button>
+                    <button class="pill active" data-range="99999">All time</button>
+                </div>
+                
+                <div class="pill-date-range-filter" id="dateRangeFilter">
+                    <div class="option-item">
+                        <label for="startDateFilterInput" title="The date of the first Pixel">Start date</label>
+                        <input type="date" id="startDateFilterInput" class="input-date">
+                    </div>
+                    
+                    <div class="option-item">
+                        <label for="endDateFilterInput" title="The date of the last Pixel">End date</label>
+                        <input type="date" id="endDateFilterInput" class="input-date">
+                    </div>
+                </div>
             </div>
 
             <div class="no-data-error">No data available for the selected range</div>
@@ -123,12 +138,12 @@
                             title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                             <input type="checkbox" id="tagFrequencyCheckbox" class="checkbox">
                         </div>
-                        
+
                         <div class="option-item">
                             <label for="maxTagsInput" title="Number of tags to display">Number of tags</label>
                             <input type="number" id="maxTagsInput" class="input-nb" min="1" value="10">
                         </div>
-                        
+
                         <div class="option-item">
                             <label for="selectTagCategory" title="Choose the category you want to display">Tag category</label>
                             <select id="selectTagCategory" class="select"></select>
@@ -148,8 +163,8 @@
                     </div>
                 </div>
 
-                <div class="grid-charts group-options">
-                    <div class="chart-container" id="WeekdaysContainer">
+                <div class="grid-charts">
+                    <div class="chart-container group-options" id="WeekdaysContainer">
                         <h2>🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
@@ -168,7 +183,7 @@
                         <canvas id="weekdaysChart"></canvas>
                     </div>
 
-                    <div class="chart-container" id="WeekdaysContainer">
+                    <div class="chart-container group-options" id="WeekdaysContainer">
                         <h2>🗓️ Months average scores</h2>
                         <div class="options">
                             <div class="option-item">
@@ -197,14 +212,17 @@
                             <div class="dialog-settings">
 
                                 <h3>Words settings</h3>
-                                
+
                                 <div class="dialog-settings-group">
                                     <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                                     <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
 
                                     <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
                                     <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
-                                    
+
+                                    <label for="wordsRegexCheckbox" title="Advanced feature. Allow searching with regular expressions">Search by regex</label>
+                                    <input type="checkbox" id="wordsRegexCheckbox" class="checkbox">
+
                                     <label for="minCountInput" title="Minimum number of time this words appears in your Pixels">Minimum count</label>
                                     <input type="number" id="minCountInput" class="input-nb" min="1">
 
@@ -222,7 +240,7 @@
                             <div class="dialog-settings">
 
                                 <h3>Stopwords settings</h3>
-                                
+
                                 <div class="dialog-settings-group">
 
                                     <label for="stopwordsLanguageSelect" title="Which language do you want the stopwords to be in?">Stopwords language</label>
@@ -257,9 +275,9 @@
                             <label for="minScoreSlider" title="Only count words appearing in a Pixel with a score above the defined threshold">Min score: <span id="minScoreValue">1</span></label>
                             <input type="range" id="minScoreSlider" class="range-slider" min="10" max="50">
                         </div>
-                        
+
                         <div class="option-item">
-                            <label for="searchInput" title='hint: use "*" to search for any word, e.g. "went to *"'>Search words</label>
+                            <label id="labelSearchInput" for="searchInput" title='hint: use "*" to search for any word, e.g. "went to *"'>Search words</label>
                             <input type="text" id="searchInput" class="input-nb input-large" placeholder='e.g. "happy", "good day", "been to *"'>
                         </div>
                     </div>
@@ -279,12 +297,13 @@
                             </div>
 
                             <div class="option-item">
-                                <label for="wordcloudCompression" title="How much the differences between word sizes are reduced">Words compression</label>
+                                <label for="wordcloudCompression" title="If this number is high, bigger words will have a more similar size than smaller words">Words compression</label>
                                 <input type="number" id="wordcloudCompression" class="input-nb" min="1" max="10">
                             </div>
                         </div>
 
                         <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
+                        <!-- <div id="wordcloudCanvas" width="1000" height="400" style="width: 1000px; height: 400px;"></div> -->
 
                         <button class="button" id="btnDownloadWordcloud">Download</button>
                     </div>
@@ -304,29 +323,29 @@
                             <div class="dialog-settings">
 
                                 <h3>Image settings</h3>
-                                
+
                                 <div class="dialog-settings-group">
                                     <label for="color1">Score 1</label>
                                     <input type="color" id="color1">
-                                    
+
                                     <label for="color2">Score 2</label>
                                     <input type="color" id="color2">
-                                    
+
                                     <label for="color3">Score 3</label>
                                     <input type="color" id="color3">
-                                    
+
                                     <label for="color4">Score 4</label>
                                     <input type="color" id="color4">
-                                    
+
                                     <label for="color5">Score 5</label>
                                     <input type="color" id="color5">
-                                    
+
                                     <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty">
-                                    
+
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
-                                    
+
                                     <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
                                     <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100">
 
@@ -342,7 +361,7 @@
 
                                     <label for="showDaysCheckbox" title="Show each day of the month on the image">Show days</label>
                                     <input type="checkbox" id="showDaysCheckbox" class="checkbox">
-                                    
+
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
 
@@ -354,7 +373,7 @@
                                     </select>
 
                                 </div>
-                                
+
                                 <div class="dialog-buttons">
                                     <button type="button" class="button button-secondary" id="resetSettingsDialog">Reset</button>
                                     <button type="button" class="button" id="cancelSettingsDialog">Cancel</button>
@@ -411,7 +430,7 @@
                                 <option value="word">Word</option>
                                 <option value="tag">Tag</option>
                             </select>
-                            <input type="text" id="compareWordInput2" class="input-nb input-large" placeholder="enter a word">
+                            <input type="text" id="compareWordInput2" class="input-nb input-large" placeholder="enter a word" value="">
                             <select id="compareTagSelect2" class="select" style="display: none;"></select>
                         </div>
                     </div>
@@ -428,7 +447,7 @@
 
                     <div class="option-item">
                         <label for="dateSearchInput" title="Colors and score type can be selected above">Select date</label>
-                        <input type="date" id="dateSearchInput" class="input-date"">
+                        <input type="date" id="dateSearchInput" class="input-date">
                     </div>
 
                     <div class="options">
@@ -456,8 +475,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.10</div>
-        <div class="version">Last update: 2025-07-25</div>
+        <div class="version">Version: v1.5.15</div>
+        <div class="version">Last update: 2025-08-08</div>
     </footer>
 
     <!-- Charts.js for graphs -->
@@ -466,7 +485,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- Wordcloud2.js for wordcloud -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.2/wordcloud2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.3/wordcloud2.min.js"></script>
 
     <!-- Fullcalendar.js for date input -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>

@@ -169,17 +169,17 @@
     margin: 0;
 }
 
-.fc-multimonth-month {}
+/* .fc-multimonth-month {} */
 
-.fc-multimonth-title {}
+/* .fc-multimonth-title {} */
 
 .fc-col-header-cell {
     font-weight: 500;
 }
 
-.fc-multimonth-daygrid {}
+/* .fc-multimonth-daygrid {} */
 
-.fc-daygrid-day-frame {}
+/* .fc-daygrid-day-frame {} */
 
 .fc-day:has(.fc-event) {
     cursor: pointer;

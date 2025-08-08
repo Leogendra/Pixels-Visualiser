@@ -179,7 +179,7 @@ async function set_tags_selects() {
 
 
 
-async function generate_pixels_PNG(data) {
+async function generate_pixels_PNG() {
     const {
         colors,
         firstDayOfWeek,
@@ -192,7 +192,7 @@ async function generate_pixels_PNG(data) {
         layout
     } = get_image_settings();
 
-    data = get_compare_settings(data);
+    data = get_compare_settings();
 
     // Choose layout and direction
     const direction = layout.includes("vertical") ? "col" : "row";
@@ -484,16 +484,19 @@ async function download_pixels_PNG() {
 }
 
 
-function filter_pixels_by_keyword(data, keyword, isTag=false) {
-    if (!keyword || (keyword.trim() === "") || (data.length === 0)) { return []; }
+function filter_pixels_by_keyword(keyword, isTag=false) {
+    if (!keyword || (keyword.trim() === "") || (current_data.length === 0)) { return []; }
     const result = [];
-    const firstDate = normalize_date(data[0].date);
-    const lastDate = normalize_date(data[data.length - 1].date);
+    const firstDate = normalize_date(current_data[0].date);
+    const lastDate = normalize_date(current_data[current_data.length - 1].date);
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
     
-    const target = normalize_string(keyword);
-    data.forEach(pixel => {
+    // const target = normalize_string(keyword);
+    const target = parse_logical_string(keyword);
+    console.log(`Parsed AST for keyword: ${JSON.stringify(target)}`);
+
+    current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
         const scores = pixel.scores || [];
         const notes = normalize_string(pixel.notes || "");
@@ -502,15 +505,16 @@ function filter_pixels_by_keyword(data, keyword, isTag=false) {
         if (isTag) {
             if (Array.isArray(pixel.tags)) {
                 hasMatch = pixel.tags.some(tagObj =>
-                    Array.isArray(tagObj.entries) &&
                     tagObj.entries.some(tag => normalize_string(tag) === target)
                 );
             }
         }
         else {
-            hasMatch = notes.includes(target);
+            hasMatch = target.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
+            );
         }
-
+        
         if (hasMatch) {
             result.push({ date, scores });
         }
@@ -520,22 +524,33 @@ function filter_pixels_by_keyword(data, keyword, isTag=false) {
 }
 
 
-function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false, isTag2 = false) {
+function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false) {
     if (
         !keyword1 || keyword1.trim() === "" ||
         !keyword2 || keyword2.trim() === "" ||
-        data.length === 0
+        current_data.length === 0
     ) { return []; }
     const result = [];
-    const firstDate = normalize_date(data[0].date);
-    const lastDate = normalize_date(data[data.length - 1].date);
+    const firstDate = normalize_date(current_data[0].date);
+    const lastDate = normalize_date(current_data[current_data.length - 1].date);
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target1 = normalize_string(keyword1);
-    const target2 = normalize_string(keyword2);
+    /*
+    const target1 = normalize_string(keyword1)
+                                .split("||")
+                                .map(part => part.trim().split("&&").map(s => s.trim()));
+    const target2 = normalize_string(keyword2)
+                                .split("||")
+                                .map(part => part.trim().split("&&").map(s => s.trim()));
+    */
+    const target1 = parse_logical_string(keyword1);
+    const target2 = parse_logical_string(keyword2);
 
-    data.forEach(pixel => {
+    console.log(`Parsed AST for keyword1: ${JSON.stringify(target1)}`);
+    console.log(`Parsed AST for keyword2: ${JSON.stringify(target2)}`);
+
+    current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
         const scores = pixel.scores || [];
 
@@ -552,7 +567,9 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match1 = notes.includes(target1);
+            match1 = target1.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
+            );
         }
 
         if (isTag2) {
@@ -565,7 +582,9 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
         } 
         else {
             const notes = normalize_string(pixel.notes || "");
-            match2 = notes.includes(target2);
+            match2 = target2.every(orGroup =>
+                orGroup.some(term => notes.includes(term))
+            );
         }
 
         if (match1 && match2) {
@@ -583,23 +602,23 @@ function filter_pixels_by_two_keywords(data, keyword1, keyword2, isTag1 = false,
 }
 
 
-function get_compare_settings(data) {
+function get_compare_settings() {
     const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
     if ((showFilter > 1) && value1 && value2) {
-        return filter_pixels_by_two_keywords(data, value1, value2, compareTag1, compareTag2);
+        return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2);
     }
     else if ((showFilter > 0) && value1) {
-        return filter_pixels_by_keyword(data, value1, compareTag1);
+        return filter_pixels_by_keyword(value1, compareTag1);
     }
     else if ((showFilter > 0) && value2) {
-        return filter_pixels_by_keyword(data, value2, compareTag2);
+        return filter_pixels_by_keyword(value2, compareTag2);
     }
     else {
-        return data;
+        return current_data; // No filtering, return the current data
     }
 }
 
@@ -627,8 +646,8 @@ function close_dialog_settings(save = false) {
     dialog_settings.removeEventListener('click', handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
-    generate_pixels_PNG(current_data);
-    update_wordcloud(nbMinCount);
+    generate_pixels_PNG();
+    update_wordcloud();
     setup_calendar_frame();
     store_settings();
     dialog_settings.close();
@@ -661,7 +680,7 @@ btn_save_dialog_settings.addEventListener("click", () => {
 });
 
 btn_generate_png.addEventListener("click", () => {
-    generate_pixels_PNG(current_data);
+    generate_pixels_PNG();
 });
 
 btn_download_png.addEventListener("click", () => {
@@ -687,8 +706,15 @@ setting_showFilter.addEventListener("change", () => {
 });
 
 div_pixel_export_container.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
+    if ((e.key === "Enter") && (!dialog_settings.open)) {
         e.preventDefault();
         btn_generate_png.click();
+    }
+});
+
+dialog_settings.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        btn_save_dialog_settings.click();
     }
 });

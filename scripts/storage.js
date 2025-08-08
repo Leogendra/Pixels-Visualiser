@@ -11,22 +11,26 @@ async function store_settings() {
 
     storeSettingsTimeout = setTimeout(() => {
         const settings = {
-            averagingValue,
-            showAverage,
-            showYears,
-            showPixelCard,
-            timeOption,
+            startDateFilterInput: start_date_filter.value,
+            endDateFilterInput: end_date_filter.value,
+
+            moodAveragingValue,
+            moodShowAverage,
+            moodShowYears,
+            moodShowPixelCard,
+            moodTimeOption,
 
             tagsPercentage,
             nbMaxTags,
 
-            seasonColors,
+            monthSeasonColors,
 
-            wordcloudPercentage,
-            wordcloudOrderCount,
-            nbMaxWords,
-            nbMinCount,
-            minScore,
+            wordDisplayPercentage,
+            wordOrderByScore,
+            wordRegexSearch,
+            wordNbMaxWords,
+            wordNbMinCount,
+            wordMinScore,
 
             stopwordsLanguage,
             default_stopwords: Array.from(default_stopwords),
@@ -52,21 +56,24 @@ async function load_settings() {
     try {
         const settings = JSON.parse(saved);
 
-        averagingValue = settings.averagingValue || averagingValue;
-        rolling_slider.value = averagingValue;
-        rolling_slider_text_value.textContent = averagingValue;
+        start_date_filter.value = settings.startDateFilterInput || "";
+        end_date_filter.value = settings.endDateFilterInput || "";
 
-        showAverage = settings.showAverage || showAverage;
-        show_average_checkbox.checked = showAverage;
+        moodAveragingValue = settings.moodAveragingValue || moodAveragingValue;
+        rolling_slider.value = moodAveragingValue;
+        rolling_slider_text_value.textContent = moodAveragingValue;
 
-        showYears = settings.showYears || showYears;
-        show_years_checkbox.checked = showYears;
+        moodShowAverage = settings.moodShowAverage || moodShowAverage;
+        show_average_checkbox.checked = moodShowAverage;
 
-        showPixelCard = (settings.showPixelCard !== undefined) ? settings.showPixelCard : showPixelCard;
-        show_pixel_checkbox.checked = showPixelCard;
+        moodShowYears = settings.moodShowYears || moodShowYears;
+        show_years_checkbox.checked = moodShowYears;
 
-        timeOption = settings.timeOption || timeOption;
-        select_time_option.value = timeOption;
+        moodShowPixelCard = (settings.moodShowPixelCard !== undefined) ? settings.moodShowPixelCard : moodShowPixelCard;
+        show_pixel_checkbox.checked = moodShowPixelCard;
+
+        moodTimeOption = settings.moodTimeOption || moodTimeOption;
+        select_time_option.value = moodTimeOption;
 
 
         tagsPercentage = settings.tagsPercentage || tagsPercentage;
@@ -76,25 +83,30 @@ async function load_settings() {
         input_nb_tags.value = nbMaxTags;
 
 
-        seasonColors = settings.seasonColors || seasonColors;
-        season_colors_checkbox.checked = seasonColors;
+        monthSeasonColors = settings.monthSeasonColors || monthSeasonColors;
+        season_colors_checkbox.checked = monthSeasonColors;
 
 
-        wordcloudPercentage = settings.wordcloudPercentage || wordcloudPercentage;
-        words_percentage_checkbox.checked = wordcloudPercentage;
+        wordDisplayPercentage = settings.wordDisplayPercentage || wordDisplayPercentage;
+        words_percentage_checkbox.checked = wordDisplayPercentage;
 
-        wordcloudOrderCount = settings.wordcloudOrderCount || wordcloudOrderCount;
-        words_order_checkbox.checked = wordcloudOrderCount;
+        wordOrderByScore = settings.wordOrderByScore || wordOrderByScore;
+        words_order_checkbox.checked = wordOrderByScore;
 
-        nbMaxWords = settings.nbMaxWords || nbMaxWords;
-        words_words_input.value = nbMaxWords;
+        wordRegexSearch = settings.wordRegexSearch || wordRegexSearch;
+        words_regex_checkbox.checked = wordRegexSearch;
+        words_search_label.textContent = wordRegexSearch ? "Search regex" : "Search words";
+        words_search_input.placeholder = wordRegexSearch ? 'e.g. "ate with (\\w+)"' : 'e.g. "good day"';
 
-        nbMinCount = settings.nbMinCount || nbMinCount;
-        words_count_input.value = nbMinCount;
+        wordNbMaxWords = settings.wordNbMaxWords || wordNbMaxWords;
+        words_words_input.value = wordNbMaxWords;
 
-        minScore = settings.minScore || minScore;
-        min_score_slider.value = 10 * minScore;
-        min_score_slider_text_value.textContent = minScore.toFixed(1);
+        wordNbMinCount = settings.wordNbMinCount || wordNbMinCount;
+        words_count_input.value = wordNbMinCount;
+
+        wordMinScore = settings.wordMinScore || wordMinScore;
+        min_score_slider.value = 10 * wordMinScore;
+        min_score_slider_text_value.textContent = wordMinScore.toFixed(1);
 
 
         wordcloudSize = settings.wordcloudSize || wordcloudSize;

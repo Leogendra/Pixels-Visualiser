@@ -63,19 +63,19 @@ function fill_missing_dates(data) {
 
 
 
-async function create_mood_chart(data, rollingAverage, displayAverage, displayYears) {
-    data = fill_missing_dates(data);
+async function create_mood_chart() {
+    data = fill_missing_dates(current_data);
     const dates = data.map(entry => entry.date);
 
     let rawScores;
     let minValue;
     let maxValue;
-    if (timeOption === "mood") {
+    if (moodTimeOption === "mood") {
         rawScores = data.map(entry => average(entry.scores));
         minValue = 1;
         maxValue = 5;
     }
-    else if (timeOption === "words") { // number of words
+    else if (moodTimeOption === "words") { // number of words
        rawScores = data.map(entry => {
             if (!entry || !entry.notes) { return null; }
             return entry.notes.split(/\s+/).length;
@@ -83,7 +83,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
         minValue = maximum(rawScores);
         maxValue = minimum(rawScores);
     }
-    else if (timeOption === "tags") { // number of tags
+    else if (moodTimeOption === "tags") { // number of tags
         rawScores = data.map(entry => {
             if (!entry || !entry.tags) { return null; }
             return entry.tags.reduce((count, tag) => {
@@ -96,7 +96,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
     }
 
     const annotations = {};
-    if (displayAverage) {
+    if (moodShowAverage) {
         annotations["mean"] = {
             type: "line",
             mode: "horizontal",
@@ -125,7 +125,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
         }
     }
 
-    if (displayYears) {
+    if (moodShowYears) {
         dates.forEach(dateStr => {
             const [year, month, day] = dateStr.split("-").map(Number);
             if (month === 1 && day === 1) {
@@ -161,7 +161,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
 
     const averagedScores = rawScores.map((scores, i) => {
         if (scores == null) { return null; }
-        const windowStart = Math.max(0, i - rollingAverage + 1);
+        const windowStart = Math.max(0, i - moodAveragingValue + 1);
         let sum = 0;
         let count = 0;
         for (let j = windowStart; j <= i; j++) {
@@ -216,7 +216,7 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
                 setTimeout(() => {hoverDelay = false}, 1000);
             },
             onHover: async function (event, chartElement) {
-                if (!showPixelCard) { return; }
+                if (!moodShowPixelCard) { return; }
                 display_floating_card(data, chartElement);
             },
             plugins: {
@@ -232,13 +232,13 @@ async function create_mood_chart(data, rollingAverage, displayAverage, displayYe
 }
 
 
-async function create_tag_frequency_chart(isPercentage, maxTags) {
+async function create_tag_frequency_chart() {
     const tagCounts = tag_stats.counts;
     const nbPixels = tag_stats.totalPixels;
     const sortedTags = Object.entries(tagCounts)
         .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .sort(([, a], [, b]) => b - a)
-        .slice(0, maxTags);
+        .slice(0, nbMaxTags);
 
     if (sortedTags.length > 0) {
         if (tags_frequency_chart_instance) {
@@ -254,8 +254,8 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
             data: {
                 labels: sortedTags.map(([tag]) => tag),
                 datasets: [{
-                    label: isPercentage ? "Tag frequency (%)" : "Tag frequency",
-                    data: sortedTags.map(([, count]) => isPercentage ? (100 * count / nbPixels).toFixed(2) : count),
+                    label: tagsPercentage ? "Tag frequency (%)" : "Tag frequency",
+                    data: sortedTags.map(([, count]) => tagsPercentage ? (100 * count / nbPixels).toFixed(2) : count),
                     backgroundColor: secondaryColor
                 }]
             },
@@ -273,13 +273,13 @@ async function create_tag_frequency_chart(isPercentage, maxTags) {
 };
 
 
-async function create_tag_score_chart(maxTags) {
+async function create_tag_score_chart() {
     const tagScores = tag_stats.scores;
     const averages = Object.entries(tagScores)
         .filter(tag => (tagCategory === "All") || (tagCategory === tag_stats.categories[tag[0]]))
         .map(([tag, { total, count }]) => ([tag, total / count]))
         .sort(([, a], [, b]) => b - a)
-        .slice(0, maxTags);
+        .slice(0, nbMaxTags);
 
     if (averages.length > 0) {
         if (tags_score_chart_instance) {
@@ -386,7 +386,8 @@ async function sync_tag_charts_hover() {
 }
 
 
-async function create_weekday_chart(firstDayOfWeek) {
+async function create_weekday_chart() {
+    const firstDayOfWeek = png_settings.firstDayOfWeek
     let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     daysOfWeek = daysOfWeek.slice(firstDayOfWeek).concat(daysOfWeek.slice(0, firstDayOfWeek));
 
@@ -424,7 +425,7 @@ async function create_weekday_chart(firstDayOfWeek) {
 };
 
 
-async function create_month_chart(colorsByMonth) {
+async function create_month_chart() {
     const seasons_colors = {
         "winter": "#66ccff",
         "spring": "#66ff99",
@@ -464,7 +465,7 @@ async function create_month_chart(colorsByMonth) {
             datasets: [{
                 label: "Months",
                 data: month_data.map(([_, avg]) => avg.toFixed(2)),
-                backgroundColor: colorsByMonth ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
+                backgroundColor: monthSeasonColors ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
             },
         ]
         },

@@ -7,6 +7,9 @@ const content_container = document.querySelector("#content");
 const stats_content_container = document.querySelector("#stats-content");
 const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
+const div_date_range_filter = document.querySelector("#dateRangeFilter");
+const start_date_filter = document.querySelector("#startDateFilterInput");
+const end_date_filter = document.querySelector("#endDateFilterInput");
 
 const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
@@ -27,11 +30,13 @@ const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
+const words_regex_checkbox = document.querySelector("#wordsRegexCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
 const min_score_slider = document.querySelector("#minScoreSlider");
 const min_score_slider_text_value = document.querySelector("#minScoreValue");
 const words_search_input = document.querySelector("#searchInput");
+const words_search_label = document.querySelector("#labelSearchInput");
 
 const words_dialog_settings = document.querySelector("#dialogWordsSettings");
 const btn_open_words_dialog_settings = document.querySelector("#openWordsSettingsDialog");
@@ -51,41 +56,43 @@ const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
+let last_start_date = null;
+let last_end_date = null;
 
 // Mood chart
-let averagingValue = 1;
-let showAverage = false;
-let showYears = false;
-let timeOption = "mood";
-let showPixelCard = true;
+let moodAveragingValue = 1;
+let moodShowAverage = false;
+let moodShowYears = false;
+let moodTimeOption = "mood";
+let moodShowPixelCard = true;
 
 // Tags
 let tag_stats = {};
 let tagsPercentage = false;
 let nbMaxTags = 10;
-let list_categories = new Set(["All"]);
+let tag_list_categories = new Set(["All"]);
 let tagCategory = "All";
 
 // Weekdays
 let weekdays_stats = {};
-
 // Months
 let months_stats = {};
-let seasonColors = false;
+let monthSeasonColors = false;
 
-// Wordcloud
+// Words
 let full_word_frequency = [];
-let wordcloudPercentage = false;
-let wordcloudOrderCount = false;
-let nbMaxWords = 20;
-let nbMinCount = 10;
-let minScore = 1.0;
-let searchTerm = "";
-
+let wordDisplayPercentage = false;
+let wordOrderByScore = false;
+let wordRegexSearch = false;
+let wordNbMaxWords = 20;
+let wordNbMinCount = 10;
+let wordMinScore = 1.0;
+let wordSearchText = "";
+// Wordcloud
 let wordcloudSize = 4;
 let wordcloudSpacing = 2;
 let wordcloudCompression = 4;
-let maxWordcloudWords = 150; // not editable
+let wordcloudNbMaxWords = 150; // not editable
 
 // PNG
 const png_default_settings = {
@@ -115,6 +122,23 @@ let getDynamicBorders = true; // not editable
 
 
 
+function show_popup_message(message, type) {
+    const popup = document.createElement("div");
+    popup.className = "popup-message";
+    if (type === "error") {
+        popup.classList.add("error");
+    }
+    popup.textContent = message;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.classList.add("visible"), 10);
+
+    setTimeout(() => {
+        popup.classList.remove("visible");
+        setTimeout(() => popup.remove(), 3000);
+    }, 10000);
+}
+
+
 function fill_empty_dates(data) {
     const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
@@ -140,14 +164,10 @@ function fill_empty_dates(data) {
 }
 
 
-async function filter_pixels(numberOfDays) {
-    const lastPixelDate = new Date(current_data[current_data.length - 1].date);
-    current_data = initial_data.filter(entry => {
-        const entryDate = new Date(entry.date);
-        const diffDays = Math.round(Math.abs(lastPixelDate - entryDate) / (1000 * 60 * 60 * 24));
-        return diffDays < numberOfDays;
-    });
-
+async function update_stats_and_graphics() {
+    privacy_notice.style.display = "none";
+    content_container.style.display = "block";
+    
     if (current_data.length === 0) {
         data_error_container.style.display = "block";
         stats_content_container.style.display = "none";
@@ -159,24 +179,79 @@ async function filter_pixels(numberOfDays) {
         fill_empty_dates(current_data);
 
         await Promise.all([
-            calculate_and_display_stats(data),
-            compute_tag_stats(current_data),
-            compute_weekdays_stats(current_data),
-            compute_months_stats(current_data),
-            get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
+            calculate_and_display_stats(),
+            compute_tag_stats(),
+            compute_weekdays_stats(),
+            compute_months_stats(),
+            get_word_frequency(),
 
             // Graphics
-            create_mood_chart(current_data, averagingValue, showAverage, showYears),
-            create_tag_frequency_chart(tagsPercentage, nbMaxTags),
-            create_tag_score_chart(nbMaxTags),
-            create_weekday_chart(png_settings.firstDayOfWeek),
-            create_month_chart(seasonColors),
-            create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
+            create_mood_chart(),
+            create_tag_frequency_chart(),
+            create_tag_score_chart(),
+            create_weekday_chart(),
+            create_month_chart(),
+            create_word_frequency_section(),
             setup_calendar_frame(),
         ]);
 
         sync_tag_charts_hover();
     }
+}
+
+
+async function filter_pixels(numberOfDays) {
+    if (!Array.isArray(initial_data) || initial_data.length === 0) { return; }
+
+    const firstPixelDate = new Date(initial_data[0].date);
+    const lastPixelDate = new Date(initial_data[initial_data.length - 1].date);
+    if (!is_date_valid(firstPixelDate) || !is_date_valid(lastPixelDate)) { return; }
+    
+    let startDate, endDate;
+    if (numberOfDays == 0) {
+        startDate = new Date(start_date_filter.value + " 00:00:00");
+        endDate = new Date(end_date_filter.value + " 00:00:00");
+        
+        if (!is_date_valid(startDate) || !is_date_valid(endDate) ||
+            startDate.getFullYear() < 2015 || endDate.getFullYear() < 2015 ||
+            startDate.getFullYear() > 2100 || endDate.getFullYear() > 2100) {
+            return;
+        }
+
+        if (startDate > endDate) {
+            show_popup_message("Start date cannot be after end date.", "error");
+            return;
+        }
+
+        startDate = startDate < firstPixelDate ? firstPixelDate : startDate;
+        endDate = endDate > lastPixelDate ? lastPixelDate : endDate;
+    }
+    else {
+        endDate = new Date(lastPixelDate);
+        startDate = new Date(lastPixelDate);
+        startDate.setDate(startDate.getDate() - numberOfDays);
+    }
+
+
+    if (last_start_date && last_end_date &&
+        (startDate.getTime() === last_start_date.getTime()) &&
+        (endDate.getTime() === last_end_date.getTime())) {
+        return;
+    }
+
+    last_start_date = new Date(startDate);
+    last_end_date = new Date(endDate);
+
+    current_data = initial_data.filter(entry => {
+        const entryDate = new Date(entry.date);
+        if (!is_date_valid(entryDate)) { return false; }
+
+        return (numberOfDays === 0)
+            ? ((entryDate >= startDate) && (entryDate <= endDate))
+            : (entryDate >= startDate);
+    });
+
+    update_stats_and_graphics();
 }
 
 
@@ -195,58 +270,21 @@ async function handle_file_upload(file) {
             Array.isArray(entry.tags)
         )) {
             const errorFormatTxt = "The file format is invalid. Please ensure the file is exported from the Teo Vogel's Pixels app.";
-            alert(errorFormatTxt);
+            show_popup_message(errorFormatTxt, "error");
             throw new Error(errorFormatTxt);
         }
 
         else {
             initial_data = data;
             current_data = initial_data;
-
-            content_container.style.display = "block";
-            privacy_notice.style.display = "none";
-
-            // Load saved settings
+            
             await load_settings();
-
-            // Stats
-            await Promise.all([
-                calculate_and_display_stats(data),
-                compute_tag_stats(current_data),
-                compute_weekdays_stats(current_data),
-                compute_months_stats(current_data),
-                get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm),
-
-                // Graphics
-                create_mood_chart(current_data, averagingValue, showAverage, showYears),
-                create_tag_frequency_chart(tagsPercentage, nbMaxTags),
-                create_tag_score_chart(nbMaxTags),
-                create_weekday_chart(png_settings.firstDayOfWeek),
-                create_month_chart(seasonColors),
-                create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm),
-                setup_calendar_frame(),
-            ]);
-
-            sync_tag_charts_hover();
-
-
-            // DEBUGGING
-            if (DEV_MODE) {
-                // debug_function();
-            }
+            update_stats_and_graphics();
         }
     }
     catch (error) {
         console.error(`Error in handle file upload: ${error.message}`);
     }
-}
-
-
-// REMOVE FOR PRODUCTION
-async function debug_function() {
-    const first_pixel_card = await create_pixel_card(current_data[0]);
-    content_container.appendChild(first_pixel_card);
-    console.debug("First pixel card:", first_pixel_card);
 }
 
 
@@ -321,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const file = files[0];
             if (file.type === "application/json" || file.name.endsWith(".json")) {
                 handle_file_upload(file);
-            } 
+            }
             else {
                 alert("Please drop a valid .json file");
             }
@@ -332,59 +370,74 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pills filter
     range_pills.forEach(pill => {
         pill.addEventListener("click", () => {
-            document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+            range_pills.forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
             const range = pill.dataset.range;
-            filter_pixels(range);
+            if (range > 0) {
+                div_date_range_filter.classList.remove("date-range-open");
+                filter_pixels(range);
+            }
+            else {
+                div_date_range_filter.classList.add("date-range-open");
+                setTimeout(() => { filter_pixels(0) }, 300); // delay to let the animation finish
+            }
         });
+    });
+
+    start_date_filter.addEventListener("change", () => {
+        filter_pixels(0);
+    });
+
+    end_date_filter.addEventListener("change", () => {
+        filter_pixels(0);
     });
 
 
     // Averaging slider
     rolling_slider.addEventListener("input", (e) => {
-        averagingValue = parseInt(e.target.value);
-        rolling_slider_text_value.textContent = averagingValue;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodAveragingValue = parseInt(e.target.value);
+        rolling_slider_text_value.textContent = moodAveragingValue;
+        create_mood_chart();
     });
 
     show_average_checkbox.addEventListener("change", (e) => {
-        showAverage = e.target.checked;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodShowAverage = e.target.checked;
+        create_mood_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
-        showYears = e.target.checked;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodShowYears = e.target.checked;
+        create_mood_chart();
     });
 
     show_pixel_checkbox.addEventListener("change", (e) => {
-        showPixelCard = e.target.checked;
+        moodShowPixelCard = e.target.checked;
     });
 
     select_time_option.addEventListener("change", (e) => {
-        timeOption = e.target.value;
-        create_mood_chart(current_data, averagingValue, showAverage, showYears);
+        moodTimeOption = e.target.value;
+        create_mood_chart();
     });
 
 
     // Tags
     tag_frequency_checkbox.addEventListener("change", (e) => {
         tagsPercentage = e.target.checked;
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
+        create_tag_frequency_chart();
         sync_tag_charts_hover();
     });
 
     input_nb_tags.addEventListener("input", (e) => {
         nbMaxTags = parseInt(e.target.value);
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-        create_tag_score_chart(nbMaxTags);
+        create_tag_frequency_chart();
+        create_tag_score_chart();
         sync_tag_charts_hover();
     });
 
     select_tag_category.addEventListener("input", (e) => {
         tagCategory = e.target.value;
-        create_tag_frequency_chart(tagsPercentage, nbMaxTags);
-        create_tag_score_chart(nbMaxTags);
+        create_tag_frequency_chart();
+        create_tag_score_chart();
         sync_tag_charts_hover();
     });
 
@@ -398,44 +451,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Months
     season_colors_checkbox.addEventListener("change", (e) => {
-        seasonColors = e.target.checked;
-        create_month_chart(seasonColors);
+        monthSeasonColors = e.target.checked;
+        create_month_chart();
     });
 
 
     // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {
-        wordcloudPercentage = e.target.checked;
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordDisplayPercentage = e.target.checked;
+        create_word_frequency_section();
     });
 
     words_order_checkbox.addEventListener("change", (e) => {
-        wordcloudOrderCount = e.target.checked;
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordOrderByScore = e.target.checked;
+        get_word_frequency();
+        create_word_frequency_section();
+    });
+
+    words_regex_checkbox.addEventListener("change", (e) => {
+        wordRegexSearch = e.target.checked;
+        words_search_label.textContent = wordRegexSearch ? "Search regex" : "Search words";
+        words_search_input.placeholder = wordRegexSearch ? 'e.g. "ate with (\\w+)"' : 'e.g. "good day"';
+        get_word_frequency();
+        create_word_frequency_section();
     });
 
     words_words_input.addEventListener("input", (e) => {
-        nbMaxWords = parseInt(e.target.value);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordNbMaxWords = parseInt(e.target.value);
+        create_word_frequency_section();
     });
 
     words_count_input.addEventListener("input", (e) => {
-        nbMinCount = parseInt(e.target.value);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordNbMinCount = parseInt(e.target.value);
+        create_word_frequency_section();
     });
 
     min_score_slider.addEventListener("input", (e) => {
-        minScore = parseInt(e.target.value) / 10;
-        min_score_slider_text_value.textContent = minScore.toFixed(1);
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordMinScore = parseInt(e.target.value) / 10;
+        min_score_slider_text_value.textContent = wordMinScore.toFixed(1);
+        get_word_frequency();
+        create_word_frequency_section();
     });
 
     words_search_input.addEventListener("input", (e) => {
-        searchTerm = e.target.value.toLowerCase();
-        get_word_frequency(current_data, wordcloudOrderCount, minScore, searchTerm);
-        create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+        wordSearchText = e.target.value.toLowerCase();
+        get_word_frequency();
+        create_word_frequency_section();
+    });
+
+    words_dialog_settings.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            btn_save_words_dialog_settings.click();
+        }
     });
 
     // Wordcloud
@@ -449,17 +517,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     wordcloud_size_input.addEventListener("input", (e) => {
         wordcloudSize = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     wordcloud_spacing_input.addEventListener("input", (e) => {
         wordcloudSpacing = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     wordcloud_compression_input.addEventListener("input", (e) => {
         wordcloudCompression = parseInt(e.target.value);
-        update_wordcloud(nbMinCount);
+        update_wordcloud();
     });
 
     btn_download_wordcloud.addEventListener("click", () => {
@@ -475,12 +543,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Export PNG
     setting_scoreType.addEventListener("change", (e) => {
         png_settings = get_image_settings();
-        generate_pixels_PNG(current_data);
+        generate_pixels_PNG();
     });
 
     setting_layout.addEventListener("input", (e) => {
         png_settings = get_image_settings();
-        generate_pixels_PNG(current_data);
+        generate_pixels_PNG();
     });
 
 

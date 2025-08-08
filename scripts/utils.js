@@ -30,14 +30,120 @@ function normalize_string(str) {
 
 
 function escape_regex(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+
+function parse_logical_string(expr) {
+    /*
+        Parses a logical expression string into a CNF (Conjunctive Normal Form) array
+        Supports parentheses and logical operators: || (OR), && (AND)
+        && operator has higher precedence than ||
+        Example: "a || b && c" <=> "a || (b && c)" becomes [["a", "b"], ["a", "c"]] in CNF, meaning "(a OR b) AND (a OR c)"
+    */
+    const regex = /\(|\)|\|\||&&|[^()&|]+/g;
+    const tokens = expr.match(regex).map(token => normalize_string(token)).filter(Boolean);
+    console.log(`Tokens: ${tokens}`);
+
+    let index = 0;
+    function parse_expression() {
+        let left = parse_and();
+        while (tokens[index] === "||") {
+            index++;
+            const right = parse_and();
+            left = { type: "OR", left, right };
+        }
+        return left;
+    }
+
+    function parse_and() {
+        let left = parse_term();
+        while (tokens[index] === "&&") {
+            index++;
+            const right = parse_term();
+            left = { type: "AND", left, right };
+        }
+        return left;
+    }
+
+    function parse_term() {
+        const token = tokens[index++];
+        if (token === "(") {
+            const expr = parse_expression();
+            if (tokens[index++] !== ")") throw new Error("Mismatched parenthesis");
+            return expr;
+        }
+        return { type: "TERM", value: token };
+    }
+    const ast = parse_expression();
+    console.log(`Parsed AST: ${JSON.stringify(ast)}`);
+
+    function convert_to_CNF(node) {
+        if (node.type === "TERM") return node;
+
+        if (node.type === "AND") {
+            return {
+                type: "AND",
+                left: convert_to_CNF(node.left),
+                right: convert_to_CNF(node.right)
+            };
+        }
+
+        if (node.type === "OR") {
+            const left = convert_to_CNF(node.left);
+            const right = convert_to_CNF(node.right);
+
+            if (left.type === "AND") {
+                return {
+                    type: "AND",
+                    left: convert_to_CNF({ type: "OR", left: left.left, right }),
+                    right: convert_to_CNF({ type: "OR", left: left.right, right })
+                };
+            }
+
+            if (right.type === "AND") {
+                return {
+                    type: "AND",
+                    left: convert_to_CNF({ type: "OR", left, right: right.left }),
+                    right: convert_to_CNF({ type: "OR", left, right: right.right })
+                };
+            }
+
+            return { type: "OR", left, right };
+        }
+    }
+
+    const cnf_ast = convert_to_CNF(ast);
+
+    function flatten_to_array(node) {
+        if (node.type === "TERM") {
+            return [[node.value]];
+        }
+
+        if (node.type === "OR") {
+            const left = flatten_to_array(node.left);
+            const right = flatten_to_array(node.right);
+            return [[...left.flat(), ...right.flat()]];
+        }
+
+        if (node.type === "AND") {
+            const left = flatten_to_array(node.left);
+            const right = flatten_to_array(node.right);
+            return [...left, ...right];
+        }
+
+        return [];
+    }
+
+    return flatten_to_array(cnf_ast);
+}
+
 
 
 //////////////// Dates ////////////////
 
-function pixel_format_date(input) {
-    const date = new Date(input);
+function pixel_format_date(input_date) {
+    const date = new Date(input_date);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1);
     const dd = String(date.getDate());
@@ -45,25 +151,39 @@ function pixel_format_date(input) {
 }
 
 
-function normalize_date(input) {
-    const date = new Date(input);
+function normalize_date(input_date) {
+    const date = new Date(input_date);
     const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
 }
 
 
-function get_week_key(date, startOfWeek = 1) {
-    const d = new Date(date);
+function is_date_valid(input_date) {
+    return (input_date instanceof Date) && !isNaN(input_date.getTime());
+}
+
+
+function get_UTC_date(input_date) {
+    const date = new Date(input_date);
+    const yyyy = date.getUTCFullYear();
+    const mm = date.getUTCMonth();
+    const dd = date.getUTCDate();
+    return new Date(Date.UTC(yyyy, mm, dd));
+}
+
+
+function get_week_key(input_date, startOfWeek = 1) {
+    const d = new Date(input_date);
     const day = (d.getDay() - startOfWeek + 7) % 7;
     d.setDate(d.getDate() - day);
     return d.toISOString().split("T")[0];
 }
 
 
-function get_month_key(date) { 
-    return `${date.getFullYear()}-${date.getMonth()}`; 
+function get_month_key(input_date) {
+    return `${input_date.getFullYear()}-${input_date.getMonth()}`;
 }
 
 
@@ -97,15 +217,15 @@ function RGB_to_hex({ r, g, b }) {
 }
 
 
-function get_contrasting_text_color(bgColor, less=false) {
-  const hex = bgColor.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-  if (less) {
-    return luminance > 186 ? "#808080" : "#d3d3d3";
-  }
-  return luminance > 186 ? "#000000" : "#ffffff";
+function get_contrasting_text_color(bgColor, less = false) {
+    const hex = bgColor.replace("#", "");
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    if (less) {
+        return luminance > 186 ? "#808080" : "#d3d3d3";
+    }
+    return luminance > 186 ? "#000000" : "#ffffff";
 }

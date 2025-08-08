@@ -112,6 +112,7 @@ input[type="color"], select {
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
     gap: 0.3rem;
     margin: 0.2rem 0.5rem;
 }
@@ -190,7 +191,7 @@ input[type="color"], select {
     border: none;
     background-color: var(--bg-color);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        
+
     & h3 {
         margin: 0;
         color: var(--primary-color);
@@ -207,7 +208,7 @@ input[type="color"], select {
         background-color: var(--secondary-bg);
         padding: 1rem;
         border-radius: 8px;
-        
+
         & label {
             font-size: 1rem;
             color: var(--text-color);
