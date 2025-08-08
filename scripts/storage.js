@@ -27,6 +27,7 @@ async function store_settings() {
 
             wordDisplayPercentage,
             wordOrderByScore,
+            wordRegexSearch,
             wordNbMaxWords,
             wordNbMinCount,
             wordMinScore,
@@ -91,6 +92,11 @@ async function load_settings() {
 
         wordOrderByScore = settings.wordOrderByScore || wordOrderByScore;
         words_order_checkbox.checked = wordOrderByScore;
+
+        wordRegexSearch = settings.wordRegexSearch || wordRegexSearch;
+        words_regex_checkbox.checked = wordRegexSearch;
+        words_search_label.textContent = wordRegexSearch ? "Search regex" : "Search words";
+        words_search_input.placeholder = wordRegexSearch ? 'e.g. "ate with (\\w+)"' : 'e.g. "good day"';
 
         wordNbMaxWords = settings.wordNbMaxWords || wordNbMaxWords;
         words_words_input.value = wordNbMaxWords;

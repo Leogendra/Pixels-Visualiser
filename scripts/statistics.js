@@ -234,7 +234,7 @@ function compute_months_stats() {
 
 
 function get_word_frequency() {
-    const wordData = {}; // { word: { count: X, scores: [n, n, ...] } }
+    const words_data = {}; // { word: { count: X, scores: [n, n, ...] } }
     let searchTextLower = normalize_string(wordSearchText);
     let splitWordsFlag = false;
     if (searchTextLower && searchTextLower.endsWith("/")) {
@@ -247,12 +247,43 @@ function get_word_frequency() {
         .filter(word => word);
 
     let searchPattern = null;
-    if (searchTextLower.includes("*") && searchTextLower.length > 1) {
-        const pattern = searchTextLower
-            .split("*")
-            .map(escape_regex)
-            .join("(\\w+)");
-        searchPattern = new RegExp(pattern, "gi");
+    let stopConditions = [];
+    if (wordRegexSearch && searchTextLower) {
+        try {
+            searchPattern = new RegExp(searchTextLower, "gi");
+            console.log(`Using regex search pattern: ${searchPattern}`);
+        }
+        catch {
+            searchPattern = null;
+        }
+    }
+    else if (searchTextLower.includes("*") && searchTextLower.length > 1) {
+        if (searchTextLower.includes("***")) {
+            const tripleStarRegex = /\*\*\*\s*(\[[^\]]*\]\s*)?/g; // detect ***[...][...]
+            const stopExtractRegex = /\[([^\]]*)\]/g; // extract content inside []
+            let tripleStarMatch = tripleStarRegex.exec(searchTextLower);
+
+            if (tripleStarMatch) {
+                stopConditions = ["\n"]; // add \n by default
+                let inner;
+                while ((inner = stopExtractRegex.exec(tripleStarMatch[0])) !== null) {
+                    stopConditions.push(inner[1]);
+                }
+                const before = escape_regex(searchTextLower.slice(0, tripleStarMatch.index).trim());
+                const pattern = `${before}\\s*(.*?)\\s*(?=${stopConditions.map(stopCond => escape_regex(stopCond)).join("|")})`;
+                searchPattern = new RegExp(pattern, "gi");
+            }
+        }
+        else {
+            if (searchTextLower.includes("**")) {
+                searchTextLower = searchTextLower.replace(/\*\*/g, "*");
+            }
+            const pattern = searchTextLower
+                                .split("*")
+                                .map(escape_regex)
+                                .join("(\\w+)");
+            searchPattern = new RegExp(pattern, "gi");
+        }
     }
 
     current_data.forEach(entry => {
@@ -263,14 +294,14 @@ function get_word_frequency() {
         if (!notesLower) { return; }
 
         // Add the search term as a word if it matches the notes
-        if (searchTextLower) {
+        if (searchTextLower && !wordRegexSearch) {
             if (notesLower.includes(searchTextLower)) {
-                if (!(searchTextLower in wordData)) {
-                    wordData[searchTextLower] = { count: 0, scores: [] };
+                if (!(searchTextLower in words_data)) {
+                    words_data[searchTextLower] = { count: 0, scores: [] };
                 }
                 // Count number of appearances and add the score
-                wordData[searchTextLower].count += notesLower.split(searchTextLower).length - 1
-                wordData[searchTextLower].scores.push(average(entry.scores));
+                words_data[searchTextLower].count += notesLower.split(searchTextLower).length - 1
+                words_data[searchTextLower].scores.push(average(entry.scores));
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
                 // Save time by skipping this entry if no search words match
@@ -279,7 +310,9 @@ function get_word_frequency() {
         }
 
         // Filter words of the notes
-        let words = notesLower
+        let words = wordRegexSearch
+            ? []
+            : notesLower
             .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
             .split(/\s+/)
             .filter(word =>
@@ -302,14 +335,17 @@ function get_word_frequency() {
         // If searchPattern is defined, find words that match the pattern
         if (searchPattern) {
             let match;
+            let nbMatches = 0;
             while ((match = searchPattern.exec(notesLower)) !== null) {
+                nbMatches++;
+                if (nbMatches > 100) { break; } // Limit to 100 matches to avoid performance issues
                 if (match.length > 2) {
                     const fullMatchedText = match[0];
-                    if (!(fullMatchedText in wordData)) {
-                        wordData[fullMatchedText] = { count: 0, scores: [] };
+                    if (!(fullMatchedText in words_data)) {
+                        words_data[fullMatchedText] = { count: 0, scores: [] };
                     }
-                    wordData[fullMatchedText].count += 1;
-                    wordData[fullMatchedText].scores.push(average_score);
+                    words_data[fullMatchedText].count += 1;
+                    words_data[fullMatchedText].scores.push(average_score);
                 }
 
                 // one or more words captured by the pattern (if multiple *)
@@ -320,11 +356,11 @@ function get_word_frequency() {
                         capturedWord = `${i}-${capturedWord}`; // Prefix the index to the captured word
                     }
 
-                    if (!(capturedWord in wordData)) {
-                        wordData[capturedWord] = { count: 0, scores: [] };
+                    if (!(capturedWord in words_data)) {
+                        words_data[capturedWord] = { count: 0, scores: [] };
                     }
-                    wordData[capturedWord].count += 1;
-                    wordData[capturedWord].scores.push(average_score);
+                    words_data[capturedWord].count += 1;
+                    words_data[capturedWord].scores.push(average_score);
                 }
             }
         }
@@ -332,17 +368,17 @@ function get_word_frequency() {
 
         // Add each word to the count
         words.forEach(word => {
-            if (!(word in wordData)) {
-                wordData[word] = { count: 0, scores: [] };
+            if (!(word in words_data)) {
+                words_data[word] = { count: 0, scores: [] };
             }
-            wordData[word].count += 1;
-            wordData[word].scores.push(average_score);
+            words_data[word].count += 1;
+            words_data[word].scores.push(average_score);
         });
         
     });
 
 
-    full_word_frequency = Object.entries(wordData)
+    full_word_frequency = Object.entries(words_data)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
             return { word, count: info.count, avg_score: avg };
