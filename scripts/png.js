@@ -491,10 +491,8 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     const lastDate = normalize_date(current_data[current_data.length - 1].date);
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
-    
-    // const target = normalize_string(keyword);
-    const target = parse_logical_string(keyword);
-    console.log(`Parsed AST for keyword: ${JSON.stringify(target)}`);
+
+    const target = isTag ? normalize_string(keyword) : parse_logical_string(keyword);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -536,23 +534,11 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    /*
-    const target1 = normalize_string(keyword1)
-                                .split("||")
-                                .map(part => part.trim().split("&&").map(s => s.trim()));
-    const target2 = normalize_string(keyword2)
-                                .split("||")
-                                .map(part => part.trim().split("&&").map(s => s.trim()));
-    */
-    const target1 = parse_logical_string(keyword1);
-    const target2 = parse_logical_string(keyword2);
-
-    console.log(`Parsed AST for keyword1: ${JSON.stringify(target1)}`);
-    console.log(`Parsed AST for keyword2: ${JSON.stringify(target2)}`);
+    const target1 = isTag1 ? normalize_string(keyword1) : parse_logical_string(keyword1);
+    const target2 = isTag2 ? normalize_string(keyword2) : parse_logical_string(keyword2);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
-        const scores = pixel.scores || [];
 
         let match1 = false;
         let match2 = false;

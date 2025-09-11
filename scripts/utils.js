@@ -76,7 +76,6 @@ function parse_logical_string(expr) {
         return { type: "TERM", value: token };
     }
     const ast = parse_expression();
-    console.log(`Parsed AST: ${JSON.stringify(ast)}`);
 
     function convert_to_CNF(node) {
         if (node.type === "TERM") return node;
