@@ -178,6 +178,7 @@ function compute_tag_stats() {
         categories: tag_categories,
         totalPixels: current_data.length
     };
+    console.log(tag_stats);
     set_tags_selects();
     setup_tag_categories();
 }

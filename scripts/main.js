@@ -20,6 +20,7 @@ const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
 const container_floating_card = document.getElementById("hoverCardContainer");
 
+const tag_options_container = document.querySelector("#tagOptionsContainer");
 const input_nb_tags = document.querySelector("#maxTagsInput");
 const select_tag_category = document.querySelector("#selectTagCategory");
 const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");

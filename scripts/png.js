@@ -159,8 +159,10 @@ async function set_tags_selects() {
     if (!all_tags || all_tags.length === 0) {
         compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
         compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
+        tag_options_container.style.display = "none";
         return;
     }
+    tag_options_container.style.display = "block";
     compareTagSelect1.innerHTML = "<option value=''>Select a tag</option>";
     compareTagSelect2.innerHTML = "<option value=''>Select a tag</option>";
     all_tags.forEach(tag => {
@@ -468,7 +470,7 @@ async function generate_pixels_PNG() {
         result_png.style.height = "600px"; // avoid overflow of the image
     }
 
-    btn_download_png.style.display = "block";
+    btn_download_png.style.display = "flex";
 }
 
 
