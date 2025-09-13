@@ -178,6 +178,7 @@ function compute_tag_stats() {
         categories: tag_categories,
         totalPixels: current_data.length
     };
+    console.log(tag_stats);
     set_tags_selects();
     setup_tag_categories();
 }
@@ -205,6 +206,7 @@ function compute_weekdays_stats() {
 
     current_data.forEach(entry => {
         const avgScore = average(entry.scores);
+        if (!avgScore) { return; }
         const date = new Date(entry.date);
         const day = date.toLocaleString('en-US', { weekday: 'long' });
 
@@ -222,6 +224,7 @@ function compute_months_stats() {
 
     current_data.forEach(entry => {
         const avgScore = average(entry.scores);
+        if (!avgScore) { return; }
         const date = new Date(entry.date);
         const month = date.toLocaleString('en-US', { month: 'long' });
         if (!months_stats[month]) {
