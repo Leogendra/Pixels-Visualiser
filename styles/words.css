@@ -57,6 +57,12 @@
     }
 }
 
+#minScoreValue {
+    display: inline-block;
+    width: 3ch;
+    text-align: left;
+}
+
 
 
 

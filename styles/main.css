@@ -209,14 +209,16 @@ a {
 /* Buttons */
 .button {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
+    gap: 0.3rem;
     width: fit-content;
     background-color: var(--primary-color);
     color: #ffffff;
     border: none;
     margin: 0 auto;
-    padding: 10px 15px;
+    padding: 10px 10px;
     border-radius: 4px;
     font-size: 1rem;
     color: #ffffff;

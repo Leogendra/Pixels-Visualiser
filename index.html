@@ -129,7 +129,7 @@
 
                 <div id="hoverCardContainer"></div>
 
-                <div class="chart-container group-options">
+                <div class="chart-container group-options" id="tagOptionsContainer">
                     <div class="options small title"><img src="assets/settings_icon_black.svg" alt="Settings" class="icon-settings"><span>Tag options</span></div>
 
                     <div class="options small">
@@ -205,6 +205,7 @@
                         <div class="option-item">
                             <button class="button open-settings" id="openWordsSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                                <span>Settings</span>
                             </button>
                         </div>
 
@@ -305,7 +306,10 @@
                         <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
                         <!-- <div id="wordcloudCanvas" width="1000" height="400" style="width: 1000px; height: 400px;"></div> -->
 
-                        <button class="button" id="btnDownloadWordcloud">Download</button>
+                        <button class="button" id="btnDownloadWordcloud">
+                            <img src="assets/download_icon.svg" alt="Download" class="icon-settings">
+                            <span>Download</span>
+                        </button>
                     </div>
                 </div>
 
@@ -316,6 +320,7 @@
                         <div class="option-item">
                             <button class="button open-settings" id="openImageSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                                <span>Settings</span>
                             </button>
                         </div>
 
@@ -438,7 +443,10 @@
 
                     <div id="pixelGridResults" class="div-results-img">
                         <div class="pixel-png-img"></div>
-                        <button class="button" id="btnDownloadPixelGrid">Download</button>
+                        <button class="button" id="btnDownloadPixelGrid">
+                            <img src="assets/download_icon.svg" alt="Download" class="icon-settings">
+                            <span>Download</span>
+                        </button>
                     </div>
                 </div>
 
@@ -475,8 +483,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.17</div>
-        <div class="version">Last update: 2025-09-11</div>
+        <div class="version">Version: v1.5.18</div>
+        <div class="version">Last update: 2025-09-13</div>
     </footer>
 
     <!-- Charts.js for graphs -->
