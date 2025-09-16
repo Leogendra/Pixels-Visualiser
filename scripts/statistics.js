@@ -4,6 +4,59 @@ let scores_pie_chart_instance = null;
 
 
 
+// Loader : NE PAS écraser les fill="currentColor"
+async function load_score_SVG(score) {
+  if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
+  const res = await fetch(`assets/pixels/score_${score}.svg`);
+  const text = await res.text();
+  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+  const svg = doc.querySelector("svg");
+  return svg;
+}
+
+
+async function load_colored_score_SVG(score) {
+  const svg = await load_score_SVG(score);
+  svg.style.color = png_settings.colors[score];
+  return svg;
+}
+
+async function setup_palette_settings() {
+  const colors = get_image_settings().colors;
+  const grid = document.createElement("div");
+  grid.className = "palette-grid";
+  palette_grid.innerHTML = "";
+
+  for (let score = 1; score <= 5; score++) {
+    const cell = document.createElement("div");
+    cell.className = "color-cell";
+
+    const svg = await load_score_SVG(score);
+    svg.classList.add("color-icon");
+    svg.style.color = colors[score];
+
+    const input = document.createElement("input");
+    input.type = "color";
+    input.id = `color${score}`;
+    input.value = colors[score];
+    input.className = "color-picker-overlay";
+
+    input.addEventListener("input", () => {
+      svg.style.color = input.value;
+      png_settings.colors[score] = input.value;
+    });
+
+    cell.appendChild(svg);
+    cell.appendChild(input);
+    grid.appendChild(cell);
+  }
+
+  palette_grid.appendChild(grid);
+}
+
+
+
+
 function calculate_streaks() {
     const dates = Array.from(
         new Set(
@@ -59,12 +112,13 @@ function calculate_and_display_stats() {
     ];
 
     stats_container.innerHTML = stats_array.map(({title, value}) => `
-        <div class="stat-card">
-            <h3>${title}</h3>
-            ${value}
-        </div>
+    <div class="stat-card">
+    <h3>${title}</h3>
+    ${value}
+    </div>
     `).join("");
-
+    
+    setup_palette_settings();
     create_scores_pie_chart();
 }
 
@@ -392,7 +446,7 @@ async function create_word_frequency_section() {
             }
         ).join("")}`
     }
-    else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }
+    else { word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>"; }
 
 
     // Avoid updating the wordcloud too frequently

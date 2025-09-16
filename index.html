@@ -91,8 +91,19 @@
             <div class="no-data-error">No data available for the selected range</div>
 
             <div id="stats-content">
-                <div class="stats-grid" id="statsContainer">
+                <div id="paletteContainer" class="chart-container">
+                    <div class="options small title"><img src="assets/palette_icon.svg" alt="Palette" class="icon-settings"><span>Customise your palette</span></div>
+                    
+                    <div id="paletteGrid"></div>
+
+                    <div class="dialog-buttons">
+                        <button type="button" class="button button-secondary" id="resetSettingsDialog">Reset</button>
+                        <button type="button" class="button" id="cancelSettingsDialog">Cancel</button>
+                        <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
+                    </div>
                 </div>
+
+                <div class="stats-grid" id="statsContainer"></div>
 
                 <div class="chart-container">
                     <h2>📈 Time evolution</h2>
