@@ -230,7 +230,7 @@ async function filter_pixels(numberOfDays) {
     else {
         endDate = new Date(lastPixelDate);
         startDate = new Date(lastPixelDate);
-        startDate.setDate(startDate.getDate() - numberOfDays);
+        startDate.setDate(startDate.getDate() - numberOfDays + 1);
     }
 
 
@@ -276,6 +276,7 @@ async function handle_file_upload(file) {
         }
 
         else {
+            data.sort((a, b) => new Date(a.date) - new Date(b.date));
             initial_data = data;
             current_data = initial_data;
             
