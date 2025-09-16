@@ -1,4 +1,5 @@
-let update_wordcloud_timeout;
+let update_wordcloud_timeout = null;
+let scores_pie_chart_instance = null;
 
 
 
@@ -79,8 +80,8 @@ async function create_scores_pie_chart() {
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
 
-    const ctx = document.querySelector("#scoresPieChart").getContext("2d");
-    new Chart(ctx, {
+    if (scores_pie_chart_instance) { scores_pie_chart_instance.destroy(); }
+    scores_pie_chart_instance = new Chart(document.querySelector("#scoresPieChart"), {
         type: "pie",
         data: {
             labels: scoresCount,
@@ -151,7 +152,6 @@ function compute_tag_stats() {
         categories: tag_categories,
         totalPixels: current_data.length
     };
-    console.log(tag_stats);
     set_tags_selects();
     setup_tag_categories();
 }
@@ -227,7 +227,6 @@ function get_word_frequency() {
     if (wordRegexSearch && searchTextLower) {
         try {
             searchPattern = new RegExp(searchTextLower, "gi");
-            console.log(`Using regex search pattern: ${searchPattern}`);
         }
         catch {
             searchPattern = null;

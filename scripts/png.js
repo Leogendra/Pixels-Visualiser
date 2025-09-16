@@ -634,6 +634,7 @@ function close_dialog_settings(save = false) {
     dialog_settings.removeEventListener('click', handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
+    create_scores_pie_chart();
     generate_pixels_PNG();
     update_wordcloud();
     setup_calendar_frame();

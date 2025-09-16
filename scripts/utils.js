@@ -43,7 +43,6 @@ function parse_logical_string(expr) {
     */
     const regex = /\(|\)|\|\||&&|[^()&|]+/g;
     const tokens = expr.match(regex).map(token => normalize_string(token)).filter(Boolean);
-    console.log(`Tokens: ${tokens}`);
 
     let index = 0;
     function parse_expression() {
