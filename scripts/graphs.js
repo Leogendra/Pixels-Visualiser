@@ -77,7 +77,7 @@ async function create_mood_chart() {
     }
     else if (moodTimeOption === "words") { // number of words
        rawScores = data.map(entry => {
-            if (!entry || !entry.notes) { return null; }
+            if (!entry || !entry.notes || (entry.scores.length === 0)) { return null; }
             return entry.notes.split(/\s+/).length;
         });
         minValue = maximum(rawScores);
@@ -85,11 +85,19 @@ async function create_mood_chart() {
     }
     else if (moodTimeOption === "tags") { // number of tags
         rawScores = data.map(entry => {
-            if (!entry || !entry.tags) { return null; }
+            if (!entry || !entry.tags || (entry.scores.length === 0)) { return null; }
             return entry.tags.reduce((count, tag) => {
                 if (!Array.isArray(tag.entries)) return count;
                 return count + tag.entries.length;
             }, 0);
+        });
+        minValue = maximum(rawScores);
+        maxValue = minimum(rawScores);
+    }
+    else if (moodTimeOption === "scores") { // number of pixels
+        rawScores = data.map(entry => {
+            if (!entry || !entry.scores || (entry.scores.length === 0)) { return null; }
+            return entry.scores.length;
         });
         minValue = maximum(rawScores);
         maxValue = minimum(rawScores);
