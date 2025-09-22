@@ -12,20 +12,13 @@ let calendar = null;
 
 
 async function load_colored_score_SVG(score) {
-    if (!score || (typeof score !== "number") || (score < 1) || (score > 5)) {
-        return document.createElement("span");
-    }
-    const path = `assets/pixels/score_${score}.svg`;
-    const res = await fetch(path);
-    const text = await res.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "image/svg+xml");
-    const svg = doc.querySelector("svg");
-
-    const color = png_settings.colors[score]
-
-    svg.querySelectorAll("[fill='currentColor']").forEach(el => el.setAttribute("fill", color));
-    return svg;
+  if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
+  const res = await fetch(`assets/pixels/score_${score}.svg`);
+  const text = await res.text();
+  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+  const svg = doc.querySelector("svg");
+  svg.style.color = png_settings.colors[score];
+  return svg;
 }
 
 

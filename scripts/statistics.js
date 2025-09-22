@@ -3,58 +3,35 @@ let scores_pie_chart_instance = null;
 
 
 
-
-// Loader : NE PAS écraser les fill="currentColor"
-async function load_score_SVG(score) {
-  if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
-  const res = await fetch(`assets/pixels/score_${score}.svg`);
-  const text = await res.text();
-  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
-  const svg = doc.querySelector("svg");
-  return svg;
+async function update_svg_color(score, color) {
+    const svg = document.querySelector(`#color${score}`).parentElement.querySelector("svg");
+    if (svg) {
+        svg.style.color = color;
+    }
+    png_settings.colors[score] = color;
 }
 
-
-async function load_colored_score_SVG(score) {
-  const svg = await load_score_SVG(score);
-  svg.style.color = png_settings.colors[score];
-  return svg;
-}
 
 async function setup_palette_settings() {
-  const colors = get_image_settings().colors;
-  const grid = document.createElement("div");
-  grid.className = "palette-grid";
-  palette_grid.innerHTML = "";
+    const colors = get_image_settings().colors;
 
-  for (let score = 1; score <= 5; score++) {
-    const cell = document.createElement("div");
-    cell.className = "color-cell";
+    for (let score = 1; score <= 5; score++) {
+        const cell = document.querySelector(`#color${score}`).parentElement;
+        const input = document.getElementById(`color${score}`);
+        
+        input.classList.add("color-picker-overlay");
 
-    const svg = await load_score_SVG(score);
-    svg.classList.add("color-icon");
-    svg.style.color = colors[score];
+        const svg = await load_colored_score_SVG(score);
+        svg.classList.add("color-icon");
+        svg.style.color = colors[score];
 
-    const input = document.createElement("input");
-    input.type = "color";
-    input.id = `color${score}`;
-    input.value = colors[score];
-    input.className = "color-picker-overlay";
+        input.addEventListener("input", () => {
+            update_svg_color(score, input.value);
+        });
 
-    input.addEventListener("input", () => {
-      svg.style.color = input.value;
-      png_settings.colors[score] = input.value;
-    });
-
-    cell.appendChild(svg);
-    cell.appendChild(input);
-    grid.appendChild(cell);
-  }
-
-  palette_grid.appendChild(grid);
+        cell.appendChild(svg);
+    }
 }
-
-
 
 
 function calculate_streaks() {
@@ -68,7 +45,7 @@ function calculate_streaks() {
         const [year, month, day] = dateStr.split("-").map(Number);
         return new Date(Date.UTC(year, month - 1, day));
     })
-    .sort((a, b) => a - b);
+        .sort((a, b) => a - b);
 
     let bestStreak = 1;
     let currentStreak = 1;
@@ -77,7 +54,7 @@ function calculate_streaks() {
         const previous_date = dates[i - 1];
         const current_date = dates[i];
         const diffDays = (current_date - previous_date) / (1000 * 60 * 60 * 24);
-        
+
         currentStreak++;
         if (diffDays !== 1) {
             currentStreak = 1;
@@ -105,19 +82,19 @@ function calculate_and_display_stats() {
     });
 
     stats_array = [
-        {title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>`},
-        {title: "Average score", value: `<p>${average(allScores).toFixed(2)}</p>`},
-        {title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>`},
-        {title: "Score distribution", value: "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"},
+        { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
+        { title: "Average score", value: `<p>${average(allScores).toFixed(2)}</p>` },
+        { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
+        { title: "Score distribution", value: "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>" },
     ];
 
-    stats_container.innerHTML = stats_array.map(({title, value}) => `
+    stats_container.innerHTML = stats_array.map(({ title, value }) => `
     <div class="stat-card">
     <h3>${title}</h3>
     ${value}
     </div>
     `).join("");
-    
+
     setup_palette_settings();
     create_scores_pie_chart();
 }
@@ -125,11 +102,11 @@ function calculate_and_display_stats() {
 
 async function create_scores_pie_chart() {
     const rawScores = current_data
-                    .flatMap(entry => entry.scores)
-                    .reduce((acc, score) => {
-                        acc[score] = (acc[score] || 0) + 1;
-                        return acc;
-                    }, {});
+        .flatMap(entry => entry.scores)
+        .reduce((acc, score) => {
+            acc[score] = (acc[score] || 0) + 1;
+            return acc;
+        }, {});
 
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
@@ -308,9 +285,9 @@ function get_word_frequency() {
                 searchTextLower = searchTextLower.replace(/\*\*/g, "*");
             }
             const pattern = searchTextLower
-                                .split("*")
-                                .map(escape_regex)
-                                .join("(\\w+)");
+                .split("*")
+                .map(escape_regex)
+                .join("(\\w+)");
             searchPattern = new RegExp(pattern, "gi");
         }
     }
@@ -342,24 +319,24 @@ function get_word_frequency() {
         let words = wordRegexSearch
             ? []
             : notesLower
-            .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
-            .split(/\s+/)
-            .filter(word =>
-                (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
-                (!STOP_WORDS.has(word)) && // Word is not a stop word
-                ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
-                (
-                    (searchWords.length === 0) || // Either no search words or
-                    searchWords.some((sw, i) => {
-                        if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
-                            return (word.startsWith(sw) || sw.startsWith(word));
-                        }
-                        else { // Other search words must be exact matches
-                            return (word === sw);
-                        }
-                    })
-                )
-            );
+                .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
+                .split(/\s+/)
+                .filter(word =>
+                    (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
+                    (!STOP_WORDS.has(word)) && // Word is not a stop word
+                    ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
+                    (
+                        (searchWords.length === 0) || // Either no search words or
+                        searchWords.some((sw, i) => {
+                            if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
+                                return (word.startsWith(sw) || sw.startsWith(word));
+                            }
+                            else { // Other search words must be exact matches
+                                return (word === sw);
+                            }
+                        })
+                    )
+                );
 
         // If searchPattern is defined, find words that match the pattern
         if (searchPattern) {
@@ -403,7 +380,7 @@ function get_word_frequency() {
             words_data[word].count += 1;
             words_data[word].scores.push(average_score);
         });
-        
+
     });
 
 
@@ -432,18 +409,18 @@ async function create_word_frequency_section() {
     if (words_filtered.length > 0) {
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
-                let isWordSearched = false;
-                if (wordSearchText) {
-                    isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
-                                    wordSearchText.split(/\s+/)
-                                                .some(term => normalize_string(word.word) === (normalize_string(term)));
-                }
-                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+            let isWordSearched = false;
+            if (wordSearchText) {
+                isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
+                    wordSearchText.split(/\s+/)
+                        .some(term => normalize_string(word.word) === (normalize_string(term)));
+            }
+            return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
                     <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / current_data.length).toFixed(1) + "%" : word.count}</p>
                     <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                     </div>`
-            }
+        }
         ).join("")}`
     }
     else { word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>"; }
@@ -489,7 +466,7 @@ async function update_wordcloud() {
     if (!wordOrderByScore) {
         const minimumCount = words[words.length - 1][1];
         adjustedWords = words.map(([word, count]) => {
-            const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression+2))) + 1;
+            const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression + 2))) + 1;
             return [word, adjustedCount];
         });
     }
