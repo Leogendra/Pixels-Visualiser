@@ -275,17 +275,58 @@ a {
     border-radius: 6px;
     font-size: 14px;
     opacity: 0;
+    overflow: hidden;
     transition: opacity 2s ease;
     z-index: 99;
-
-    &.error {
-        background: var(--secondary-color);
-    }
     
     &.visible {
         opacity: 1;
         transition: opacity 0.3s ease;
     }
+
+    &.success {
+        background: var(--tertiary-color);
+    }
+
+    &.error {
+        background: var(--secondary-color);
+    }
+}
+
+.popup-timer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: rgba(0,0,0,0.15);
+    overflow: hidden;
+
+    &::after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: var(--primary-color);
+        transform: translateX(100%);
+    }
+
+    &.success::after {
+        background: var(--tertiary-color);
+    }
+
+    &.error::after {
+        background: var(--secondary-color);
+    }
+}
+
+.popup-timer.anim::after {
+    animation: timerAnim var(--duration) linear forwards;
+}
+
+@keyframes timerAnim {
+    from { transform: translateX(0); }
+    to   { transform: translateX(100%); }
 }
 
 
