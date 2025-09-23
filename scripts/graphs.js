@@ -272,6 +272,11 @@ async function create_tag_frequency_chart() {
                 animation: !tags_frequency_chart_instance,
                 maintainAspectRatio: !isMobile,
                 indexAxis: "y",
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                }
             }
         });
     }
@@ -318,6 +323,11 @@ async function create_tag_score_chart() {
                         max: 5,
                         min: 1
                     }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
                 }
             }
         });
@@ -427,6 +437,11 @@ async function create_weekday_chart() {
                     max: 5,
                     min: 1
                 }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
             }
         }
     });
@@ -486,6 +501,11 @@ async function create_month_chart() {
                     max: 5,
                     min: 1
                 }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
             }
         }
     });
