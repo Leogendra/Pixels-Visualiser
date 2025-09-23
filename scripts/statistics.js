@@ -1,51 +1,63 @@
-let update_wordcloud_timeout;
+let update_wordcloud_timeout = null;
+let scores_pie_chart_instance = null;
 
 
 
-
-function calculate_mood_distribution(moodCounts) {
-    const nbMoods = moodCounts.length;
-
-    return Object.entries(moodCounts)
-        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0])) // Sort by score in ascending order
-        .map(([score, count]) => `${score} : ${count} (${(100 * count / nbMoods).toFixed(1)}%)`)
-        .join(" | ");
+async function update_svg_color(score, color) {
+    const svg = document.querySelector(`#color${score}`).parentElement.querySelector("svg");
+    if (svg) {
+        svg.style.color = color;
+    }
+    png_settings.colors[score] = color;
 }
 
 
-function calculate_streaks(dateStrings) {
-    const dates = [...new Set(dateStrings)]
-        .map(dateStr => {
-            const [year, month, day] = dateStr.split("-").map(Number);
-            return new Date(Date.UTC(year, month - 1, day));
-        })
+async function setup_palette_settings() {
+    const colors = get_image_settings().colors;
+
+    for (let score = 1; score <= 5; score++) {
+        const cell = document.querySelector(`#color${score}`).parentElement;
+        const input = document.getElementById(`color${score}`);
+        
+        input.classList.add("color-picker-overlay");
+
+        const svg = await load_colored_score_SVG(score);
+        svg.classList.add("color-icon");
+        svg.style.color = colors[score];
+
+        input.addEventListener("input", () => {
+            update_svg_color(score, input.value);
+        });
+
+        cell.appendChild(svg);
+    }
+}
+
+
+function calculate_streaks() {
+    const dates = Array.from(
+        new Set(
+            current_data
+                .filter(entry => (entry.scores.length > 0) && entry.date)
+                .map(entry => entry.date)
+        )
+    ).map(dateStr => {
+        const [year, month, day] = dateStr.split("-").map(Number);
+        return new Date(Date.UTC(year, month - 1, day));
+    })
         .sort((a, b) => a - b);
 
     let bestStreak = 1;
     let currentStreak = 1;
-    let lastDate = dates[0];
-
-    let latestStreak = 1;
-    let currentLatestStreak = 1;
-    let latestEndDate = dates[0];
 
     for (let i = 1; i < dates.length; i++) {
-        const prev = dates[i - 1];
-        const curr = dates[i];
+        const previous_date = dates[i - 1];
+        const current_date = dates[i];
+        const diffDays = (current_date - previous_date) / (1000 * 60 * 60 * 24);
 
-        const diffDays = (curr - prev) / (1000 * 60 * 60 * 24);
-
-        if (diffDays === 1) {
-            currentStreak++;
-            currentLatestStreak++;
-        }
-        else {
+        currentStreak++;
+        if (diffDays !== 1) {
             currentStreak = 1;
-            if ((prev - lastDate) / (1000 * 60 * 60 * 24) === 1) {
-                latestEndDate = prev;
-                latestStreak = currentLatestStreak;
-            }
-            currentLatestStreak = 1;
         }
 
         if (currentStreak > bestStreak) {
@@ -53,61 +65,54 @@ function calculate_streaks(dateStrings) {
         }
     }
 
-    // Check if the last date in the array is part of the latest streak
-    if ((dates[dates.length - 1] - dates[dates.length - 2]) / (1000 * 60 * 60 * 24) === 1) {
-        latestStreak = currentLatestStreak;
-        latestEndDate = dates[dates.length - 1];
-    }
-
     return {
         bestStreak,
-        latestStreak,
-        latestEndDate,
+        currentStreak,
     };
 }
 
 
 function calculate_and_display_stats() {
     const allScores = current_data.flatMap(entry => entry.scores);
-    const allDates = current_data.map(entry => entry.date);
-    const streaks = calculate_streaks(allDates);
+    const streaks = calculate_streaks();
     const moodCounts = {};
 
     allScores.forEach(score => {
         moodCounts[score] = (moodCounts[score] || 0) + 1;
     });
 
-    stats = [
-        ["Number of Pixels", `<p>${current_data.length}</p>`],
-        ["Average score", `<p>${average(allScores).toFixed(2)}</p>`],
-        ["Streaks", `<p>Best: ${streaks.bestStreak} | Latest: ${streaks.latestStreak}</p>`],
-        ["Score distribution", "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>"],
+    stats_array = [
+        { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
+        { title: "Average score", value: `<p>${average(allScores).toFixed(2)}</p>` },
+        { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
+        { title: "Score distribution", value: "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>" },
     ];
 
-    stats_container.innerHTML = stats.map(([title, value]) => `
-        <div class="stat-card">
-            <h3>${title}</h3>
-            ${value}
-        </div>
+    stats_container.innerHTML = stats_array.map(({ title, value }) => `
+    <div class="stat-card">
+    <h3>${title}</h3>
+    ${value}
+    </div>
     `).join("");
 
+    setup_palette_settings();
     create_scores_pie_chart();
 }
 
 
 async function create_scores_pie_chart() {
     const rawScores = current_data
-                    .flatMap(entry => entry.scores)
-                    .reduce((acc, score) => {
-                        acc[score] = (acc[score] || 0) + 1;
-                        return acc;
-                    }, {});
+        .flatMap(entry => entry.scores)
+        .reduce((acc, score) => {
+            acc[score] = (acc[score] || 0) + 1;
+            return acc;
+        }, {});
 
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
 
-    const ctx = document.querySelector("#scoresPieChart").getContext("2d");
-    new Chart(ctx, {
+    if (scores_pie_chart_instance) { scores_pie_chart_instance.destroy(); }
+    scores_pie_chart_instance = new Chart(document.querySelector("#scoresPieChart"), {
         type: "pie",
         data: {
             labels: scoresCount,
@@ -178,7 +183,6 @@ function compute_tag_stats() {
         categories: tag_categories,
         totalPixels: current_data.length
     };
-    console.log(tag_stats);
     set_tags_selects();
     setup_tag_categories();
 }
@@ -254,7 +258,6 @@ function get_word_frequency() {
     if (wordRegexSearch && searchTextLower) {
         try {
             searchPattern = new RegExp(searchTextLower, "gi");
-            console.log(`Using regex search pattern: ${searchPattern}`);
         }
         catch {
             searchPattern = null;
@@ -282,9 +285,9 @@ function get_word_frequency() {
                 searchTextLower = searchTextLower.replace(/\*\*/g, "*");
             }
             const pattern = searchTextLower
-                                .split("*")
-                                .map(escape_regex)
-                                .join("(\\w+)");
+                .split("*")
+                .map(escape_regex)
+                .join("(\\w+)");
             searchPattern = new RegExp(pattern, "gi");
         }
     }
@@ -316,24 +319,24 @@ function get_word_frequency() {
         let words = wordRegexSearch
             ? []
             : notesLower
-            .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
-            .split(/\s+/)
-            .filter(word =>
-                (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
-                (!STOP_WORDS.has(word)) && // Word is not a stop word
-                ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
-                (
-                    (searchWords.length === 0) || // Either no search words or
-                    searchWords.some((sw, i) => {
-                        if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
-                            return (word.startsWith(sw) || sw.startsWith(word));
-                        }
-                        else { // Other search words must be exact matches
-                            return (word === sw);
-                        }
-                    })
-                )
-            );
+                .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
+                .split(/\s+/)
+                .filter(word =>
+                    (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
+                    (!STOP_WORDS.has(word)) && // Word is not a stop word
+                    ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
+                    (
+                        (searchWords.length === 0) || // Either no search words or
+                        searchWords.some((sw, i) => {
+                            if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
+                                return (word.startsWith(sw) || sw.startsWith(word));
+                            }
+                            else { // Other search words must be exact matches
+                                return (word === sw);
+                            }
+                        })
+                    )
+                );
 
         // If searchPattern is defined, find words that match the pattern
         if (searchPattern) {
@@ -377,7 +380,7 @@ function get_word_frequency() {
             words_data[word].count += 1;
             words_data[word].scores.push(average_score);
         });
-        
+
     });
 
 
@@ -406,21 +409,21 @@ async function create_word_frequency_section() {
     if (words_filtered.length > 0) {
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
-                let isWordSearched = false;
-                if (wordSearchText) {
-                    isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
-                                    wordSearchText.split(/\s+/)
-                                                .some(term => normalize_string(word.word) === (normalize_string(term)));
-                }
-                return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
+            let isWordSearched = false;
+            if (wordSearchText) {
+                isWordSearched = (normalize_string(word.word) === normalize_string(wordSearchText)) ||
+                    wordSearchText.split(/\s+/)
+                        .some(term => normalize_string(word.word) === (normalize_string(term)));
+            }
+            return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
                     <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / current_data.length).toFixed(1) + "%" : word.count}</p>
                     <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                     </div>`
-            }
+        }
         ).join("")}`
     }
-    else { word_freq_container.innerHTML = "<p>No word frequency data available</p>"; }
+    else { word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>"; }
 
 
     // Avoid updating the wordcloud too frequently
@@ -463,7 +466,7 @@ async function update_wordcloud() {
     if (!wordOrderByScore) {
         const minimumCount = words[words.length - 1][1];
         adjustedWords = words.map(([word, count]) => {
-            const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression+2))) + 1;
+            const adjustedCount = Math.pow(count - minimumCount + 1, (3 / (wordcloudCompression + 2))) + 1;
             return [word, adjustedCount];
         });
     }

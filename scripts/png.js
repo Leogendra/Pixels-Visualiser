@@ -2,9 +2,9 @@ const div_pixel_export_container = document.querySelector("#pixelGridExportConta
 
 const dialog_settings = document.querySelector("#dialogSettings");
 const btn_open_dialog_settings = document.querySelector("#openImageSettingsDialog");
-const btn_reset_dialog_settings = document.querySelector("#resetSettingsDialog");
-const btn_cancel_dialog_settings = document.querySelector("#cancelSettingsDialog");
-const btn_save_dialog_settings = document.querySelector("#saveSettingsDialog");
+const btn_reset_palette_settings = document.querySelector("#resetPaletteSettings");
+const btn_save_palette_settings = document.querySelector("#savePaletteSettings");
+const btn_save_dialog_settings = document.querySelector("#saveDialogSettings");
 const btn_generate_png = document.querySelector("#btnGeneratePixelGrid");
 const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
 const div_result_png = document.querySelector("#pixelGridResults");
@@ -75,6 +75,9 @@ function set_image_settings(settings) {
     setting_color3.value = settings.colors[3];
     setting_color4.value = settings.colors[4];
     setting_color5.value = settings.colors[5];
+    for (let i = 1; i <= 5; i++) {
+        update_svg_color(i, settings.colors[i]);
+    }
     setting_colorEmpty.value = settings.colors.empty;
     setting_squareSize.value = settings.squareSize.toString();
     setting_borderSize.value = settings.borderSize.toString();
@@ -634,6 +637,7 @@ function close_dialog_settings(save = false) {
     dialog_settings.removeEventListener('click', handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
+    create_scores_pie_chart();
     generate_pixels_PNG();
     update_wordcloud();
     setup_calendar_frame();
@@ -655,12 +659,13 @@ btn_open_dialog_settings.addEventListener("click", () => {
     open_dialog_settings();
 });
 
-btn_reset_dialog_settings.addEventListener("click", () => {
-    set_image_settings(png_default_settings);
+btn_reset_palette_settings.addEventListener("click", () => {
+    png_settings.colors = { ...png_default_settings.colors };
+    close_dialog_settings();
 });
 
-btn_cancel_dialog_settings.addEventListener("click", () => {
-    close_dialog_settings();
+btn_save_palette_settings.addEventListener("click", () => {
+    close_dialog_settings(save=true);
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {
@@ -703,6 +708,6 @@ div_pixel_export_container.addEventListener("keydown", function (e) {
 dialog_settings.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         e.preventDefault();
-        btn_save_dialog_settings.click();
+        btn_save_palette_settings.click();
     }
 });

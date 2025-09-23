@@ -11,6 +11,8 @@ const div_date_range_filter = document.querySelector("#dateRangeFilter");
 const start_date_filter = document.querySelector("#startDateFilterInput");
 const end_date_filter = document.querySelector("#endDateFilterInput");
 
+const palette_container = document.querySelector("#paletteContainer");
+const palette_grid = document.querySelector("#paletteGrid");
 const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
@@ -53,7 +55,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 3500;
+const SCROLL_TO = 100;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -230,7 +232,7 @@ async function filter_pixels(numberOfDays) {
     else {
         endDate = new Date(lastPixelDate);
         startDate = new Date(lastPixelDate);
-        startDate.setDate(startDate.getDate() - numberOfDays);
+        startDate.setDate(startDate.getDate() - numberOfDays + 1);
     }
 
 
@@ -276,6 +278,7 @@ async function handle_file_upload(file) {
         }
 
         else {
+            data.sort((a, b) => new Date(a.date) - new Date(b.date));
             initial_data = data;
             current_data = initial_data;
             

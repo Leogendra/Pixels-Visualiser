@@ -67,7 +67,7 @@
             <div class="div-pill-selector">
                 <div class="pill-selector">
                     <button class="pill" data-range="0">Custom</button>
-                    <button class="pill" data-range="7">Last week</button>
+                    <!-- <button class="pill" data-range="7">Last week</button> -->
                     <button class="pill" data-range="30">Last month</button>
                     <button class="pill" data-range="180">Last 6 months</button>
                     <button class="pill" data-range="365">Last year</button>
@@ -91,8 +91,34 @@
             <div class="no-data-error">No data available for the selected range</div>
 
             <div id="stats-content">
-                <div class="stats-grid" id="statsContainer">
+                <div id="paletteContainer" class="chart-container">
+                    <div class="options small title"><img src="assets/palette_icon.svg" alt="Palette" class="icon-settings"><span>Customise your palette</span></div>
+                    
+                    <div id="paletteGrid" class="palette-grid">
+                        <div class="color-cell">
+                            <input type="color" id="color1" />
+                        </div>
+                        <div class="color-cell">
+                            <input type="color" id="color2" />
+                        </div>
+                        <div class="color-cell">
+                            <input type="color" id="color3" />
+                        </div>
+                        <div class="color-cell">
+                            <input type="color" id="color4" />
+                        </div>
+                        <div class="color-cell">
+                            <input type="color" id="color5" />
+                        </div>
+                    </div>
+
+                    <div class="dialog-buttons">
+                        <button type="button" class="button button-secondary" id="resetPaletteSettings">Reset</button>
+                        <button type="submit" class="button button-tertiary" id="savePaletteSettings">Save</button>
+                    </div>
                 </div>
+
+                <div class="stats-grid" id="statsContainer"></div>
 
                 <div class="chart-container">
                     <h2>📈 Time evolution</h2>
@@ -121,6 +147,7 @@
                                 <option value="mood">Mood</option>
                                 <option value="words">Number of words</option>
                                 <option value="tags">Number of tags</option>
+                                <option value="scores">Number of pixels</option>
                             </select>
                         </div>
                     </div>
@@ -330,7 +357,7 @@
                                 <h3>Image settings</h3>
 
                                 <div class="dialog-settings-group">
-                                    <label for="color1">Score 1</label>
+                                    <!-- <label for="color1">Score 1</label>
                                     <input type="color" id="color1">
 
                                     <label for="color2">Score 2</label>
@@ -343,7 +370,7 @@
                                     <input type="color" id="color4">
 
                                     <label for="color5">Score 5</label>
-                                    <input type="color" id="color5">
+                                    <input type="color" id="color5"> -->
 
                                     <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty">
@@ -380,9 +407,7 @@
                                 </div>
 
                                 <div class="dialog-buttons">
-                                    <button type="button" class="button button-secondary" id="resetSettingsDialog">Reset</button>
-                                    <button type="button" class="button" id="cancelSettingsDialog">Cancel</button>
-                                    <button type="submit" class="button button-tertiary" id="saveSettingsDialog">Save</button>
+                                    <button type="submit" class="button button-tertiary" id="saveDialogSettings">Save</button>
                                 </div>
                             </div>
                         </dialog>
@@ -483,8 +508,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.18</div>
-        <div class="version">Last update: 2025-09-13</div>
+        <div class="version">Version: v1.5.19</div>
+        <div class="version">Last update: 2025-09-22</div>
     </footer>
 
     <!-- Charts.js for graphs -->
