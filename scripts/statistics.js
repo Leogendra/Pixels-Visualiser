@@ -4,40 +4,6 @@ let scores_pie_chart_instance = null;
 
 
 
-async function update_svg_color(score, color) {
-    const svg = document.querySelector(`#color${score}`).parentElement.querySelector("svg");
-    if (svg) {
-        svg.style.color = color;
-    }
-    png_settings.colors[score] = color;
-}
-
-
-async function setup_palette_settings() {
-    const colors = get_image_settings().colors;
-
-    for (let score = 1; score <= 5; score++) {
-        const cell = document.querySelector(`#color${score}`).parentElement;
-        const input = document.getElementById(`color${score}`);
-        
-        input.classList.add("color-picker-overlay");
-
-        let old_svg = cell.querySelector("svg");
-        if (!old_svg) {
-            const svg = await load_colored_score_SVG(score);
-            svg.classList.add("color-icon");
-            svg.style.color = colors[score];
-
-            input.addEventListener("input", () => {
-                update_svg_color(score, input.value);
-            });
-
-            cell.appendChild(svg);
-        }
-    }
-}
-
-
 function calculate_streaks() {
     const dates = Array.from(
         new Set(
