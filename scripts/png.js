@@ -106,7 +106,6 @@ async function update_svg_color(score, color) {
 
 async function setup_palette_settings() {
     const colors = png_settings.colors;
-    console.log("Setting up palette settings with colors:", colors);
 
     for (let score = 1; score <= 5; score++) {
         const cell = document.querySelector(`#color${score}`).parentElement;
@@ -562,7 +561,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
 }
 
 
-function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false) {
+function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false, exclude=false) {
     if (
         !keyword1 || keyword1.trim() === "" ||
         !keyword2 || keyword2.trim() === "" ||
@@ -613,14 +612,21 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
             );
         }
 
-        if (match1 && match2) {
-            result.push({ date, scores: [3] });
-        } 
-        else if (match1) {
-            result.push({ date, scores: [5] });
-        } 
-        else if (match2) {
-            result.push({ date, scores: [1] });
+        if (exclude) {
+            if (match1 && match2) {
+                result.push({ date, scores: [3] });
+            } 
+            else if (match1) {
+                result.push({ date, scores: [5] });
+            } 
+            else if (match2) {
+                result.push({ date, scores: [1] });
+            }
+        }
+        else {
+            if (match1 && !match2) {
+                result.push({ date, scores: [3] });
+            }
         }
     });
 
@@ -632,6 +638,7 @@ function get_compare_settings() {
     const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
+    const isExcludeMode = (showFilter === 3);
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
     if ((showFilter > 1) && value1 && value2) {
@@ -641,7 +648,7 @@ function get_compare_settings() {
         return filter_pixels_by_keyword(value1, compareTag1);
     }
     else if ((showFilter > 0) && value2) {
-        return filter_pixels_by_keyword(value2, compareTag2);
+        return filter_pixels_by_keyword(value2, compareTag2, isExcludeMode);
     }
     else {
         return current_data; // No filtering, return the current data
@@ -655,9 +662,24 @@ async function set_filter_display() {
     div_compareSearchOptions1.style.display = (filterState === "0") ? "none" : "flex";
     div_compareSearchOptions2.style.display = ((filterState === "0") || (filterState === "1")) ? "none" : "flex";
     label_compareSelect1.innerText = (filterState === "2") ? "Compare" : "Filter";
+    label_compareSelect2.innerText = (filterState === "3") ? "Without" : "With";
 
     label_compareSelect1.style.color = (filterState === "2") ? png_settings.colors[5] : "black";
     label_compareSelect2.style.color = (filterState === "2") ? png_settings.colors[1] : "black";
+
+    label_compareSelect2.style.textDecoration = (filterState === "3") ?"line-through" : "none";
+
+    if (filterState === "1") {
+        label_compareSelect1.title = "The pixels with this word/tag will be shown";
+    }
+    else if (filterState === "2") {
+        label_compareSelect1.title = "The pixels with this word/tag will be shown in color 5";
+        label_compareSelect2.title = "The pixels with this word/tag will be shown in color 1";
+    }
+    else if (filterState === "3") {
+        label_compareSelect1.title = "The pixels with this word/tag but without the other will be shown";
+        label_compareSelect2.title = "The pixels with this word/tag will be hidden from the image";
+    }
 }
 
 

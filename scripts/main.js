@@ -55,7 +55,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 100;
+const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -142,8 +142,6 @@ function show_popup_message(message, duration=10000, type="msg") {
     popup.appendChild(timerBar);
     popup.style.setProperty("--duration", `${duration}ms`);
     document.body.appendChild(popup);
-
-    console.log(`Popup message: ${duration}`);
 
     setTimeout(() => popup.classList.add("visible"), 10);
     setTimeout(() => timerBar.classList.add("anim"), 50);

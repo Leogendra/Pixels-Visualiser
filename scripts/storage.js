@@ -124,7 +124,6 @@ async function load_settings() {
             set_stopwords_settings();
 
             png_settings = settings.png_settings || png_default_settings;
-            console.log("Loaded PNG settings:", png_settings);
         }
         catch (e) {
             console.error("Failed to load settings from localStorage", e);
