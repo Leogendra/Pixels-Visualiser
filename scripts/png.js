@@ -95,6 +95,40 @@ function set_image_settings(settings) {
 }
 
 
+async function update_svg_color(score, color) {
+    const svg = document.querySelector(`#color${score}`).parentElement.querySelector("svg");
+    if (svg) {
+        svg.style.color = color;
+    }
+    png_settings.colors[score] = color;
+}
+
+
+async function setup_palette_settings() {
+    const colors = png_settings.colors;
+
+    for (let score = 1; score <= 5; score++) {
+        const cell = document.querySelector(`#color${score}`).parentElement;
+        const input = document.getElementById(`color${score}`);
+        
+        input.classList.add("color-picker-overlay");
+
+        let old_svg = cell.querySelector("svg");
+        if (!old_svg) {
+            const svg = await load_colored_score_SVG(score);
+            svg.classList.add("color-icon");
+            svg.style.color = colors[score];
+
+            input.addEventListener("input", () => {
+                update_svg_color(score, input.value);
+            });
+
+            cell.appendChild(svg);
+        }
+    }
+}
+
+
 function get_user_colors(scores_map = null) {
     const colors_array = [
         setting_color1.value,
@@ -502,6 +536,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
         const scores = pixel.scores || [];
+        if (scores.length === 0) { return; }
         const notes = normalize_string(pixel.notes || "");
         
         let hasMatch = false;
@@ -527,7 +562,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
 }
 
 
-function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false) {
+function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false, exclude = false) {
     if (
         !keyword1 || keyword1.trim() === "" ||
         !keyword2 || keyword2.trim() === "" ||
@@ -544,6 +579,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
+        const scores = pixel.scores || [];
+        if (scores.length === 0) { return; }
 
         let match1 = false;
         let match2 = false;
@@ -578,14 +615,21 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
             );
         }
 
-        if (match1 && match2) {
-            result.push({ date, scores: [3] });
-        } 
-        else if (match1) {
-            result.push({ date, scores: [5] });
-        } 
-        else if (match2) {
-            result.push({ date, scores: [1] });
+        if (exclude) {
+            if (match1 && !match2) {
+                result.push({ date, scores });
+            }
+        }
+        else {
+            if (match1 && match2) {
+                result.push({ date, scores: [3] });
+            } 
+            else if (match1) {
+                result.push({ date, scores: [5] });
+            } 
+            else if (match2) {
+                result.push({ date, scores: [1] });
+            }
         }
     });
 
@@ -597,10 +641,11 @@ function get_compare_settings() {
     const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
+    const isExcludeMode = (showFilter === 3);
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
     if ((showFilter > 1) && value1 && value2) {
-        return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2);
+        return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2, isExcludeMode);
     }
     else if ((showFilter > 0) && value1) {
         return filter_pixels_by_keyword(value1, compareTag1);
@@ -620,9 +665,24 @@ async function set_filter_display() {
     div_compareSearchOptions1.style.display = (filterState === "0") ? "none" : "flex";
     div_compareSearchOptions2.style.display = ((filterState === "0") || (filterState === "1")) ? "none" : "flex";
     label_compareSelect1.innerText = (filterState === "2") ? "Compare" : "Filter";
+    label_compareSelect2.innerText = (filterState === "3") ? "Without" : "With";
 
     label_compareSelect1.style.color = (filterState === "2") ? png_settings.colors[5] : "black";
     label_compareSelect2.style.color = (filterState === "2") ? png_settings.colors[1] : "black";
+
+    label_compareSelect2.style.textDecoration = (filterState === "3") ?"line-through" : "none";
+
+    if (filterState === "1") {
+        label_compareSelect1.title = "The pixels with this word/tag will be shown";
+    }
+    else if (filterState === "2") {
+        label_compareSelect1.title = "The pixels with this word/tag will be shown in color 5";
+        label_compareSelect2.title = "The pixels with this word/tag will be shown in color 1";
+    }
+    else if (filterState === "3") {
+        label_compareSelect1.title = "The pixels with this word/tag but without the other will be shown";
+        label_compareSelect2.title = "The pixels with this word/tag will be hidden from the image";
+    }
 }
 
 
@@ -666,6 +726,7 @@ btn_reset_palette_settings.addEventListener("click", () => {
 
 btn_save_palette_settings.addEventListener("click", () => {
     close_dialog_settings(save=true);
+    show_popup_message("Palette settings saved", 3000, "success");
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {

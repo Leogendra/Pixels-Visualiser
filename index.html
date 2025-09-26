@@ -198,10 +198,10 @@
                                 <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
                                 <select id="firstDayOfWeekSelect" class="select">
                                     <option value="1">Monday</option>
-                                    <option value="2">Tuesday</option>
+                                    <!-- <option value="2">Tuesday</option>
                                     <option value="3">Wednesday</option>
                                     <option value="4">Thursday</option>
-                                    <option value="5">Friday</option>
+                                    <option value="5">Friday</option> -->
                                     <option value="6">Saturday</option>
                                     <option value="0">Sunday</option>
                                 </select>
@@ -402,6 +402,7 @@
                                         <option value="0">Hide</option>
                                         <option value="1">Filter word</option>
                                         <option value="2">Compare words</option>
+                                        <option value="3">Exclude words</option>
                                     </select>
 
                                 </div>
@@ -478,8 +479,15 @@
                 <div class="chart-container">
                     <h2>📅 Search Pixels by date</h2>
 
+                    <div class="options">
+                        <div class="option-item">
+                            <label for="showCalendarCheckbox" title="Show a calendar where you can select a date">Use calendar</label>
+                            <input type="checkbox" id="showCalendarCheckbox" class="checkbox">
+                        </div>
+                    </div>
+
                     <div class="option-item">
-                        <label for="dateSearchInput" title="Colors and score type can be selected above">Select date</label>
+                        <label for="dateSearchInput" id="dateSearchInputLabel" title="Colors and score type can be selected above">Select date</label>
                         <input type="date" id="dateSearchInput" class="input-date">
                     </div>
 
@@ -488,9 +496,14 @@
                     </div>
 
                     <div class="nav-buttons-card">
-                        <button id="btnPixelPrev" class="nav-button">&lt; Previous</button>
-                        <button id="btnPixelNext" class="nav-button">Next ></button>
+                        <button id="btnPixelPrev" class="nav-button">&lt; Previous day</button>
+                        <button id="btnPixelNext" class="nav-button">Next day ></button>
                     </div>
+
+                    <!-- <div class="nav-buttons-card">
+                        <button id="btnPixelPrevYear" class="nav-button">&lt;&lt;&lt; Previous year</button>
+                        <button id="btnPixelNextYear" class="nav-button">Next year >>></button>
+                    </div> -->
 
                     <div id="dateSearchResult" class="pixel-date-result"></div>
                 </div>
@@ -508,8 +521,8 @@
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
         </div>
-        <div class="version">Version: v1.5.19</div>
-        <div class="version">Last update: 2025-09-22</div>
+        <div class="version">Version: v1.6.1</div>
+        <div class="version">Last update: 2025-09-26</div>
     </footer>
 
     <!-- Charts.js for graphs -->

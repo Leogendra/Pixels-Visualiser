@@ -1,4 +1,6 @@
+const show_calendar_checkbox = document.querySelector("#showCalendarCheckbox");
 const input_date = document.querySelector("#dateSearchInput");
+const input_date_label = document.querySelector("#dateSearchInputLabel");
 const calendar_element = document.querySelector("#calendar");
 const div_date_result = document.querySelector("#dateSearchResult");
 
@@ -116,7 +118,7 @@ async function show_pixel_card(dateStr, scroll = false) {
     if (found) {
         const card = await create_pixel_card(found);
         div_date_result.innerHTML = card.outerHTML;
-        calendar.gotoDate(dateStr);
+        if (calendarMode) { calendar.gotoDate(dateStr); }
     } 
     else {
         div_date_result.textContent = "No entry found for this date.";
@@ -178,8 +180,22 @@ async function setup_calendar_frame() {
     });
 
     calendar.render();
+    toggle_calendar_view();
 }
 
+
+async function toggle_calendar_view() {
+    if (calendarMode) { 
+        input_date.style.display = "none";
+        input_date_label.style.display = "none";
+        calendar_element.style.display = "block";
+    }
+    else {
+        input_date.style.display = "block";
+        input_date_label.style.display = "block";
+        calendar_element.style.display = "none";
+    }
+}
 
 function shift_pixel_date(days) {
     const current_date = input_date.value;
@@ -203,3 +219,8 @@ input_date.addEventListener("change", () => {
 
 btn_pixel_prev.addEventListener("click", () => shift_pixel_date(-1));
 btn_pixel_next.addEventListener("click", () => shift_pixel_date(+1));
+
+show_calendar_checkbox.addEventListener("change", () => {
+    calendarMode = show_calendar_checkbox.checked;
+    toggle_calendar_view();
+});

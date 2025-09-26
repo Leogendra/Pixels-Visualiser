@@ -55,7 +55,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 100;
+const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
 let initial_data = [];
 let current_data = [];
@@ -120,26 +120,38 @@ const png_default_settings = {
 let png_settings = png_default_settings;
 
 // Card
+let calendarMode = false;
 let getDynamicBorders = true; // not editable
 
 
 
 
-function show_popup_message(message, type) {
+function show_popup_message(message, duration=10000, type="msg") {
     const popup = document.createElement("div");
     popup.className = "popup-message";
+    const timerBar = document.createElement("div");
+    timerBar.className = "popup-timer";
     if (type === "error") {
         popup.classList.add("error");
+        timerBar.classList.add("error");
+    }
+    else if (type === "success") {
+        popup.classList.add("success");
+        timerBar.classList.add("success");
     }
     popup.textContent = message;
+    popup.appendChild(timerBar);
+    popup.style.setProperty("--duration", `${duration}ms`);
     document.body.appendChild(popup);
-    setTimeout(() => popup.classList.add("visible"), 10);
 
+    setTimeout(() => popup.classList.add("visible"), 10);
+    setTimeout(() => timerBar.classList.add("anim"), 50);
     setTimeout(() => {
         popup.classList.remove("visible");
-        setTimeout(() => popup.remove(), 3000);
-    }, 10000);
+        setTimeout(() => popup.remove(), 2000);
+    }, duration);
 }
+
 
 
 function fill_empty_dates(data) {
@@ -560,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputs = Array.from(document.querySelectorAll('input, select'));
 
     inputs.forEach(input => {
-        if (input.type === "file") { return; }
+        if ((input.type === "file") || (input.type === "color")) { return; }
         input.addEventListener('input', store_settings);
     });
 });
