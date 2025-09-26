@@ -536,6 +536,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
         const scores = pixel.scores || [];
+        if (scores.length === 0) { return; }
         const notes = normalize_string(pixel.notes || "");
         
         let hasMatch = false;
@@ -561,7 +562,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
 }
 
 
-function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false, exclude=false) {
+function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag2 = false, exclude = false) {
     if (
         !keyword1 || keyword1.trim() === "" ||
         !keyword2 || keyword2.trim() === "" ||
@@ -578,6 +579,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
+        const scores = pixel.scores || [];
+        if (scores.length === 0) { return; }
 
         let match1 = false;
         let match2 = false;
@@ -613,6 +616,11 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         }
 
         if (exclude) {
+            if (match1 && !match2) {
+                result.push({ date, scores });
+            }
+        }
+        else {
             if (match1 && match2) {
                 result.push({ date, scores: [3] });
             } 
@@ -621,11 +629,6 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
             } 
             else if (match2) {
                 result.push({ date, scores: [1] });
-            }
-        }
-        else {
-            if (match1 && !match2) {
-                result.push({ date, scores: [3] });
             }
         }
     });
@@ -642,13 +645,13 @@ function get_compare_settings() {
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
     if ((showFilter > 1) && value1 && value2) {
-        return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2);
+        return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2, isExcludeMode);
     }
     else if ((showFilter > 0) && value1) {
         return filter_pixels_by_keyword(value1, compareTag1);
     }
     else if ((showFilter > 0) && value2) {
-        return filter_pixels_by_keyword(value2, compareTag2, isExcludeMode);
+        return filter_pixels_by_keyword(value2, compareTag2);
     }
     else {
         return current_data; // No filtering, return the current data
