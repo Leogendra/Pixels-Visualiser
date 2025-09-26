@@ -120,6 +120,7 @@ const png_default_settings = {
 let png_settings = png_default_settings;
 
 // Card
+let calendarMode = false;
 let getDynamicBorders = true; // not editable
 
 

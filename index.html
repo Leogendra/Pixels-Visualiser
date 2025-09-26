@@ -479,8 +479,15 @@
                 <div class="chart-container">
                     <h2>📅 Search Pixels by date</h2>
 
+                    <div class="options">
+                        <div class="option-item">
+                            <label for="showCalendarCheckbox" title="Show a calendar where you can select a date">Use calendar</label>
+                            <input type="checkbox" id="showCalendarCheckbox" class="checkbox">
+                        </div>
+                    </div>
+
                     <div class="option-item">
-                        <label for="dateSearchInput" title="Colors and score type can be selected above">Select date</label>
+                        <label for="dateSearchInput" id="dateSearchInputLabel" title="Colors and score type can be selected above">Select date</label>
                         <input type="date" id="dateSearchInput" class="input-date">
                     </div>
 
@@ -489,9 +496,14 @@
                     </div>
 
                     <div class="nav-buttons-card">
-                        <button id="btnPixelPrev" class="nav-button">&lt; Previous</button>
-                        <button id="btnPixelNext" class="nav-button">Next ></button>
+                        <button id="btnPixelPrev" class="nav-button">&lt; Previous day</button>
+                        <button id="btnPixelNext" class="nav-button">Next day ></button>
                     </div>
+
+                    <!-- <div class="nav-buttons-card">
+                        <button id="btnPixelPrevYear" class="nav-button">&lt;&lt;&lt; Previous year</button>
+                        <button id="btnPixelNextYear" class="nav-button">Next year >>></button>
+                    </div> -->
 
                     <div id="dateSearchResult" class="pixel-date-result"></div>
                 </div>
@@ -510,7 +522,7 @@
             </a>
         </div>
         <div class="version">Version: v1.6.1</div>
-        <div class="version">Last update: 2025-09-23</div>
+        <div class="version">Last update: 2025-09-26</div>
     </footer>
 
     <!-- Charts.js for graphs -->

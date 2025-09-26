@@ -41,6 +41,8 @@ async function store_settings() {
             wordcloudCompression,
 
             png_settings,
+
+            calendarMode,
         };
 
         localStorage.setItem("pixelSettings", JSON.stringify(settings));
@@ -124,6 +126,9 @@ async function load_settings() {
             set_stopwords_settings();
 
             png_settings = settings.png_settings || png_default_settings;
+
+            calendarMode = settings.calendarMode || calendarMode;
+            show_calendar_checkbox.checked = calendarMode;
         }
         catch (e) {
             console.error("Failed to load settings from localStorage", e);
