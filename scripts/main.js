@@ -126,7 +126,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, duration=10000, type="msg") {
+function show_popup_message(message, type="msg", duration=10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -296,6 +296,7 @@ async function handle_file_upload(file) {
             
             await load_settings();
             update_stats_and_graphics();
+            document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
         }
     }
     catch (error) {
@@ -324,13 +325,13 @@ async function auto_load_data(filePath) {
 // Dialog words settings
 function open_words_dialog_settings() {
     words_dialog_settings.showModal();
-    words_dialog_settings.addEventListener('click', handle_click_words_dialog);
+    words_dialog_settings.addEventListener("click", handle_click_words_dialog);
 }
 
 
 function close_words_dialog_settings() {
     words_dialog_settings.close();
-    words_dialog_settings.removeEventListener('click', handle_click_words_dialog);
+    words_dialog_settings.removeEventListener("click", handle_click_words_dialog);
 }
 
 
@@ -569,10 +570,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Save settings when a field is changed
-    const inputs = Array.from(document.querySelectorAll('input, select'));
+    const inputs = Array.from(document.querySelectorAll("input, select"));
 
     inputs.forEach(input => {
         if ((input.type === "file") || (input.type === "color")) { return; }
-        input.addEventListener('input', store_settings);
+        input.addEventListener("input", store_settings);
     });
 });

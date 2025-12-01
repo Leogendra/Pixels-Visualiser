@@ -726,7 +726,7 @@ btn_reset_palette_settings.addEventListener("click", () => {
 
 btn_save_palette_settings.addEventListener("click", () => {
     close_dialog_settings(save=true);
-    show_popup_message("Palette settings saved", 3000, "success");
+    show_popup_message("Palette settings saved", "success", 3000);
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {
