@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="styles/pills.css">
     <link rel="stylesheet" href="styles/words.css">
     <link rel="stylesheet" href="styles/options.css">
+    <link rel="stylesheet" href="styles/tutorial.css">
     <link rel="stylesheet" href="styles/footer.css">
     <link rel="stylesheet" href="styles/card.css">
 </head>
@@ -40,7 +41,7 @@
         </div>
 
         <div class="upload-section" id="dragAndDropZone">
-            <label for="fileInput" class="button">Choose or drop a backup file (.json)</label>
+            <label id="fileInputLabel" for="fileInput" class="button">Choose or drop a backup file (.json)</label>
             <input type="file" id="fileInput" accept=".json" style="display: none;">
         </div>
 
@@ -53,12 +54,24 @@
             </div>
 
             <div class="help-export">
-                    <p>How to export your
+
+                    <p>
+                        First time visiting? Click the button below to start the tutorial.
+                    </p>
+                    <button id="startTutorialBtn" class="button" title="Start the tutorial">Start tutorial</button>
+                    
+                    <div class="empty-line"><hr></div>
+
+                    <p>
+                        You can also read the <a href="https://github.com/Leogendra/Pixels-Visualiser/blob/main/DOCS.md" class="info-link" target="_blank" rel="noopener noreferrer">DOCS on Github</a>.
+                    </p>
+
+                    <!-- <p>Where do you export your
                         <span>
                             <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer" class="info-link">Pixels</a>
                         </span>
                     data ?</p>
-                <img src="assets/help_export.png" alt="How to export Pixels data" title="How to export your Pixels data" class="help-image">
+                    <img src="assets/help_export.png" alt="Export Pixels data button in settings" title="Where to export your Pixels data" class="help-image"> -->
             </div>
         </div>
 
@@ -114,15 +127,15 @@
 
                     <div class="dialog-buttons">
                         <button type="button" class="button button-secondary" id="resetPaletteSettings">Reset</button>
-                        <button type="submit" class="button button-tertiary" id="savePaletteSettings">Save</button>
+                        <button type="submit" class="button button-tertiary" id="savePaletteSettings">Apply</button>
                     </div>
                 </div>
 
                 <div class="stats-grid" id="statsContainer"></div>
 
-                <div class="chart-container">
+                <div class="chart-container" id="moodChartContainer">
                     <h2>📈 Time evolution</h2>
-                    <div class="options">
+                    <div class="options" id="moodChartOptions">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60">
 
@@ -178,7 +191,7 @@
                     </div>
                 </div>
 
-                <div class="grid-charts">
+                <div class="grid-charts" id="tagChartsContainer">
                     <div class="chart-container group-options" id="tagFrequencyContainer">
                         <h2>🏷️ Tag frequency</h2>
                         <canvas id="tagChart" class="free-canvas"></canvas>
@@ -228,7 +241,7 @@
                 <div class="chart-container">
                     <h2>📝 Most frequent words</h2>
 
-                    <div class="options">
+                    <div class="options" id="wordsOptionsContainer">
                         <div class="option-item">
                             <button class="button open-settings" id="openWordsSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
@@ -343,7 +356,7 @@
                 <div class="chart-container" id="pixelGridExportContainer">
                     <h2>🖼️ Create Pixels image</h2>
 
-                    <div class="options grid-options">
+                    <div class="options grid-options" id="PixelGridOptions">
                         <div class="option-item">
                             <button class="button open-settings" id="openImageSettingsDialog">
                                 <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
@@ -514,15 +527,18 @@
 
     <footer>
         <div class="footer-link-container">
-            <a class="github" href="https://github.com/Leogendra" target="_blank" rel="noopener noreferrer">
+            <a class="" href="https://github.com/Leogendra/Pixels-Visualiser" target="_blank" rel="noopener noreferrer" title="GitHub repository">
                 <img src="assets/github.png" alt="github">
             </a>
-            <a class="github" href="https://github.com/Leogendra/Pixels-Memories" target="_blank" rel="noopener noreferrer">
+            <a class="" href="https://github.com/Leogendra/Pixels-Memories" target="_blank" rel="noopener noreferrer" title="Pixels Memories repository">
                 <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
             </a>
+            <a class="" href="https://buymeacoffee.com/leogendra" target="_blank" rel="noopener noreferrer" title="Buy me a coffee">
+                <img src="assets/coffee_logo.png" alt="Buy me a coffee">
+            </a>
         </div>
-        <div class="version">Version: v1.6.1</div>
-        <div class="version">Last update: 2025-09-26</div>
+        <div class="version">Version: v1.7.0</div>
+        <div class="version">Last update: 2025-11-29</div>
     </footer>
 
     <!-- Charts.js for graphs -->
@@ -538,6 +554,7 @@
 
     <script src="scripts/utils.js"></script>
     <script src="scripts/stopwords.js"></script>
+    <script src="scripts/tutorial.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/card.js"></script>
     <script src="scripts/graphs.js"></script>
