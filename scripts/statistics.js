@@ -125,33 +125,32 @@ function compute_tag_stats() {
     tag_list_categories = new Set(["All"]);
 
     current_data.forEach(entry => {
-        const avgScore = entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length;
+        if (entry.scores.length === 0 || entry.tags.length === 0) { return; }
+        const avgScore = average(entry.scores);
 
-        if (entry.tags && entry.tags.length > 0) {
-            entry.tags.forEach(tagCategory => {
-                if (tagCategory.entries && tagCategory.entries.length > 0) {
-                    tag_list_categories.add(tagCategory.type);
+        entry.tags.forEach(tagCategory => {
+            if (tagCategory.entries && tagCategory.entries.length > 0) {
+                tag_list_categories.add(tagCategory.type);
 
-                    tagCategory.entries.forEach(tag => {
-                        tag_counts[tag] = (tag_counts[tag] || 0) + 1;
-                        tag_categories[tag] = tagCategory.type;
+                tagCategory.entries.forEach(tag => {
+                    tag_counts[tag] = (tag_counts[tag] || 0) + 1;
+                    tag_categories[tag] = tagCategory.type;
 
-                        if (!tag_scores[tag]) {
-                            tag_scores[tag] = { total: 0, count: 0 };
-                        }
-                        tag_scores[tag].total += avgScore;
-                        tag_scores[tag].count += 1;
-                    });
-                }
-            });
-        }
+                    if (!tag_scores[tag]) {
+                        tag_scores[tag] = { total: 0, count: 0 };
+                    }
+                    tag_scores[tag].total += avgScore;
+                    tag_scores[tag].count += 1;
+                });
+            }
+        });
     });
 
     tag_stats = {
         counts: tag_counts,
         scores: tag_scores,
         categories: tag_categories,
-        totalPixels: current_data.length
+        totalPixels: current_data.filter(entry => entry.scores.length > 0).length,
     };
     set_tags_selects();
     setup_tag_categories();
