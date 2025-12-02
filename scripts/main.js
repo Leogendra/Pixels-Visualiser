@@ -57,6 +57,7 @@ const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
+let userLocale = "default";
 let initial_data = [];
 let current_data = [];
 let last_start_date = null;

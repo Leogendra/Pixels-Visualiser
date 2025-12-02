@@ -29,7 +29,7 @@ async function create_pixel_card(pixel) {
     card.className = "pixel-card";
     
     const date = new Date(pixel.date);
-    const formattedDate = date.toLocaleDateString(undefined, {
+    const formattedDate = date.toLocaleDateString(userLocale, {
         year: "numeric", month: "long", day: "numeric"
     });
 

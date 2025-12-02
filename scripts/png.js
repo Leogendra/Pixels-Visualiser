@@ -470,7 +470,7 @@ async function generate_pixels_PNG() {
             const weekdays = 7;
             for (let i = 0; i < weekdays; i++) {
                 const date = new Date(2024, 0, 7 + ((i + firstDayOfWeek) % 7));
-                const label = date.toLocaleDateString("default", { weekday: "short" });
+                const label = date.toLocaleDateString(userLocale, { weekday: "short" });
                 if (direction === "row") {
                     ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
                 } 
