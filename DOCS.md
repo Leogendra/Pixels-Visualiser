@@ -3,42 +3,49 @@
 This site helps you look at your Pixels app export in a simple, visual way. 
 Everything runs in your web browser on your computer: nothing is sent anywhere.
 <div align="center">
-    <img src="assets/screenshots/overview.png" alt="Overview" />
+    <img src="assets/meta_tags_image.png" alt="Overview" style="width:60%;border-radius:5px;" />
 </div>
 
-- In this website, "score" means the value you gave to each day in the Pixels app (from very bad = 1 to very good = 5). If you used sub-pixels, the score of the Pixel is the average of all sub-pixels for that day (e.g., if you had two sub-pixels with scores 4 and 5, the score for that day is 4.5).
+
 
 - The site saves your choices (date range, colors, stopwords and other settings) in your browser so they are restored next time.
 
-## Lexique:
+## Glossary:
 
-### **Pixel card**
-- The pixel card displays the date, score icons, notes and tags you added for a specific Pixel.
+### Score
+The score is the **value** of your Pixels (from very bad = 1 to very good = 5).  
+If you used sub-pixels, the score of the Pixel is the average of all sub-pixels for that day (e.g., if you had two sub-pixels with scores 4 and 5, the score for that day is 4.5).
+
+### Pixel card
+The pixel card displays the date, score icons, notes and tags you added for a specific Pixel.
 
 <div align="center">
-    <img src="assets/screenshots/pixel-card.png" alt="Pixel card" />
+    <img src="assets/screenshots/pixel-card.png" alt="Pixel card" style="width:60%;border-radius:5px;" />
 </div>
 
 
-## **Getting started**
+## Getting started
 
 - On the home page, click the "Choose or drop a backup file" button, or drag your Pixels export file onto the page. To get this file, open the Pixels app on your device, go to Settings > "Export Pixels data", and save the export file to your phone or computer.
 
 <div align="center">
-    <img src="assets/screenshots/export.png" alt="Export backup" />
+    <img src="assets/screenshots/export.png" alt="Export backup" style="width:40%;height:auto;" />
 </div>
 
-### **Choose the dates and palette**
-- Use the buttons (for example: "Last month", "All time") to view data about a specific time period. You can also select "Custom" and pick exact start and end dates.
-- You can customize the colors used for each score by clicking on the face icons. Click "Apply" to see the changes throughout the site.
+
+### Choose the dates and palette
+
+Use the buttons (for example: "Last month", "All time") to view data about a specific time period. You can also select "Custom" and pick exact start and end dates.  
+You can customize the colors used for each score by clicking on the face icons. Click "Apply" to see the changes throughout the site.  
 
 <div align="center">
-    <img src="assets/screenshots/palette.png" alt="Palette and colors" />
+    <img src="assets/screenshots/palette.png" alt="Palette and colors" style="border-radius:5px;" />
 </div>
 
 
-## **Time evolution**
-This graph shows how your daily score change over time.
+## Time evolution
+
+This graph shows how your daily score change over time.  
 Options:
 - Rolling average: smooth the line by showing the average score over a number of days.
   - It works by calculating the average score for each day and the days before it; for example, with a 7-day rolling average, the value shown on June 8 is the average score from June 2 to June 8.
@@ -52,32 +59,36 @@ Options:
   - Number of Pixels: how many (sub-)pixels you used that day
 
 <div align="center">
-    <img src="assets/screenshots/mood-chart.png" alt="Time evolution chart" />
+    <img src="assets/screenshots/time-evolution.png" alt="Time evolution chart" style="border-radius:5px;" />
 </div>
 
-## **Tags frequency and average score**
-In this section, you can see which tags appear most often and what are the average scores for each tag. Hovering a tag in one chart highlights it in the other chart (Desktop only).
+
+## Tags frequency and average score
+
+In this section, you can see which tags appear most often and what are the average scores for each tag. Hovering a tag in one chart highlights it in the other chart (Desktop only).  
 Options:
 - Show percentage: display how often each tag appears as a percentage (instead of a count) of total days in the selected period.
 - Number of tags: limit how many tags are shown in the chart.
 - Tag categories: Limit tags to specific categories to have more focused results.
 
 <div align="center">
-    <img src="assets/screenshots/tags.png" alt="Tags summary" />
+    <img src="assets/screenshots/tags.png" alt="Tags summary" style="border-radius:5px;" />
 </div>
 
-## **Weekdays and months average scores**
+
+## Weekdays and months average scores
+
 View average scores by day of the week or by month to spot patterns.
 Options:
 - First day of the week: Choose which day your week should start on and 
 - Season color: Use different colors for each season in the month chart.
 
 <div align="center">
-    <img src="assets/screenshots/week-month.png" alt="Week and month charts" />
+    <img src="assets/screenshots/week-month.png" alt="Week and month charts" style="border-radius:5px;" />
 </div>
 
 
-## **Most frequent words**
+## Most frequent words
 
 In this section, you can see which words appear most often in your notes and search for words or phrases.
 Options:
