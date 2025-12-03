@@ -317,7 +317,7 @@
                             <input type="range" id="minScoreSlider" class="range-slider" min="10" max="50">
                         </div>
 
-                        <div class="option-item">
+                        <div class="option-item" id="searchWordContainer">
                             <label id="labelSearchInput" for="searchInput" title='hint: use "*" to search for any word, e.g. "went to *"'>Search words</label>
                             <input type="text" id="searchInput" class="input-nb input-large" placeholder='e.g. "happy", "good day", "been to *"'>
                         </div>
@@ -344,7 +344,6 @@
                         </div>
 
                         <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
-                        <!-- <div id="wordcloudCanvas" width="1000" height="400" style="width: 1000px; height: 400px;"></div> -->
 
                         <button class="button" id="btnDownloadWordcloud">
                             <img src="assets/download_icon.svg" alt="Download" class="icon-settings">

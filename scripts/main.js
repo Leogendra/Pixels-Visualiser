@@ -111,7 +111,7 @@ const png_default_settings = {
     firstDayOfWeek: 1,
     squareSize: 50,
     borderSize: 0,
-    showBorder: false,
+    showBorder: true,
     showLegend: false,
     showDays: false,
     showFilter: 0,
@@ -382,6 +382,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Please drop a valid .json file");
             }
         }
+    });
+
+    // Tutorial
+    start_tutorial_button.addEventListener("click", function () {
+        start_tutorial();
     });
 
 

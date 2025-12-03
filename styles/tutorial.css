@@ -1,3 +1,8 @@
+:root {
+    --primary-color-rgb: 47, 161, 255;
+}
+
+
 #tutorialOverlay {
     position: absolute;
     display: none;
@@ -49,4 +54,29 @@
 .tutorial-target {
     position: relative;
     z-index: 101 !important;
+}
+
+.tutorial-waiting-target {
+    animation: tutorialPulse 1.2s ease-in-out infinite;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+    border-radius: 6px;
+}
+
+
+@keyframes tutorialPulse {
+    0% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb), 0.5); 
+    }
+
+    50% {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(var(--primary-color-rgb), 0.2);
+    }
+
+    100% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb), 0.5);
+    }
 }

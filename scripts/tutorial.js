@@ -4,38 +4,53 @@ const start_tutorial_button = document.getElementById("startTutorialBtn");
 const tutorial_steps = [
     {
         element_id: "#fileInputLabel",
-        message: "Click here to choose your Pixels backup file or drop it here.",
+        message: "Click here to choose your Pixels backup file, or drop it here.",
         skippable: false,
         backable: false,
         boxPosition: "bottom"
     },
-    // {
-    //     element_id: "#paletteContainer",
-    //     message: "You can start by selecting a color palette for the visualisation.",
-    //     backable: false,
-    //     boxPosition: "bottom"
-    // },
+    {
+        element_id: "#paletteContainer",
+        message: "You can start by selecting a color palette for the visualisation.",
+        backable: false,
+        boxPosition: "bottom"
+    },
     {
         element_id: "#moodChart",
-        message: "This chart shows how your daily score changes over time. Hover points to preview days.",
+        message: "This chart shows how your daily score changes over time. Click on points to see the Pixels.",
     },
     {
         element_id: "#moodChartOptions",
-        message: "You can adjust some parameters for the chart here, feel free to experiment!",
+        message: "You can adjust the chart settings here. Feel free to experiment!",
         boxPosition: "top"
     },
     {
         element_id: "#tagChartsContainer",
-        message: "Here you can how your tags are distributed in your entries. You can change some settings above.",
+        message: "Here you can see how your tags are distributed across your entries. You can change some settings above.",
         skipMobile: true
     },
     {
+        element_id: "#searchWordContainer",
+        message: "Try searching for specific words in your entries using this input field.",
+        boxPosition: "top"
+    },
+    {
         element_id: "#wordsOptionsContainer",
-        message: "Try searching for specific words in your entries or adjusting the number of displayed words here. More settings are available by clicking the \"Settings\" button.",
+        message: "You can also adjust the number of displayed words here. More settings are available by clicking the \"Settings\" button.",
+        boxPosition: "top"
     },
     {
         element_id: "#PixelGridOptions",
-        message: "Finally, you can create and customize an Image of your Pixels using these options.",
+        message: "Finally, you can create and customize an image of your Pixels using these options.",
+        boxPosition: "top"
+    },
+    {
+        element_id: "#btnGeneratePixelGrid",
+        message: "Ready? Click to generate your Pixel image!",
+        boxPosition: "top",
+        skippable: false,
+        backable: false,
+        clickToSkip: true
     }
 ];
 
@@ -87,7 +102,10 @@ function start_tutorial() {
 
 function stop_tutorial() {
     if (!tutorial_overlay) { return; }
-    if (tutorial_active_target) { tutorial_active_target.classList.remove("tutorial-target"); }
+    if (tutorial_active_target) { 
+        tutorial_active_target.classList.remove("tutorial-target"); 
+        remove_waiting_effects();
+    }
     tutorial_active_target = null;
 
     remove_tutorial_click_listeners();
@@ -132,15 +150,44 @@ function click_skip_handler() {
 }
 
 
+function apply_waiting_effects() {
+    try {
+        if (tutorial_active_target) {
+            tutorial_active_target.classList.add("tutorial-waiting-target");
+        }
+        if (tutorial_overlay) {
+            tutorial_overlay._removeWaiting = function () {
+                if (tutorial_active_target) { 
+                    tutorial_active_target.classList.remove("tutorial-waiting-target"); 
+                }
+            }
+        }
+    }
+    catch (e) {
+        console.error("Failed to apply tutorial waiting effects", e);
+    }
+}
+
+
+function remove_waiting_effects() {
+    if (tutorial_overlay && tutorial_overlay._removeWaiting) {
+        tutorial_overlay._removeWaiting(); 
+        tutorial_overlay._removeWaiting = null;
+    }
+}
+
+
 function show_tutorial_step() {
     const step = tutorial_steps[tutorialCurrent];
     const isStepSkippable = step.skippable ?? true;
     const isStepBackable = step.backable ?? true;
     const stepBoxPosition = step.boxPosition ?? "bottom";
     const skipOnMobile = step.skipMobile ?? false;
+    const clickToSkip = step.clickToSkip ?? false;
 
     const tutorial_element = document.querySelector(step.element_id);
     const messageElement = document.querySelector("#tutorialMessage");
+    messageElement.textContent = step.message;
 
     if (!tutorial_element) {
         show_popup_message("An unexpected error occurred during the tutorial: element not found.", "error", 5000);
@@ -157,7 +204,12 @@ function show_tutorial_step() {
         return;
     }
 
-    if (tutorial_active_target) { tutorial_active_target.classList.remove("tutorial-target"); }
+    if (tutorial_active_target) { 
+        remove_waiting_effects();
+        tutorial_active_target.classList.remove("tutorial-target"); 
+    }
+    
+    remove_tutorial_click_listeners();
     tutorial_active_target = tutorial_element;
     tutorial_active_target.classList.add("tutorial-target");
 
@@ -182,50 +234,48 @@ function show_tutorial_step() {
     const spaceAboveAfterScroll = spaceBelowAfterScroll;
 
     if (stepBoxPosition == "bottom") {
-        boxTop = elementBottom + 1.5 * tutorialPadding;
+        boxTop = elementBottom + (1.5*tutorialPadding);
 
         // If there's not enough space below, place it above
-        if (spaceBelowAfterScroll < (boxHeight + 1.5 * tutorialPadding)) {
-            boxTop = elementTop - tutorialPadding - boxHeight;
+        if (spaceBelowAfterScroll < (boxHeight + (1.5*tutorialPadding))) {
+            boxTop = elementTop - (1.5*tutorialPadding) - boxHeight;
         }
     }
     else {
-        console.log("Positioning tutorial box above");
-        boxTop = elementTop - tutorialPadding - boxHeight;
+        boxTop = elementTop - (1.5*tutorialPadding) - boxHeight;
 
-        if (spaceAboveAfterScroll < (boxHeight + tutorialPadding)) {
-            console.log("Not enough space above, placing tutorial box bellow");
-            boxTop = elementBottom + 1.5 * tutorialPadding;
+        if (spaceAboveAfterScroll < (boxHeight + (1.5*tutorialPadding))) {
+            boxTop = elementBottom + (1.5*tutorialPadding);
         }
     }
 
     tutorial_box.dataset.position = stepBoxPosition;
     position_tutorial_box({ top: boxTop, left: boxLeft });
-
-    messageElement.textContent = step.message;
     tutorial_element.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    remove_tutorial_click_listeners();
 
     const next_button = document.getElementById("tutorialNext");
 
     if (isStepSkippable) {
         next_button.style.display = "flex";
-
-        // click to skip handler
-        // tutorial_element.addEventListener("click", click_skip_handler, { once: true });
-        // tutorial_overlay._removeClick = function () {
-        //     tutorial_element.removeEventListener("click", click_skip_handler);
-        // }
     }
     else {
         document.getElementById("tutorialNext").style.display = "none";
+        apply_waiting_effects();
 
         const step_result_handler = create_step_result_handler(step);
         document.addEventListener("tutorialStepResult", step_result_handler);
 
         tutorial_overlay._removeClick = function () { 
             document.removeEventListener("tutorialStepResult", step_result_handler); 
+        }
+    }
+
+    if (clickToSkip) {
+        apply_waiting_effects();
+        
+        tutorial_element.addEventListener("click", click_skip_handler, { once: true });
+        tutorial_overlay._removeClick = function () {
+            tutorial_element.removeEventListener("click", click_skip_handler);
         }
     }
 
@@ -255,20 +305,3 @@ function position_tutorial_box(pos) {
     tutorial_box.style.top = `${pos.top}px`;
     tutorial_box.style.left = `${pos.left}px`;
 }
-
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    start_tutorial_button.addEventListener("click", function () {
-        start_tutorial();
-    });
-
-    window._tutorial = { start: start_tutorial, stop: stop_tutorial };
-});
-
-
-// add event listener to log mouse current position for debugging
-document.addEventListener("mousemove", function (e) {
-    // console.log(`Mouse position: (${e.clientX}, ${e.clientY})`);
-});
