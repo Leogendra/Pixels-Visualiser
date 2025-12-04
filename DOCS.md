@@ -1,62 +1,82 @@
-# Pixels Visualiser - Simple Guide
+ # Pixels Visualiser - Documentation
 
-This site helps you look at your Pixels app export in a simple, visual way. 
-Everything runs in your web browser on your computer: nothing is sent anywhere.
+This site helps you visualise your data from the [Pixels app](https://teovogel.me/pixels/). Everything runs locally in your browser, nothing leaves your device.
+
+On the desktop version, you can hover every settings label to see more information about it. If that's not enough, this guide explains everything in more detail.
+
 <div align="center">
-    <img src="assets/meta_tags_image.png" alt="Overview" style="width:60%;border-radius:5px;" />
+    <img src="assets/favicon.png" alt="Pixels Visualiser overview" style="width:10%;border-radius:5px;" />
 </div>
 
+## Table of Contents
+- [Pixels Visualiser - Documentation](#pixels-visualiser---documentation)
+  - [Table of Contents](#table-of-contents)
+  - [Glossary](#glossary)
+    - [Score](#score)
+    - [Pixel card](#pixel-card)
+  - [Quick Start](#quick-start)
+  - [Choose the dates and palette](#choose-the-dates-and-palette)
+  - [Time evolution](#time-evolution)
+  - [Tags frequency and average score](#tags-frequency-and-average-score)
+  - [Weekdays and months average scores](#weekdays-and-months-average-scores)
+  - [Most frequent words](#most-frequent-words)
+  - [Word cloud](#word-cloud)
+  - [Create Pixels image](#create-pixels-image)
+  - [Search Pixels by date](#search-pixels-by-date)
+  - [Troubleshooting](#troubleshooting)
+  - [Contribute](#contribute)
 
 
-- The site saves your choices (date range, colors, stopwords and other settings) in your browser so they are restored next time.
-
-## Glossary:
+## Glossary
 
 ### Score
-The score is the **value** of your Pixels (from very bad = 1 to very good = 5).  
-If you used sub-pixels, the score of the Pixel is the average of all sub-pixels for that day (e.g., if you had two sub-pixels with scores 4 and 5, the score for that day is 4.5).
+The score is the numeric value of a Pixel (1 = very bad, 5 = very good).  
+If a day contains sub-pixels, the displayed score is the average of those sub-pixels.  
+`Mood` options also refer to this average score.
 
 ### Pixel card
-The pixel card displays the date, score icons, notes and tags you added for a specific Pixel.
+The Pixel card shows the date, score icons, notes and tags for a specific day.
 
 <div align="center">
-    <img src="assets/screenshots/pixel-card.png" alt="Pixel card" style="width:60%;border-radius:5px;" />
+    <img src="assets/screenshots/pixel-card.png" alt="Pixel card showing date, scores, notes and tags" style="width:60%;border-radius:5px;" />
 </div>
 
 
-## Getting started
+## Quick Start
 
-- On the home page, click the "Choose or drop a backup file" button, or drag your Pixels export file onto the page. To get this file, open the Pixels app on your device, go to Settings > "Export Pixels data", and save the export file to your phone or computer.
+To get the file from the Pixels app: open Pixels -> Settings -> `Export Pixels data` and save the file to your device.  
 
 <div align="center">
-    <img src="assets/screenshots/export.png" alt="Export backup" style="width:40%;height:auto;" />
+    <img src="assets/screenshots/export.png" alt="Export Pixels data from the app" style="width:40%;height:auto;" />
 </div>
 
+1. Open [pixels-visualiser.gatienh.fr](https://pixels-visualiser.gatienh.fr/) in your browser.
+2. Click `Choose or drop a backup file` and select the Pixels export file (you can also drag-and-drop your exported .json file onto the page). 
 
-### Choose the dates and palette
 
-Use the buttons (for example: "Last month", "All time") to view data about a specific time period. You can also select "Custom" and pick exact start and end dates.  
-You can customize the colors used for each score by clicking on the face icons. Click "Apply" to see the changes throughout the site.  
+## Choose the dates and palette
+
+Use the top range pills (e.g. `Last month`, `All time`) or `Custom` to pick exact start/end dates. Customize palette colors in the palette panel and click `Apply` to update visuals.
 
 <div align="center">
-    <img src="assets/screenshots/palette.png" alt="Palette and colors" style="border-radius:5px;" />
+    <img src="assets/screenshots/palette.png" alt="Palette editor for score colors" style="border-radius:5px;" />
 </div>
 
 
 ## Time evolution
 
-This graph shows how your daily score change over time.  
+This chart displays how daily scores change over time.
+
 Options:
-- Rolling average: smooth the line by showing the average score over a number of days.
-  - It works by calculating the average score for each day and the days before it; for example, with a 7-day rolling average, the value shown on June 8 is the average score from June 2 to June 8.
-- Show average: display a horizontal line for the average score in the selected period. Hover to see the exact value.
-- Show years: add vertical lines to mark the start of each year.
-- Show Pixel: if active, show a Pixel card when hovering or clicking a point. If disabled, the card is only shown when clicking a point.
-- Option to display: 
-  - Mood: the Pixel score
-  - Number of words: how many words you wrote in your note that day
-  - Number of tags: how many tags you added that day
-  - Number of Pixels: how many (sub-)pixels you used that day
+- `Rolling average`: smooth the line by averaging scores over N days (example: 7-day average on June 8 = average of June 2–8).
+- `Show average`: horizontal line showing the mean score for the selected period.
+- `Show years`: vertical markers for each year start.
+- `Show Pixel`: when enabled, hovering a point shows the Pixel card; otherwise only clicking shows the card.
+- `Option to display`: 
+  - `Mood`: daily average score
+  - `Number of words`: notes word count
+  - `Number of tags`: tags count
+  - `Number of Pixels`: sub-pixels count.
 
 <div align="center">
     <img src="assets/screenshots/time-evolution.png" alt="Time evolution chart" style="border-radius:5px;" />
@@ -65,108 +85,127 @@ Options:
 
 ## Tags frequency and average score
 
-In this section, you can see which tags appear most often and what are the average scores for each tag. Hovering a tag in one chart highlights it in the other chart (Desktop only).  
+See which tags appear most often and their average scores. On desktop, hovering a tag in one chart highlights it in the other.
+
 Options:
-- Show percentage: display how often each tag appears as a percentage (instead of a count) of total days in the selected period.
-- Number of tags: limit how many tags are shown in the chart.
-- Tag categories: Limit tags to specific categories to have more focused results.
+- `Show percentage`: frequency as percentage of days in the selected range (not occurrences).
+- `Number of tags`: limit displayed tags.
+- `Tag categories`: filter by tag category.
 
 <div align="center">
-    <img src="assets/screenshots/tags.png" alt="Tags summary" style="border-radius:5px;" />
+    <img src="assets/screenshots/tags.png" alt="Tag frequency and average score charts" style="border-radius:5px;" />
 </div>
 
 
 ## Weekdays and months average scores
 
-View average scores by day of the week or by month to spot patterns.
+View averages by weekday or month to spot patterns.
+
 Options:
-- First day of the week: Choose which day your week should start on and 
-- Season color: Use different colors for each season in the month chart.
+- `First day of week`: choose which day the week starts on.
+- `Season colors`: color months by season.
 
 <div align="center">
-    <img src="assets/screenshots/week-month.png" alt="Week and month charts" style="border-radius:5px;" />
+    <img src="assets/screenshots/week-month.png" alt="Weekday and month charts" style="border-radius:5px;" />
 </div>
 
 
 ## Most frequent words
 
-In this section, you can see which words appear most often in your notes and search for words or phrases.
+This lists the most frequent words from notes and provides search/filter options.
+
 Options:
-- Minimum count (n): only show words that appear at least `n` times.
-- Min score (x): only count words from Pixels that have at least `x` score (>=).
-- Search words: find specific words or phrases in your notes.
-  
-[More settings]
+- `Minimum count (n)`: only show words that appear at least `n` times.
+- `Min score (x)`: only include words from Pixels with score ≥ x.
+- `Search words`: Search words: find specific words or phrases in your notes.
+
+More settings:  
 Open the additional settings panel by clicking the "Settings" button.
-- Show percentage: display how often each word appears as a percentage (instead of a count) of total days in the selected period. /!\ If you word is used twice a day, it counts as 2 occurrences, so you can have words with more than 100%.
+- `Show percentage`: display how often each word appears as a percentage (instead of a count) of total days in the selected period. /!\ If you word is used twice a day, it counts as 2 occurrences, so you can have words with more than 100%.
 - [TODO] Limit to one per day: only count a word once per day, even if it appears multiple times in the same note. The resulting percentage will then reflect the number of days the word appeared in, not the total number of occurrences.
-- Order by score: sort words by average score instead of frequency.
-- Number of words: limit how many words are shown in the list.
-- Stopwords: you can choose a stopword language to add common words to ignore. You can remove stopwords from this list, or add your own custom stopwords. /!\ Remember that changing the stopword language will reset the "Default stopwords" list.
-  
-[Advanced settings] 
-- Use `*` as a wildcard to match unknown words, like "ate with *" to find all words that come after "ate with".
-- You can use multiple `*` in a search, for example "ate * with *" to find notes like "ate sandwich with Alice" or "ate pizza with Bob". 3 types of word cards are then shown:
+- `Order by score`: sort words by average score instead of frequency.
+- `Number of words`: limit how many words are shown in the list.
+- `Stopwords`: you can choose a stopword language to add common words to ignore. You can remove stopwords from this list, or add your own custom stopwords. /!\ Remember that changing the stopword language will reset the "Default stopwords" list.
+
+Advanced search:  
+You can try this type of search if you are familiar with search patterns.
+- `*`: In the "Search words" box, use `*` as a wildcard to match unknown words, like "ate with *" to find all words that come after "ate with".
+- `* *`: You can use multiple `*` in a search, for example "ate * with *" to find notes like "ate sandwich with Alice" or "ate pizza with Bob".  
+3 types of word cards are then shown:
   - Whole match: notes that exactly match the search (e.g., "ate pizza with Bob")
   - First word match: first word matched by a wildcard (e.g., "sandwich", "pizza", etc.)
   - Second word match: second word matched by a wildcard (e.g., "Alice", "Bob", etc.)
-- Adding a `/` after your search (e.g., "ate * with */") will show which words have been matched with each wildcard (e.g. "1-Alice", "2-Pizza", etc.).
-- Remember, searches always uses all the parameters above (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
+- `/`: Adding a `/` after your search (e.g., "ate * with */") will show which words have been matched with each wildcard (e.g. "1-Alice", "2-Pizza", etc.).
+
+Remember, searches always uses all the parameters above (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
 
 <div align="center">
-    <img src="assets/screenshots/word-frequency.png" alt="Word frequency" />
+    <img src="assets/screenshots/word-frequency.png" alt="Word frequency list and search" />
 </div>
 
-## **Word cloud**
-This section use the words from the "Most frequent words" section to create a word cloud image. A word with a higher frequency (or score if you have chosen to order by score) will appear larger in the cloud. You can download the word cloud as a PNG image by clicking the "Download" button.
+
+## Word cloud
+
+Create a word cloud from the Most frequent words list. Download as PNG using the `Download` button.
+
 Options:
-- Word size: choose the size of the words in the cloud.
-- Word spacing: adjust the spacing between words.
-- Word compression: an higher compression will make different words have similar sizes, while a lower compression will make the size difference more pronounced.
+- `Word size`: choose the size of the words in the cloud.
+- `Word spacing`: adjust the spacing between words.
+- `Word compression`: an higher compression will make different words have similar sizes, while a lower compression will make the size difference more pronounced.
 
 <div align="center">
-    <img src="assets/screenshots/wordcloud.png" alt="Word cloud" />
+    <img src="assets/screenshots/wordcloud.png" alt="Wordcloud preview" />
 </div>
 
 
-**Stopwords (ignore common words)**
-- You can ignore common words such as "and" or "the" so they don't appear in the lists.
-- Pick a language or add your own words to ignore.
+## Create Pixels image
+
+Export a visual representation of your Pixels as an image.
+
+Options:
+- `Score type`: choose which score is used to color the pixels. 
+  - `Gradient`: continuous gradient across sub-Pixels like in the original app.
+  - `Blend average`: mix palette colors when score is fractional (e.g. 4.5 mixes colors for scores 4 and 5).
+  - `Rounded average`: round to nearest integer (e.g., 4.5 becomes 5).
+  - `First/last/max`: use single sub-pixel score where multiple sub-pixels are used.
+- `Orientation`: choose how you want the calendar to be laid out.
+
+More settings:  
+Open the additional settings panel by clicking the "Settings" button.
+- `Square size (px)`: size of each Pixel square in the image.
+- `Show border`: add a border around each Pixel square.
+- `Show legend`: include a legend to show years, months and days.
+- `Show days`: include the day on each Pixel square.
+- `Word filter`: filter which Pixels are included based on notes content. Possible options:
+  - `Hide`: no filter, include all Pixels.
+  - `Filter words`: only include Pixels whose notes contain the specified tag or word/sentence.
+  - `Compare words`: display the Pixels whose contains the first tag/word in one color, and those that contain the second tag/word in another color (your palette colors for 1 and 5 will be used). If the Pixel contains both words, the color for score 3 will be used.
+  - `Exclude words`: shows all Pixels that contain the first tag/word but *do not* contain the second one.
 
 <div align="center">
-    <img src="assets/screenshots/stopwords.png" alt="Stopwords" />
+    <img src="assets/screenshots/pixels-image.png" alt="Exported pixels image with legend" />
 </div>
 
 
-**Create a Pixels-style image**
-- Make a picture that looks like the Pixels app grid and save it to your computer as a PNG file.
-- Choose colors, pixel size, and whether to show month labels or day numbers. You can also hide or compare days based on words or tags.
+## Search Pixels by date
 
-<div align="center">
-    <img src="assets/screenshots/pixels-image.png" alt="Create pixels image" />
-</div>
+Type a date or enable `Use calendar` to pick a date. After selecting a date, the Pixel card is shown (if present) and you can navigate to previous/next day and previous/next year.
+
+**Keyboard / Accessibility**
+- `Enter` confirms dialogs. The UI uses standard controls and labels; hover labels give more info on desktop.
 
 
-**Search and filtering rules**
-- Most searches use simple words or phrases.
-- Use `*` as a wildcard to match unknown words (advanced).
-- There is an advanced option for pattern searches; only use it if you are familiar with search patterns.
+## Troubleshooting
 
-<div align="center">
-    <img src="assets/screenshots/search-syntax.png" alt="Search syntax" />
-</div>
+- Import errors:
+  - If the import fails, make sure you exported the correct file from the Pixels app.
+  - In some cases, uploading the file to Google Drive and downloading it again can corrupt the file. Try re-exporting it from the Pixels app.
 
-**Keyboard and accessibility helpers**
-- Use Enter to confirm dialogs and use hover to see more information on charts.
+- Word search shows no results:
+  - You might have a high `Minimum count` value, which hides low-occurrence words. Try lowering it.
+  - Same for `Min score`: low-score Pixels might not be included. Try lowering it.
 
-<div align="center">
-    <img src="assets/screenshots/shortcuts.png" alt="Shortcuts" />
-</div>
 
-**Troubleshooting tips**
+## Contribute
 
-- If nothing appears, make sure you loaded the correct Pixels export file from the Pixels app.
-- If searches show no results, try widening the search or turning off ignored words.
-- If the word cloud looks empty, increase how many words are shown.
-
-You have questions or suggestions? Please open an issue on the [GitHub repository](https://github.com/Leogendra/Pixels-Visualiser/issues).
+If you have suggestions to improve this website, spotted a bug, or want to contribute code, feel free to open an issue directly on this [GitHub repository](https://github.com/Leogendra/Pixels-Visualiser/issues).
