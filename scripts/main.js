@@ -115,8 +115,8 @@ const png_default_settings = {
     showLegend: false,
     showDays: false,
     showFilter: 0,
-    scoreType: "avg",
-    layout: "vertical-weeks"
+    scoreType: "gradient",
+    layout: "vertical-months"
 };
 let png_settings = png_default_settings;
 

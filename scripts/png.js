@@ -531,7 +531,8 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target = isTag ? normalize_string(keyword) : parse_logical_string(keyword);
+    const target = isTag ? normalize_string(keyword) : compute_regex(parse_logical_string(keyword));
+    console.log("Filtering pixels by", isTag ? "tag" : "keyword", ":", target);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -549,7 +550,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
         }
         else {
             hasMatch = target.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
         
@@ -574,8 +575,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target1 = isTag1 ? normalize_string(keyword1) : parse_logical_string(keyword1);
-    const target2 = isTag2 ? normalize_string(keyword2) : parse_logical_string(keyword2);
+    const target1 = isTag1 ? normalize_string(keyword1) : compute_regex(parse_logical_string(keyword1));
+    const target2 = isTag2 ? normalize_string(keyword2) : compute_regex(parse_logical_string(keyword2));
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -596,7 +597,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         else {
             const notes = normalize_string(pixel.notes || "");
             match1 = target1.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
 
@@ -611,7 +612,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         else {
             const notes = normalize_string(pixel.notes || "");
             match2 = target2.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
 
