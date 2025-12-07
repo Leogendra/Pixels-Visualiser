@@ -22,7 +22,12 @@ let isCardPinned = false;
 let hoverDelay = false;
 
 
-
+let typeAverage = 2;
+let lockMoodGraph = false;
+function change_average_type(value) {
+    typeAverage = value;
+    create_mood_chart();
+}
 
 function fill_missing_dates(data) {
     function format_date(date) {
@@ -70,13 +75,13 @@ async function create_mood_chart() {
     let rawScores;
     let minValue;
     let maxValue;
-    if (moodTimeOption === "mood") {
+    if (moodTimeOption === "mood") { // average score
         rawScores = data.map(entry => average(entry.scores));
         minValue = 1;
         maxValue = 5;
     }
     else if (moodTimeOption === "words") { // number of words
-       rawScores = data.map(entry => {
+        rawScores = data.map(entry => {
             if (!entry || !entry.notes || (entry.scores.length === 0)) { return null; }
             return entry.notes.split(/\s+/).length;
         });
@@ -103,6 +108,7 @@ async function create_mood_chart() {
         maxValue = minimum(rawScores);
     }
 
+    // add average line
     const annotations = {};
     if (moodShowAverage) {
         annotations["mean"] = {
@@ -133,6 +139,7 @@ async function create_mood_chart() {
         }
     }
 
+    // add year lines
     if (moodShowYears) {
         dates.forEach(dateStr => {
             const [year, month, day] = dateStr.split("-").map(Number);
@@ -167,20 +174,71 @@ async function create_mood_chart() {
         });
     }
 
-    const averagedScores = rawScores.map((scores, i) => {
+    /*
+    // take the average over the last `moodAveragingValue` days
+    averagedScores = rawScores.map((scores, i) => {
         if (scores == null) { return null; }
         const windowStart = Math.max(0, i - moodAveragingValue + 1);
         let sum = 0;
         let count = 0;
         for (let j = windowStart; j <= i; j++) {
-            const v = rawScores[j];
-            if (v !== null) {
-                sum += v;
+            const score = rawScores[j];
+            if (score !== null) {
+                sum += score;
                 count++;
             }
         }
         return count > 0 ? sum / count : null;
     });
+
+    // moving average centered on each day
+    averagedScores = rawScores.map((value, i) => {
+        if (value == null) { return null; }
+
+        const half = Math.floor(moodAveragingValue / 2);
+        const start = Math.max(0, i - half);
+        const end = Math.min(rawScores.length - 1, i + half);
+
+        let sum = 0;
+        let count = 0;
+
+        for (let j = start; j <= end; j++) {
+            const score = rawScores[j];
+            if (score != null) {
+                sum += score;
+                count++;
+            }
+        }
+
+        return count > 0 ? sum / count : null;
+    });
+    */
+
+    // weighted moving average centered on each day
+    const averagedScores = rawScores.map((value, i) => {
+        if (value == null) return null;
+
+        const half = Math.floor(moodAveragingValue / 2);
+        const start = Math.max(0, i - half);
+        const end   = Math.min(rawScores.length - 1, i + half);
+
+        let weightedSum = 0;
+        let weightTotal = 0;
+
+        for (let j = start; j <= end; j++) {
+            const distance = Math.abs(j - i);
+            const weight = half + 1 - distance; 
+            
+            const score = rawScores[j];
+            if (score != null) {
+                weightedSum += score * weight;
+                weightTotal += weight;
+            }
+        }
+
+        return weightTotal > 0 ? weightedSum / weightTotal : null;
+    });
+
 
     if (mood_chart_instance) { mood_chart_instance.destroy(); }
     mood_chart_instance = new Chart(canvas_mood, {
@@ -207,21 +265,10 @@ async function create_mood_chart() {
                 }
             },
             onClick: async (event, chartElement) => {
-                // Legacy function to scroll to Pixel card
-                /*
-                const points = mood_chart_instance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
-                if (points.length > 0) {
-                    const pointIndex = points[0].index;
-                    const labelText = mood_chart_instance.data.labels[pointIndex];
-                    const dateText = normalize_date(labelText);
-
-                    show_pixel_card(dateText, scroll=true);
-                }
-                */
-                display_floating_card(data, chartElement, pinCard=true);
+                display_floating_card(data, chartElement, pinCard = true);
 
                 hoverDelay = true;
-                setTimeout(() => {hoverDelay = false}, 1000);
+                setTimeout(() => { hoverDelay = false }, 1000);
             },
             onHover: async function (event, chartElement) {
                 if (!moodShowPixelCard) { return; }
@@ -302,7 +349,7 @@ async function create_tag_score_chart() {
 
         tag_scores_container.style.display = "block";
         canvas_tag_score.height = `${maximum([150, 15 * averages.length])}`;
-        
+
         tags_score_chart_instance = new Chart(canvas_tag_score, {
             type: "bar",
             data: {
@@ -490,7 +537,7 @@ async function create_month_chart() {
                 data: month_data.map(([_, avg]) => avg.toFixed(2)),
                 backgroundColor: monthSeasonColors ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
             },
-        ]
+            ]
         },
         options: {
             responsive: true,
@@ -514,22 +561,22 @@ async function create_month_chart() {
 
 
 
-    canvas_mood.addEventListener("mousemove", async (e) => {
-        if (isCardPinned || hoverDelay) { return; }
-        const x = e.clientX + window.scrollX;
-        const y = e.clientY + window.scrollY;
-        const margin = -10;
-        
-        container_floating_card.style.top = `${y + margin}px`;
-        if (2*x > window.innerWidth) {
-            container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
-            container_floating_card.style.left = "auto";
-        }
-        else {
-            container_floating_card.style.left = `${x + margin}px`;
-            container_floating_card.style.right = "auto";
-        }
-    });
+canvas_mood.addEventListener("mousemove", async (e) => {
+    if (isCardPinned || hoverDelay) { return; }
+    const x = e.clientX + window.scrollX;
+    const y = e.clientY + window.scrollY;
+    const margin = -10;
+
+    container_floating_card.style.top = `${y + margin}px`;
+    if (2 * x > window.innerWidth) {
+        container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
+        container_floating_card.style.left = "auto";
+    }
+    else {
+        container_floating_card.style.left = `${x + margin}px`;
+        container_floating_card.style.right = "auto";
+    }
+});
 
 
 container_floating_card.addEventListener("mouseleave", () => {
