@@ -23,6 +23,7 @@ On the desktop version, you can hover every settings label to see more informati
   - [Word cloud](#word-cloud)
   - [Create Pixels image](#create-pixels-image)
   - [Search Pixels by date](#search-pixels-by-date)
+  - [Last notes](#last-notes)
   - [Troubleshooting](#troubleshooting)
   - [Contribute](#contribute)
 
@@ -191,8 +192,10 @@ Open the additional settings panel by clicking the "Settings" button.
 
 Type a date or enable `Use calendar` to pick a date. After selecting a date, the Pixel card is shown (if present) and you can navigate to previous/next day and previous/next year.
 
-**Keyboard / Accessibility**
-- `Enter` confirms dialogs. The UI uses standard controls and labels; hover labels give more info on desktop.
+
+## Last notes
+- Use `Enter` to confirms dialogs.  
+- If you want to change the locale used for date formatting (in the Pixels image legend for example), use `userLocale = "en-US"` in the browser console, replacing `en-US` with your desired locale code (e.g., `fr-FR` for French, `es-ES` for Spanish, etc).
 
 
 ## Troubleshooting
