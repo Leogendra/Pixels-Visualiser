@@ -57,6 +57,7 @@ const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 3500;
 const isMobile = window.innerWidth <= 800;
+let userLocale = "default";
 let initial_data = [];
 let current_data = [];
 let last_start_date = null;
@@ -110,12 +111,12 @@ const png_default_settings = {
     firstDayOfWeek: 1,
     squareSize: 50,
     borderSize: 0,
-    showBorder: false,
+    showBorder: true,
     showLegend: false,
     showDays: false,
     showFilter: 0,
-    scoreType: "avg",
-    layout: "vertical-weeks"
+    scoreType: "gradient",
+    layout: "vertical-months"
 };
 let png_settings = png_default_settings;
 
@@ -126,7 +127,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, duration=10000, type="msg") {
+function show_popup_message(message, type="msg", duration=10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -296,6 +297,7 @@ async function handle_file_upload(file) {
             
             await load_settings();
             update_stats_and_graphics();
+            document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
         }
     }
     catch (error) {
@@ -324,13 +326,13 @@ async function auto_load_data(filePath) {
 // Dialog words settings
 function open_words_dialog_settings() {
     words_dialog_settings.showModal();
-    words_dialog_settings.addEventListener('click', handle_click_words_dialog);
+    words_dialog_settings.addEventListener("click", handle_click_words_dialog);
 }
 
 
 function close_words_dialog_settings() {
     words_dialog_settings.close();
-    words_dialog_settings.removeEventListener('click', handle_click_words_dialog);
+    words_dialog_settings.removeEventListener("click", handle_click_words_dialog);
 }
 
 
@@ -380,6 +382,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Please drop a valid .json file");
             }
         }
+    });
+
+    // Tutorial
+    start_tutorial_button.addEventListener("click", function () {
+        start_tutorial();
     });
 
 
@@ -569,10 +576,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Save settings when a field is changed
-    const inputs = Array.from(document.querySelectorAll('input, select'));
+    const inputs = Array.from(document.querySelectorAll("input, select"));
 
     inputs.forEach(input => {
         if ((input.type === "file") || (input.type === "color")) { return; }
-        input.addEventListener('input', store_settings);
+        input.addEventListener("input", store_settings);
     });
 });

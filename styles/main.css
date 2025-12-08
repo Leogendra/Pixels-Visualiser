@@ -277,7 +277,7 @@ a {
     opacity: 0;
     overflow: hidden;
     transition: opacity 2s ease;
-    z-index: 99;
+    z-index: 10001;
     
     &.visible {
         opacity: 1;

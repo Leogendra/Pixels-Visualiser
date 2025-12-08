@@ -192,7 +192,7 @@ function get_pixel_color(scores, colors, scoreType) {
 
 async function set_tags_selects() {
     const all_tags = Object.keys(tag_stats.counts);
-    all_tags.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    all_tags.sort((a, b) => a.localeCompare(b, userLocale, { sensitivity: "base" }));
     if (!all_tags || all_tags.length === 0) {
         compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
         compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
@@ -304,6 +304,7 @@ async function generate_pixels_PNG() {
     ctx.fillStyle = textColor;
     ctx.font = `${squareSize * 0.25}px sans-serif`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = colors.empty;
     ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);   
 
@@ -324,7 +325,7 @@ async function generate_pixels_PNG() {
             // Labels for legend
             const year = d.getFullYear();
             const month = d.getMonth();
-            const monthLabel = d.toLocaleString("default", { month: "short" });
+            const monthLabel = d.toLocaleString(userLocale, { month: "short" });
 
             // Avoid drawing the first pixels if they are empty
             if (!firstPixelDrawn) {
@@ -452,10 +453,7 @@ async function generate_pixels_PNG() {
 
                 ctx.fillStyle = textColor;
                 ctx.font = `bold ${radius * 1.2}px sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
                 ctx.fillText(dayNumber, centerX, centerY);
-                ctx.textBaseline = "alphabetic"; // Reset baseline to default
             }
 
         });
@@ -470,7 +468,7 @@ async function generate_pixels_PNG() {
             const weekdays = 7;
             for (let i = 0; i < weekdays; i++) {
                 const date = new Date(2024, 0, 7 + ((i + firstDayOfWeek) % 7));
-                const label = date.toLocaleDateString("default", { weekday: "short" });
+                const label = date.toLocaleDateString(userLocale, { weekday: "short" });
                 if (direction === "row") {
                     ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
                 } 
@@ -531,7 +529,8 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target = isTag ? normalize_string(keyword) : parse_logical_string(keyword);
+    const target = isTag ? normalize_string(keyword) : compute_regex(parse_logical_string(keyword));
+    console.log("Filtering pixels by", isTag ? "tag" : "keyword", ":", target);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -549,7 +548,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
         }
         else {
             hasMatch = target.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
         
@@ -574,8 +573,8 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     result.push({ date: firstDate, scores: [] });
     result.push({ date: lastDate, scores: [] });
 
-    const target1 = isTag1 ? normalize_string(keyword1) : parse_logical_string(keyword1);
-    const target2 = isTag2 ? normalize_string(keyword2) : parse_logical_string(keyword2);
+    const target1 = isTag1 ? normalize_string(keyword1) : compute_regex(parse_logical_string(keyword1));
+    const target2 = isTag2 ? normalize_string(keyword2) : compute_regex(parse_logical_string(keyword2));
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);
@@ -596,7 +595,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         else {
             const notes = normalize_string(pixel.notes || "");
             match1 = target1.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
 
@@ -611,7 +610,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         else {
             const notes = normalize_string(pixel.notes || "");
             match2 = target2.every(orGroup =>
-                orGroup.some(term => notes.includes(term))
+                orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
 
@@ -689,12 +688,12 @@ async function set_filter_display() {
 
 function open_dialog_settings() {
     dialog_settings.showModal();
-    dialog_settings.addEventListener('click', handle_click_dialog);
+    dialog_settings.addEventListener("click", handle_click_dialog);
 }
 
 
 function close_dialog_settings(save = false) {
-    dialog_settings.removeEventListener('click', handle_click_dialog);
+    dialog_settings.removeEventListener("click", handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
     create_scores_pie_chart();
@@ -726,7 +725,7 @@ btn_reset_palette_settings.addEventListener("click", () => {
 
 btn_save_palette_settings.addEventListener("click", () => {
     close_dialog_settings(save=true);
-    show_popup_message("Palette settings saved", 3000, "success");
+    show_popup_message("Palette settings saved", "success", 3000);
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {

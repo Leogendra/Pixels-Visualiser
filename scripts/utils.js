@@ -11,10 +11,9 @@ function maximum(array) {
 
 
 function average(array) {
-    array = array.filter(val => val !== null && val !== undefined);
-    if (array.length === 0) return null;
-    const somme = array.reduce((acc, val) => acc + val, 0);
-    return somme / array.length;
+    array = array.filter(val => (val !== null) && (val !== undefined));
+    if (array.length === 0) { return null; }
+    return array.reduce((acc, val) => acc + val, 0) / array.length;
 };
 
 
@@ -37,17 +36,17 @@ function escape_regex(str) {
 function parse_logical_string(expr) {
     /*
         Parses a logical expression string into a CNF (Conjunctive Normal Form) array
-        Supports parentheses and logical operators: || (OR), && (AND)
-        && operator has higher precedence than ||
+        Supports parentheses and logical operators: || or , (OR), && (AND)
+        && operator has higher precedence than || or ,
         Example: "a || b && c" <=> "a || (b && c)" becomes [["a", "b"], ["a", "c"]] in CNF, meaning "(a OR b) AND (a OR c)"
     */
-    const regex = /\(|\)|\|\||&&|[^()&|]+/g;
+    const regex = /\(|\)|\|\||&&|,|[^()&,|]+/g;
     const tokens = expr.match(regex).map(token => normalize_string(token)).filter(Boolean);
 
     let index = 0;
     function parse_expression() {
         let left = parse_and();
-        while (tokens[index] === "||") {
+        while (tokens[index] === "||" || tokens[index] === ",") {
             index++;
             const right = parse_and();
             left = { type: "OR", left, right };
@@ -136,6 +135,15 @@ function parse_logical_string(expr) {
     return flatten_to_array(cnf_ast);
 }
 
+
+function compute_regex(cnf_array) {
+    return cnf_array.map(orGroup => {
+        return orGroup.map(term => {
+            const pattern = `(?<!\\p{L}|\\p{N})${escape_regex(term)}(?!\\p{L}|\\p{N})`;
+            return regex = new RegExp(pattern, "iu");
+        });
+    });
+}
 
 
 //////////////// Dates ////////////////

@@ -37,8 +37,8 @@ async function get_stopwords_settings() {
                                                           .map(word => normalize_string(word))
                                                           .filter(word => word !== ""));
     STOP_WORDS = new Set([...default_stopwords, ...custom_stopwords]);
-    get_word_frequency(minScore, searchTerm);
-    create_word_frequency_section(current_data, nbMaxWords, nbMinCount, wordcloudPercentage, searchTerm);
+    get_word_frequency();
+    create_word_frequency_section();
 }
 
 
@@ -86,7 +86,7 @@ async function set_custom_stopwords(user_stopwords) {
 function open_stopwords_dialog_settings() {
     close_words_dialog_settings();
     stopwords_dialog_settings.showModal();
-    stopwords_dialog_settings.addEventListener('click', handle_click_stopwords_dialog);
+    stopwords_dialog_settings.addEventListener("click", handle_click_stopwords_dialog);
 }
 
 
@@ -94,7 +94,7 @@ function close_stopwords_dialog_settings() {
     get_stopwords_settings();
     store_settings();
     stopwords_dialog_settings.close();
-    stopwords_dialog_settings.removeEventListener('click', handle_click_stopwords_dialog);
+    stopwords_dialog_settings.removeEventListener("click", handle_click_stopwords_dialog);
 }
 
 

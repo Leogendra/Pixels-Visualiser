@@ -213,10 +213,6 @@ input[type="color"], select {
             font-size: 1rem;
             color: var(--text-color);
         }
-
-        & .empty-line {
-            height: 1rem;
-        }
     }
 
     & .dialog-buttons {
@@ -230,6 +226,10 @@ input[type="color"], select {
             margin: 0;
         }
     }
+}
+
+.empty-line {
+    height: 1rem;
 }
 
 
