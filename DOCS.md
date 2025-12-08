@@ -141,7 +141,7 @@ You can try this type of search if you are familiar with search patterns.
 Remember, searches always uses all the parameters above (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
 
 <div align="center">
-    <img src="assets/screenshots/word-frequency.png" alt="Word frequency list and search" />
+    <img src="assets/screenshots/words.png" alt="Word frequency list and search" />
 </div>
 
 
