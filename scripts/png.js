@@ -304,6 +304,7 @@ async function generate_pixels_PNG() {
     ctx.fillStyle = textColor;
     ctx.font = `${squareSize * 0.25}px sans-serif`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = colors.empty;
     ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);   
 
@@ -452,10 +453,7 @@ async function generate_pixels_PNG() {
 
                 ctx.fillStyle = textColor;
                 ctx.font = `bold ${radius * 1.2}px sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
                 ctx.fillText(dayNumber, centerX, centerY);
-                ctx.textBaseline = "alphabetic"; // Reset baseline to default
             }
 
         });
