@@ -37,8 +37,8 @@ function fill_missing_dates(data) {
     if (!Array.isArray(data) || data.length === 0) return [];
 
     data.sort((a, b) => {
-        const [y1, m1, d1] = a.date.split('-').map(Number);
-        const [y2, m2, d2] = b.date.split('-').map(Number);
+        const [y1, m1, d1] = a.date.split("-").map(Number);
+        const [y2, m2, d2] = b.date.split("-").map(Number);
         return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
     });
 
@@ -50,8 +50,8 @@ function fill_missing_dates(data) {
         const next = data[i + 1];
         result.push(current);
 
-        const [y1, m1, d1] = current.date.split('-').map(Number);
-        const [y2, m2, d2] = next.date.split('-').map(Number);
+        const [y1, m1, d1] = current.date.split("-").map(Number);
+        const [y2, m2, d2] = next.date.split("-").map(Number);
         let pointer = new Date(y1, m1 - 1, d1);
         const target = new Date(y2, m2 - 1, d2);
 
@@ -175,7 +175,7 @@ async function create_mood_chart() {
     }
 
     /*
-    // take the average over the last `moodAveragingValue` days
+    // average over the last `moodAveragingValue` days
     averagedScores = rawScores.map((scores, i) => {
         if (scores == null) { return null; }
         const windowStart = Math.max(0, i - moodAveragingValue + 1);
@@ -215,19 +215,21 @@ async function create_mood_chart() {
     */
 
     // weighted moving average centered on each day
-    const averagedScores = rawScores.map((value, i) => {
-        if (value == null) return null;
+    const half = Math.floor(moodAveragingValue / 2);
+    const halfOddCorrection = ((moodAveragingValue % 2) === 1) ? 1 : 0;
 
-        const half = Math.floor(moodAveragingValue / 2);
-        const start = Math.max(0, i - half);
-        const end   = Math.min(rawScores.length - 1, i + half);
+    const averagedScores = rawScores.map((value, i) => {
+        if (value == null) { return null; }
+
+        const start = Math.max(0, i - (half + halfOddCorrection));
+        const end = Math.min(rawScores.length - 1, i + half);
 
         let weightedSum = 0;
         let weightTotal = 0;
 
         for (let j = start; j <= end; j++) {
             const distance = Math.abs(j - i);
-            const weight = half + 1 - distance; 
+            const weight = half + halfOddCorrection + 1 - distance;
             
             const score = rawScores[j];
             if (score != null) {
