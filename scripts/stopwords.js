@@ -86,7 +86,7 @@ async function set_custom_stopwords(user_stopwords) {
 function open_stopwords_dialog_settings() {
     close_words_dialog_settings();
     stopwords_dialog_settings.showModal();
-    stopwords_dialog_settings.addEventListener('click', handle_click_stopwords_dialog);
+    stopwords_dialog_settings.addEventListener("click", handle_click_stopwords_dialog);
 }
 
 
@@ -94,7 +94,7 @@ function close_stopwords_dialog_settings() {
     get_stopwords_settings();
     store_settings();
     stopwords_dialog_settings.close();
-    stopwords_dialog_settings.removeEventListener('click', handle_click_stopwords_dialog);
+    stopwords_dialog_settings.removeEventListener("click", handle_click_stopwords_dialog);
 }
 
 

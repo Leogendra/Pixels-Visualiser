@@ -192,7 +192,7 @@ function get_pixel_color(scores, colors, scoreType) {
 
 async function set_tags_selects() {
     const all_tags = Object.keys(tag_stats.counts);
-    all_tags.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    all_tags.sort((a, b) => a.localeCompare(b, userLocale, { sensitivity: "base" }));
     if (!all_tags || all_tags.length === 0) {
         compareTagSelect1.innerHTML = "<option value=''>No tags available</option>";
         compareTagSelect2.innerHTML = "<option value=''>No tags available</option>";
@@ -324,7 +324,7 @@ async function generate_pixels_PNG() {
             // Labels for legend
             const year = d.getFullYear();
             const month = d.getMonth();
-            const monthLabel = d.toLocaleString("default", { month: "short" });
+            const monthLabel = d.toLocaleString(userLocale, { month: "short" });
 
             // Avoid drawing the first pixels if they are empty
             if (!firstPixelDrawn) {
@@ -690,12 +690,12 @@ async function set_filter_display() {
 
 function open_dialog_settings() {
     dialog_settings.showModal();
-    dialog_settings.addEventListener('click', handle_click_dialog);
+    dialog_settings.addEventListener("click", handle_click_dialog);
 }
 
 
 function close_dialog_settings(save = false) {
-    dialog_settings.removeEventListener('click', handle_click_dialog);
+    dialog_settings.removeEventListener("click", handle_click_dialog);
     if (save) { png_settings = get_image_settings(); }
     set_image_settings(png_settings);
     create_scores_pie_chart();

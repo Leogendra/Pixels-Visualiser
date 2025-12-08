@@ -11,10 +11,9 @@ function maximum(array) {
 
 
 function average(array) {
-    array = array.filter(val => val !== null && val !== undefined);
-    if (array.length === 0) return null;
-    const somme = array.reduce((acc, val) => acc + val, 0);
-    return somme / array.length;
+    array = array.filter(val => (val !== null) && (val !== undefined));
+    if (array.length === 0) { return null; }
+    return array.reduce((acc, val) => acc + val, 0) / array.length;
 };
 
 

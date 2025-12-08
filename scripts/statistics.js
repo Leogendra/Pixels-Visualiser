@@ -181,7 +181,7 @@ function compute_weekdays_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const day = date.toLocaleString('en-US', { weekday: 'long' });
+        const day = date.toLocaleString(userLocale, { weekday: "long" });
 
         if (!weekdays_stats[day]) {
             weekdays_stats[day] = { total: 0, count: 0 };
@@ -199,7 +199,7 @@ function compute_months_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const month = date.toLocaleString('en-US', { month: 'long' });
+        const month = date.toLocaleString(userLocale, { month: "long" });
         if (!months_stats[month]) {
             months_stats[month] = { total: 0, count: 0 };
         }
@@ -456,8 +456,8 @@ async function update_wordcloud() {
 
 async function download_wordcloud() {
     const canvas = wordcloud_canvas;
-    const link = document.createElement('a');
-    link.download = 'wordcloud.png';
-    link.href = canvas.toDataURL('image/png');
+    const link = document.createElement("a");
+    link.download = "wordcloud.png";
+    link.href = canvas.toDataURL("image/png");
     link.click();
 }
