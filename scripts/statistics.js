@@ -181,13 +181,13 @@ function compute_weekdays_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const day = date.toLocaleString(userLocale, { weekday: "long" });
+        const dayIndex = date.getDay();
 
-        if (!weekdays_stats[day]) {
-            weekdays_stats[day] = { total: 0, count: 0 };
+        if (!weekdays_stats[dayIndex]) {
+            weekdays_stats[dayIndex] = { total: 0, count: 0 };
         }
-        weekdays_stats[day].total += avgScore;
-        weekdays_stats[day].count += 1;
+        weekdays_stats[dayIndex].total += avgScore;
+        weekdays_stats[dayIndex].count += 1;
     });
 }
 
@@ -199,13 +199,16 @@ function compute_months_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const month = date.toLocaleString(userLocale, { month: "long" });
-        if (!months_stats[month]) {
-            months_stats[month] = { total: 0, count: 0 };
+        const monthIndex = date.getMonth();
+
+        if (!months_stats[monthIndex]) {
+            months_stats[monthIndex] = { total: 0, count: 0 };
         }
-        months_stats[month].total += avgScore;
-        months_stats[month].count += 1;
+        months_stats[monthIndex].total += avgScore;
+        months_stats[monthIndex].count += 1;
     });
+
+    console.log("Months stats:", months_stats);
 }
 
 
