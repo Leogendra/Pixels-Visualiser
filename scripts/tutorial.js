@@ -76,9 +76,9 @@ function create_tutorial_elements() {
     tutorial_box.innerHTML = `
     <p id="tutorialMessage"></p>
     <div id="tutorialControls">
-        <button id="tutorialQuit" class="button button-secondary">Quit</button>
+        <button id="tutorialQuit" style="font-weight: bold;" class="button button-secondary">X</button>
         <button id="tutorialBack" class="button">Back</button>
-        <button id="tutorialNext" class="button">Next</button>
+        <button id="tutorialNext" class="button">➡️ Next</button>
     </div>
     `;
 

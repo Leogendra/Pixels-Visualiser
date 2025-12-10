@@ -1,7 +1,7 @@
 const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
-const privacy_notice = document.querySelector("#privacyNotice");
+const div_intro_content = document.querySelector("#introContent");
 
 const content_container = document.querySelector("#content");
 const stats_content_container = document.querySelector("#stats-content");
@@ -181,7 +181,7 @@ function fill_empty_dates(data) {
 
 
 async function update_stats_and_graphics() {
-    privacy_notice.style.display = "none";
+    div_intro_content.style.display = "none";
     content_container.style.display = "block";
     
     if (current_data.length === 0) {
