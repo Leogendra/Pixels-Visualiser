@@ -181,13 +181,13 @@ function compute_weekdays_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const day = date.toLocaleString(userLocale, { weekday: "long" });
+        const dayIndex = date.getDay();
 
-        if (!weekdays_stats[day]) {
-            weekdays_stats[day] = { total: 0, count: 0 };
+        if (!weekdays_stats[dayIndex]) {
+            weekdays_stats[dayIndex] = { total: 0, count: 0 };
         }
-        weekdays_stats[day].total += avgScore;
-        weekdays_stats[day].count += 1;
+        weekdays_stats[dayIndex].total += avgScore;
+        weekdays_stats[dayIndex].count += 1;
     });
 }
 
@@ -199,12 +199,13 @@ function compute_months_stats() {
         const avgScore = average(entry.scores);
         if (!avgScore) { return; }
         const date = new Date(entry.date);
-        const month = date.toLocaleString(userLocale, { month: "long" });
-        if (!months_stats[month]) {
-            months_stats[month] = { total: 0, count: 0 };
+        const monthIndex = date.getMonth();
+
+        if (!months_stats[monthIndex]) {
+            months_stats[monthIndex] = { total: 0, count: 0 };
         }
-        months_stats[month].total += avgScore;
-        months_stats[month].count += 1;
+        months_stats[monthIndex].total += avgScore;
+        months_stats[monthIndex].count += 1;
     });
 }
 
@@ -223,7 +224,6 @@ function get_word_frequency() {
         .filter(word => word);
 
     let searchPattern = null;
-    let stopConditions = [];
     if (wordRegexSearch && searchTextLower) {
         try {
             searchPattern = new RegExp(searchTextLower, "gi");
@@ -234,23 +234,31 @@ function get_word_frequency() {
     }
     else if (searchTextLower.includes("*") && searchTextLower.length > 1) {
         if (searchTextLower.includes("***")) {
-            const tripleStarRegex = /\*\*\*\s*(\[[^\]]*\]\s*)?/g; // detect ***[...][...]
-            const stopExtractRegex = /\[([^\]]*)\]/g; // extract content inside []
-            let tripleStarMatch = tripleStarRegex.exec(searchTextLower);
+            if (!searchTextLower.trim().startsWith("***")) { // avoid matching text if it's just ***
+                const tripleStarRegex = /\*\*\*(?:\[[^\]]*\])*/; // detect ***[...][...]
+                const stopExtractRegex = /\[([^\]]*)\]/g; // extract content inside []
+                let tripleStarMatch = tripleStarRegex.exec(searchTextLower);
 
-            if (tripleStarMatch) {
-                stopConditions = ["\n"]; // add \n by default
-                let inner;
-                while ((inner = stopExtractRegex.exec(tripleStarMatch[0])) !== null) {
-                    stopConditions.push(inner[1]);
+                if (tripleStarMatch) {
+                    let stopConditions = ["$", "\\n"]; // stop to \n and end of string by default
+                    stopExtractRegex.lastIndex = 0;
+                    
+                    let inner;
+                    while ((inner = stopExtractRegex.exec(tripleStarMatch[0])) !== null) {
+                        const val = inner[1];
+                        if (val) {
+                            stopConditions.push(escape_regex(val));
+                        }
+                    }
+
+                    const beforeText = escape_regex(searchTextLower.slice(0, tripleStarMatch.index).trim());
+                    const pattern = `\\b${beforeText}\\b[ \\t]+(.*?)(?=[ \\t]*(?:${stopConditions.join("|")}))`;
+                    searchPattern = new RegExp(pattern, "gi");
                 }
-                const before = escape_regex(searchTextLower.slice(0, tripleStarMatch.index).trim());
-                const pattern = `${before}\\s*(.*?)\\s*(?=${stopConditions.map(stopCond => escape_regex(stopCond)).join("|")})`;
-                searchPattern = new RegExp(pattern, "gi");
             }
         }
         else {
-            if (searchTextLower.includes("**")) {
+            if (searchTextLower.includes("**")) { // avoid misspelling * with **
                 searchTextLower = searchTextLower.replace(/\*\*/g, "*");
             }
             const pattern = searchTextLower
@@ -262,80 +270,78 @@ function get_word_frequency() {
     }
 
     current_data.forEach(entry => {
-        const average_score = average(entry.scores);
-        if (average_score < wordMinScore) { return; }
+        const averageScore = average(entry.scores);
+        if (averageScore < wordMinScore) { return; }
 
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
 
-        // Add the search term as a word if it matches the notes
+        // add the search term as a word if it matches the notes
         if (searchTextLower && !wordRegexSearch) {
             if (notesLower.includes(searchTextLower)) {
                 if (!(searchTextLower in words_data)) {
                     words_data[searchTextLower] = { count: 0, scores: [] };
                 }
-                // Count number of appearances and add the score
+                // count number of appearances and add the score
                 words_data[searchTextLower].count += notesLower.split(searchTextLower).length - 1
                 words_data[searchTextLower].scores.push(average(entry.scores));
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
-                // Save time by skipping this entry if no search words match
+                // save time by skipping this entry if no search words match
                 return;
             }
         }
 
-        // Filter words of the notes
+        // filter words of the notes
         let words = wordRegexSearch
             ? []
             : notesLower
                 .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
                 .split(/\s+/)
                 .filter(word =>
-                    (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // Word is at least 3 letters long or emoji
-                    (!STOP_WORDS.has(word)) && // Word is not a stop word
-                    ((searchWords.length === 0) || (word !== searchTextLower)) && // Word is not the search term (avoid duplicates)
+                    (word.replace(/[^a-zA-Z]/g, "").length >= 3 || /\p{Extended_Pictographic}/u.test(word)) && // word is at least 3 letters long or emoji
+                    (!STOP_WORDS.has(word)) && // word is not a stop word
+                    ((searchWords.length === 0) || (word !== searchTextLower)) && // word is not the search term (avoid duplicates)
                     (
-                        (searchWords.length === 0) || // Either no search words or
+                        (searchWords.length === 0) || // either no search words or
                         searchWords.some((sw, i) => {
-                            if (i === searchWords.length - 1) { // Last search word can be a prefix or exact match
+                            if (i === searchWords.length - 1) { // last search word can be a prefix or exact match
                                 return (word.startsWith(sw) || sw.startsWith(word));
                             }
-                            else { // Other search words must be exact matches
+                            else { // other search words must be exact matches
                                 return (word === sw);
                             }
                         })
                     )
                 );
 
-        // If searchPattern is defined, find words that match the pattern
+        // if searchPattern is defined, find words that match the pattern
         if (searchPattern) {
             let match;
             let nbMatches = 0;
+            searchPattern.lastIndex = 0;
             while ((match = searchPattern.exec(notesLower)) !== null) {
                 nbMatches++;
-                if (nbMatches > 100) { break; } // Limit to 100 matches to avoid performance issues
-                if (match.length > 2) {
-                    const fullMatchedText = match[0];
-                    if (!(fullMatchedText in words_data)) {
-                        words_data[fullMatchedText] = { count: 0, scores: [] };
-                    }
-                    words_data[fullMatchedText].count += 1;
-                    words_data[fullMatchedText].scores.push(average_score);
-                }
+                if (nbMatches > 100) { break; } // limit to 100 matches to avoid performance issues
 
-                // one or more words captured by the pattern (if multiple *)
                 for (let i = 1; i < match.length; i++) {
-                    let capturedWord = match[i];
-                    if (!capturedWord) { continue; }
+                    let captured = match[i];
+                    if (!captured) { continue; }
+
                     if (splitWordsFlag) {
-                        capturedWord = `${i}-${capturedWord}`; // Prefix the index to the captured word
+                        captured = `${i}-${captured}`;
                     }
 
-                    if (!(capturedWord in words_data)) {
-                        words_data[capturedWord] = { count: 0, scores: [] };
+                    // split match for ***[] patterns
+                    const words_captured = captured.split(/\s+/);
+                    for (let k = 1; k <= words_captured.length; k++) {
+                        const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, '').trim(); // remove , . and trim
+                        if (!(sub in words_data)) {
+                            words_data[sub] = { count: 0, scores: [] };
+                        }
+                        words_data[sub].count += 1;
+                        words_data[sub].scores.push(averageScore);
                     }
-                    words_data[capturedWord].count += 1;
-                    words_data[capturedWord].scores.push(average_score);
                 }
             }
         }
@@ -347,7 +353,7 @@ function get_word_frequency() {
                 words_data[word] = { count: 0, scores: [] };
             }
             words_data[word].count += 1;
-            words_data[word].scores.push(average_score);
+            words_data[word].scores.push(averageScore);
         });
 
     });

@@ -454,14 +454,21 @@ async function sync_tag_charts_hover() {
 
 async function create_weekday_chart() {
     const firstDayOfWeek = png_settings.firstDayOfWeek
-    let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    daysOfWeek = daysOfWeek.slice(firstDayOfWeek).concat(daysOfWeek.slice(0, firstDayOfWeek));
 
-    const week_days = Object.entries(weekdays_stats)
-        .map(([day, { total, count }]) => ([day, total / count]))
-        .sort((a, b) => {
-            return daysOfWeek.indexOf(a[0]) - daysOfWeek.indexOf(b[0]);
-        });
+    const ordered_day_indices = Array.from({ length: 7 }, (_, i) => (firstDayOfWeek + i) % 7);
+    
+    const baseSunday = new Date(2025, 11, 7); // Sunday
+    const days_labels = ordered_day_indices.map(idx => {
+        const day = new Date(baseSunday);
+        day.setDate(baseSunday.getDate() + idx);
+        return day.toLocaleString(userLocale, { weekday: "long" });
+    });
+
+    const data = ordered_day_indices.map(idx => {
+        const stat = weekdays_stats[idx];
+        if (!stat) { return null; }
+        return (stat.total / stat.count).toFixed(2);
+    });
 
     if (week_score_chart_instance) {
         week_score_chart_instance.destroy();
@@ -469,10 +476,10 @@ async function create_weekday_chart() {
     week_score_chart_instance = new Chart(weekdays_score, {
         type: "bar",
         data: {
-            labels: week_days.map(([day, _]) => day),
+            labels: days_labels,
             datasets: [{
                 label: "Weekdays",
-                data: week_days.map(([_, avg]) => avg.toFixed(2)),
+                data: data,
                 backgroundColor: tertiaryColor,
             }]
         },
@@ -505,26 +512,32 @@ async function create_month_chart() {
     }
 
     const month_seasons = {
-        "January": "winter",
-        "February": "winter",
-        "March": "spring",
-        "April": "spring",
-        "May": "spring",
-        "June": "summer",
-        "July": "summer",
-        "August": "summer",
-        "September": "autumn",
-        "October": "autumn",
-        "November": "autumn",
-        "December": "winter",
+        0: "winter",
+        1: "winter",
+        2: "spring",
+        3: "spring",
+        4: "spring",
+        5: "summer",
+        6: "summer",
+        7: "summer",
+        8: "autumn",
+        9: "autumn",
+        10: "autumn",
+        11: "winter",
     };
+    
+    const month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
+        const day = new Date(2025, monthIndex, 1);
+        return day.toLocaleString(userLocale, { month: "long" });
+    });
+    const all_month_indices = Array.from({ length: 12 }, (_, i) => i);
 
-    const month_data = Object.keys(month_seasons)
-        .filter(month => months_stats[month])
-        .map(month => [
-            month,
-            months_stats[month].total / months_stats[month].count
-        ]);
+    const month_data = all_month_indices
+    .map(idx => ({
+        index: idx,
+        label: month_labels[idx],
+        avg: months_stats[idx] ? (months_stats[idx].total / months_stats[idx].count).toFixed(2) : 0
+    }));
 
     if (month_score_chart_instance) {
         month_score_chart_instance.destroy();
@@ -532,11 +545,11 @@ async function create_month_chart() {
     month_score_chart_instance = new Chart(months_score, {
         type: "bar",
         data: {
-            labels: month_data.map(([month, _]) => month),
+            labels: month_labels,
             datasets: [{
                 label: "Months",
-                data: month_data.map(([_, avg]) => avg.toFixed(2)),
-                backgroundColor: monthSeasonColors ? month_data.map(([month, _]) => seasons_colors[month_seasons[month]]) : secondaryColor,
+                data: month_data.map(({ avg }) => avg),
+                backgroundColor: monthSeasonColors ? month_data.map(({ index }) => seasons_colors[month_seasons[index]]) : secondaryColor,
             },
             ]
         },

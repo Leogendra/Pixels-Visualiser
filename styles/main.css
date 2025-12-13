@@ -27,6 +27,7 @@ body {
 }
 
 a {
+    color: var(--primary-color);
     text-decoration: none;
 }
 
