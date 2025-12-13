@@ -266,14 +266,13 @@ async function create_mood_chart() {
                     max: maxValue
                 }
             },
-            onClick: async (event, chartElement) => {
+            onClick: async (_, chartElement) => {
                 display_floating_card(data, chartElement, pinCard = true);
 
                 hoverDelay = true;
                 setTimeout(() => { hoverDelay = false }, 1000);
             },
-            onHover: async function (event, chartElement) {
-                if (!moodShowPixelCard) { return; }
+            onHover: async function (_, chartElement) {
                 display_floating_card(data, chartElement);
             },
             plugins: {
@@ -582,7 +581,7 @@ canvas_mood.addEventListener("mousemove", async (e) => {
 
 
 container_floating_card.addEventListener("mouseleave", () => {
-    if (!hoverDelay) {
+    if (moodFloatPixelCard && !hoverDelay) {
         container_floating_card.style.display = "none";
         container_floating_card.innerHTML = "";
     }
