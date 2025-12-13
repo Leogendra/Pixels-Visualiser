@@ -46,6 +46,7 @@ function calculate_and_display_stats() {
     const allScores = current_data.flatMap(entry => entry.scores);
     const streaks = calculate_streaks();
     const moodCounts = {};
+    averageScore = average(allScores);
 
     allScores.forEach(score => {
         moodCounts[score] = (moodCounts[score] || 0) + 1;
@@ -53,7 +54,7 @@ function calculate_and_display_stats() {
 
     stats_array = [
         { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
-        { title: "Average score", value: `<p>${average(allScores).toFixed(2)}</p>` },
+        { title: "Average score", value: `<p>${averageScore.toFixed(2)}</p>` },
         { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
         { title: "Score distribution", value: "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>" },
     ];

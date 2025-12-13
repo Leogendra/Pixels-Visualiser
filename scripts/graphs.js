@@ -111,16 +111,16 @@ async function create_mood_chart() {
     // add average line
     const annotations = {};
     if (moodShowAverage) {
-        annotations["mean"] = {
+        annotations["average"] = {
             type: "line",
             mode: "horizontal",
             scaleID: "y",
-            value: average(rawScores.filter(score => (score !== null))),
+            value: averageScore,
             borderColor: "#ff4444",
             borderWidth: 2,
             label: {
                 enabled: false,
-                content: `Mean: ${average(rawScores.filter(score => (score !== null))).toFixed(2)}`,
+                content: `Average: ${averageScore.toFixed(2)}`,
                 position: "top",
                 backgroundColor: "rgba(0,0,0,0.6)",
                 font: {
@@ -174,46 +174,6 @@ async function create_mood_chart() {
         });
     }
 
-    /*
-    // average over the last `moodAveragingValue` days
-    averagedScores = rawScores.map((scores, i) => {
-        if (scores == null) { return null; }
-        const windowStart = Math.max(0, i - moodAveragingValue + 1);
-        let sum = 0;
-        let count = 0;
-        for (let j = windowStart; j <= i; j++) {
-            const score = rawScores[j];
-            if (score !== null) {
-                sum += score;
-                count++;
-            }
-        }
-        return count > 0 ? sum / count : null;
-    });
-
-    // moving average centered on each day
-    averagedScores = rawScores.map((value, i) => {
-        if (value == null) { return null; }
-
-        const half = Math.floor(moodAveragingValue / 2);
-        const start = Math.max(0, i - half);
-        const end = Math.min(rawScores.length - 1, i + half);
-
-        let sum = 0;
-        let count = 0;
-
-        for (let j = start; j <= end; j++) {
-            const score = rawScores[j];
-            if (score != null) {
-                sum += score;
-                count++;
-            }
-        }
-
-        return count > 0 ? sum / count : null;
-    });
-    */
-
     // weighted moving average centered on each day
     const half = Math.floor(moodAveragingValue / 2);
     const halfOddCorrection = ((moodAveragingValue % 2) === 1) ? 1 : 0;
@@ -230,7 +190,7 @@ async function create_mood_chart() {
         for (let j = start; j <= end; j++) {
             const distance = Math.abs(j - i);
             const weight = half + halfOddCorrection + 1 - distance;
-            
+
             const score = rawScores[j];
             if (score != null) {
                 weightedSum += score * weight;
@@ -323,7 +283,7 @@ async function create_tag_frequency_chart() {
                 plugins: {
                     legend: {
                         display: false
-                    },
+                    }
                 }
             }
         });
@@ -343,6 +303,39 @@ async function create_tag_score_chart() {
         .slice(0, nbMaxTags);
 
     if (averages.length > 0) {
+
+        // add average line
+        const annotations = {};
+        if (moodShowAverage) {
+            annotations["average"] = {
+                type: "line",
+                mode: "vertical",
+                scaleID: "x",
+                value: averageScore,
+                borderColor: primaryColor,
+                borderWidth: 1,
+                label: {
+                    enabled: false,
+                    content: `Average: ${averageScore.toFixed(2)}`,
+                    position: "top",
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                    font: {
+                        size: 10,
+                        weight: "bold"
+                    }
+                },
+                enter(ctx) {
+                    ctx.element.options.label.enabled = true;
+                    ctx.chart.draw();
+                },
+                leave(ctx) {
+                    ctx.element.options.label.enabled = false;
+                    ctx.chart.draw();
+                }
+            }
+        }
+
+
         if (tags_score_chart_instance) {
             detach_chart_hover(tags_score_chart_instance);
             tags_score_chart_instance.destroy();
@@ -376,6 +369,9 @@ async function create_tag_score_chart() {
                     legend: {
                         display: false
                     },
+                    annotation: {
+                        annotations: annotations
+                    }
                 }
             }
         });
@@ -456,7 +452,7 @@ async function create_weekday_chart() {
     const firstDayOfWeek = png_settings.firstDayOfWeek
 
     const ordered_day_indices = Array.from({ length: 7 }, (_, i) => (firstDayOfWeek + i) % 7);
-    
+
     const baseSunday = new Date(2025, 11, 7); // Sunday
     const days_labels = ordered_day_indices.map(idx => {
         const day = new Date(baseSunday);
@@ -469,6 +465,36 @@ async function create_weekday_chart() {
         if (!stat) { return null; }
         return (stat.total / stat.count).toFixed(2);
     });
+
+    const annotations = {};
+    if (moodShowAverage) {
+        annotations["average"] = {
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y",
+            value: averageScore,
+            borderColor: primaryColor,
+            borderWidth: 2,
+            label: {
+                enabled: false,
+                content: `Average: ${averageScore.toFixed(2)}`,
+                position: "top",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                font: {
+                    size: 10,
+                    weight: "bold"
+                }
+            },
+            enter(ctx) {
+                ctx.element.options.label.enabled = true;
+                ctx.chart.draw();
+            },
+            leave(ctx) {
+                ctx.element.options.label.enabled = false;
+                ctx.chart.draw();
+            }
+        }
+    }
 
     if (week_score_chart_instance) {
         week_score_chart_instance.destroy();
@@ -497,6 +523,9 @@ async function create_weekday_chart() {
                 legend: {
                     display: false
                 },
+                annotation: {
+                    annotations: annotations
+                }
             }
         }
     });
@@ -525,7 +554,7 @@ async function create_month_chart() {
         10: "autumn",
         11: "winter",
     };
-    
+
     const month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
         const day = new Date(2025, monthIndex, 1);
         return day.toLocaleString(userLocale, { month: "long" });
@@ -533,11 +562,41 @@ async function create_month_chart() {
     const all_month_indices = Array.from({ length: 12 }, (_, i) => i);
 
     const month_data = all_month_indices
-    .map(idx => ({
-        index: idx,
-        label: month_labels[idx],
-        avg: months_stats[idx] ? (months_stats[idx].total / months_stats[idx].count).toFixed(2) : 0
-    }));
+        .map(idx => ({
+            index: idx,
+            label: month_labels[idx],
+            avg: months_stats[idx] ? (months_stats[idx].total / months_stats[idx].count).toFixed(2) : 0
+        }));
+
+    const annotations = {};
+    if (moodShowAverage) {
+        annotations["average"] = {
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y",
+            value: averageScore,
+            borderColor: primaryColor,
+            borderWidth: 2,
+            label: {
+                enabled: false,
+                content: `Average: ${averageScore.toFixed(2)}`,
+                position: "top",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                font: {
+                    size: 10,
+                    weight: "bold"
+                }
+            },
+            enter(ctx) {
+                ctx.element.options.label.enabled = true;
+                ctx.chart.draw();
+            },
+            leave(ctx) {
+                ctx.element.options.label.enabled = false;
+                ctx.chart.draw();
+            }
+        }
+    }
 
     if (month_score_chart_instance) {
         month_score_chart_instance.destroy();
@@ -567,6 +626,9 @@ async function create_month_chart() {
                 legend: {
                     display: false
                 },
+                annotation: {
+                    annotations: annotations
+                }
             }
         }
     });

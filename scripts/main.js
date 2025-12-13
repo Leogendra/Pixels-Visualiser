@@ -54,8 +54,8 @@ const wordcloud_compression_input = document.querySelector("#wordcloudCompressio
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = true;
-const DEV_FILE_PATH = "../data/test.json"
+const DEV_MODE = false;
+const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 2000;
 const isMobile = window.innerWidth <= 800;
 let userLocale = "default";
@@ -71,6 +71,7 @@ let moodShowYears = false;
 let moodTimeOption = "mood";
 let moodFloatPixelCard = true;
 let cardWidth = 500;
+let averageScore = 0;
 
 // Tags
 let tag_stats = {};
@@ -356,6 +357,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     }
 
+    // If mobile, change the placeholder text of the search input
+    if (isMobile) {
+        words_search_input.placeholder = 'e.g. "good day"';
+        float_pixel_option.style.display = "none";
+        moodFloatPixelCard = false;
+    }
+
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
         await handle_file_upload(file);
@@ -427,7 +435,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     show_average_checkbox.addEventListener("change", (e) => {
         moodShowAverage = e.target.checked;
+        // add average on all charts
         create_mood_chart();
+        create_tag_frequency_chart();
+        create_tag_score_chart();
+        sync_tag_charts_hover();
+        create_month_chart();
+        create_weekday_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
@@ -470,7 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
         png_settings.firstDayOfWeek = parseInt(e.target.value);
-        create_weekday_chart(png_settings.firstDayOfWeek);
+        create_weekday_chart();
     });
 
 
@@ -558,13 +572,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn_download_wordcloud.addEventListener("click", () => {
         download_wordcloud();
     });
-
-    // If mobile, change the placeholder text of the search input
-    if (isMobile) {
-        words_search_input.placeholder = 'e.g. "good day"';
-        float_pixel_option.style.display = "none";
-        moodFloatPixelCard = false;
-    }
 
 
     // Export PNG
