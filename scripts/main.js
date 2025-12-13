@@ -18,8 +18,7 @@ const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
-const float_pixel_checkbox = document.querySelector("#floatPixelCheckbox");
-const float_pixel_option = document.querySelector("#floatPixelOption");
+const show_pixel_card_checkbox = document.querySelector("#showPixelCardCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
 const container_floating_card = document.querySelector("#hoverCardContainer");
 
@@ -56,7 +55,7 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 2000;
+const SCROLL_TO = 1000;
 const isMobile = window.innerWidth <= 800;
 let userLocale = "default";
 let initial_data = [];
@@ -69,7 +68,7 @@ let moodAveragingValue = 1;
 let moodShowAverage = false;
 let moodShowYears = false;
 let moodTimeOption = "mood";
-let moodFloatPixelCard = true;
+let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
 
@@ -360,8 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // If mobile, change the placeholder text of the search input
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
-        float_pixel_option.style.display = "none";
-        moodFloatPixelCard = false;
     }
 
     file_input.addEventListener("change", async (event) => {
@@ -449,8 +446,8 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mood_chart();
     });
 
-    float_pixel_checkbox.addEventListener("change", (e) => {
-        moodFloatPixelCard = e.target.checked;
+    show_pixel_card_checkbox.addEventListener("change", (e) => {
+        moodShowPixelCard = e.target.checked;
     });
 
     select_time_option.addEventListener("change", (e) => {

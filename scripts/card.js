@@ -154,18 +154,10 @@ function setup_card_resizeable_width(card_element) {
 
 
 async function display_floating_card(pixels_data, chartElement, pinCard = false) {
-    if (moodFloatPixelCard) {
-        if (hoverDelay) { return; } // avoid fickering when hovering quickly
-        container_floating_card.classList.add("floating-card");
+    if (hoverDelay) { return; }
 
-        if (chartElement.length === 0) {
-            container_floating_card.style.display = "none";
-            return;
-        }
-    }
-    else {
-        container_floating_card.classList.remove("floating-card");
-        if (chartElement.length === 0) { return; }
+    if (chartElement.length === 0) {
+        return;
     }
 
     const pixelIndex = chartElement[0].index;
@@ -173,15 +165,9 @@ async function display_floating_card(pixels_data, chartElement, pinCard = false)
     const card = await create_pixel_card(pixel);
 
     container_floating_card.innerHTML = "";
-    
-    if (!moodFloatPixelCard) {
-        setup_card_resizeable_width(card);
-    }
-
     container_floating_card.appendChild(card);
     container_floating_card.style.display = "block";  
-
-    isCardPinned = pinCard;
+    setup_card_resizeable_width(card);
 }
 
 

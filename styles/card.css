@@ -111,20 +111,6 @@
     }
 }
 
-#hoverCardContainer {
-    display: none;
-}
-.floating-card {
-    position: absolute;
-    z-index: 999;
-    transform: translate(12px, 12px);
-
-    & .pixel-card {
-        resize: none;
-        max-width: 500px;
-    }
-}
-
 
 .input-date {
     padding: 0.5rem 0.8rem;

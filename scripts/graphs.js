@@ -18,7 +18,6 @@ let tags_score_chart_instance = null;
 let week_score_chart_instance = null;
 let month_score_chart_instance = null;
 
-let isCardPinned = false;
 let hoverDelay = false;
 
 
@@ -116,7 +115,7 @@ async function create_mood_chart() {
             mode: "horizontal",
             scaleID: "y",
             value: averageScore,
-            borderColor: "#ff4444",
+            borderColor: secondaryColor,
             borderWidth: 2,
             label: {
                 enabled: false,
@@ -227,10 +226,10 @@ async function create_mood_chart() {
                 }
             },
             onClick: async (_, chartElement) => {
-                display_floating_card(data, chartElement, pinCard = true);
+                display_floating_card(data, chartElement);
 
                 hoverDelay = true;
-                setTimeout(() => { hoverDelay = false }, 1000);
+                setTimeout(() => { hoverDelay = false }, 2000);
             },
             onHover: async function (_, chartElement) {
                 display_floating_card(data, chartElement);
@@ -633,31 +632,3 @@ async function create_month_chart() {
         }
     });
 }
-
-
-
-
-canvas_mood.addEventListener("mousemove", async (e) => {
-    if (isCardPinned || hoverDelay) { return; }
-    const x = e.clientX + window.scrollX;
-    const y = e.clientY + window.scrollY;
-    const margin = -10;
-
-    container_floating_card.style.top = `${y + margin}px`;
-    if (2 * x > window.innerWidth) {
-        container_floating_card.style.right = `${window.innerWidth - x + margin}px`;
-        container_floating_card.style.left = "auto";
-    }
-    else {
-        container_floating_card.style.left = `${x + margin}px`;
-        container_floating_card.style.right = "auto";
-    }
-});
-
-
-container_floating_card.addEventListener("mouseleave", () => {
-    if (moodFloatPixelCard && !hoverDelay) {
-        container_floating_card.style.display = "none";
-        container_floating_card.innerHTML = "";
-    }
-});

@@ -17,7 +17,7 @@ async function store_settings() {
             moodAveragingValue,
             moodShowAverage,
             moodShowYears,
-            moodFloatPixelCard,
+            moodShowPixelCard,
             moodTimeOption,
 
             tagsPercentage,
@@ -70,8 +70,8 @@ async function load_settings() {
             moodShowYears = settings.moodShowYears ?? moodShowYears;
             show_years_checkbox.checked = moodShowYears;
 
-            moodFloatPixelCard = settings.moodFloatPixelCard ?? moodFloatPixelCard;
-            float_pixel_checkbox.checked = moodFloatPixelCard;
+            moodShowPixelCard = settings.moodShowPixelCard ?? moodShowPixelCard;
+            show_pixel_card_checkbox.checked = moodShowPixelCard;
 
             moodTimeOption = settings.moodTimeOption ?? moodTimeOption;
             select_time_option.value = moodTimeOption;
