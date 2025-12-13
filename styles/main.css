@@ -157,13 +157,9 @@ a {
     }
 
     .pie-chart {
-        display: none;
         width: 150px;
         height: 150px;
-    }
-
-    &:hover .pie-chart {
-        display: block;
+        cursor: pointer;
     }
 }
 
@@ -377,4 +373,13 @@ a {
     .grid-charts {
         grid-template-columns: 1fr !important;
     }
+}
+
+/* Score Distribution Modal */
+.score-distribution-modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

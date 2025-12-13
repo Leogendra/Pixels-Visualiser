@@ -1,5 +1,10 @@
+const dialog_score_distribution = document.querySelector("#dialogScoreDistribution");
+const canvas_score_distribution = document.querySelector("#scoreDistributionDialogChart");
+const btn_close_score_distribution = document.querySelector("#closeScoreDistributionDialog");
+
 let update_wordcloud_timeout = null;
 let scores_pie_chart_instance = null;
+let score_distribution_dialog_chart_instance = null;
 
 
 
@@ -56,7 +61,7 @@ function calculate_and_display_stats() {
         { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
         { title: "Average score", value: `<p>${averageScore.toFixed(2)}</p>` },
         { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
-        { title: "Score distribution", value: "<canvas title='Update your colors in the \"Export Pixel image\" settings' id='scoresPieChart' class='pie-chart' width='100' height='100'></canvas>" },
+        { title: "Score distribution", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
     ];
 
     stats_container.innerHTML = stats_array.map(({ title, value }) => `
@@ -68,6 +73,57 @@ function calculate_and_display_stats() {
 
     setup_palette_settings();
     create_scores_pie_chart();
+}
+
+
+async function show_score_distribution_dialog() {
+    const rawScores = current_data
+        .flatMap(entry => entry.scores)
+        .reduce((acc, score) => {
+            acc[score] = (acc[score] || 0) + 1;
+            return acc;
+        }, {});
+
+    const scoresCount = Object.keys(rawScores).map(Number);
+    const values = scoresCount.map(score => rawScores[score] || 0);
+    dialog_score_distribution.showModal();
+
+    if (score_distribution_dialog_chart_instance) {
+        score_distribution_dialog_chart_instance.destroy();
+    }
+    score_distribution_dialog_chart_instance = new Chart(canvas_score_distribution, {
+        type: "bar",
+        data: {
+            labels: scoresCount,
+            datasets: [{
+                label: "Scores",
+                data: values,
+                backgroundColor: get_user_colors(rawScores),
+                borderColor: "#000000",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.parsed.y;
+                            const data = context.chart.data.datasets[0].data;
+                            const total = data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 
@@ -112,6 +168,9 @@ async function create_scores_pie_chart() {
                         }
                     }
                 }
+            },
+            onClick: async (_, chartElement) => {
+                show_score_distribution_dialog();
             }
         }
     });
@@ -243,7 +302,7 @@ function get_word_frequency() {
                 if (tripleStarMatch) {
                     let stopConditions = ["$", "\\n"]; // stop to \n and end of string by default
                     stopExtractRegex.lastIndex = 0;
-                    
+
                     let inner;
                     while ((inner = stopExtractRegex.exec(tripleStarMatch[0])) !== null) {
                         const val = inner[1];
@@ -468,3 +527,18 @@ async function download_wordcloud() {
     link.href = canvas.toDataURL("image/png");
     link.click();
 }
+
+
+
+
+btn_close_score_distribution.addEventListener("click", () => {
+    if (score_distribution_dialog_chart_instance) { score_distribution_dialog_chart_instance.destroy(); }
+    dialog_score_distribution.close();
+});
+
+dialog_score_distribution.addEventListener("click", (e) => {
+    if (e.target === dialog_score_distribution) {
+        if (score_distribution_dialog_chart_instance) { score_distribution_dialog_chart_instance.destroy(); }
+        dialog_score_distribution.close();
+    }
+});

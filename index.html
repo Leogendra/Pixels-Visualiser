@@ -118,6 +118,18 @@
 
                 <div class="stats-grid" id="statsContainer"></div>
 
+                <dialog id="dialogScoreDistribution" class="div-dialog-settings">
+                    <div class="dialog-settings">
+                        <h3>Score Distribution</h3>
+                        <div class="score-distribution-modal-body">
+                            <canvas id="scoreDistributionDialogChart" width="600" height="400"></canvas>
+                        </div>
+                        <div class="dialog-buttons">
+                            <button type="button" class="button button-secondary" id="closeScoreDistributionDialog">Close</button>
+                        </div>
+                    </div>
+                </dialog>
+
                 <div class="chart-container" id="moodChartContainer">
                     <h2>📈 Time evolution</h2>
                     <div class="options" id="moodChartOptions">
@@ -520,7 +532,7 @@
             </a>
         </div>
         <div class="version">Version: v1.7.0</div>
-        <div class="version">Last update: 2025-12-13</div>
+        <div class="version">Last update: 2025-12-14</div>
     </footer>
 
     <!-- Charts.js for graphs -->
