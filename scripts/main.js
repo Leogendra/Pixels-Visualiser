@@ -18,9 +18,10 @@ const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
-const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
+const float_pixel_checkbox = document.querySelector("#floatPixelCheckbox");
+const float_pixel_option = document.querySelector("#floatPixelOption");
 const select_time_option = document.querySelector("#timeOptionSelect");
-const container_floating_card = document.getElementById("hoverCardContainer");
+const container_floating_card = document.querySelector("#hoverCardContainer");
 
 const tag_options_container = document.querySelector("#tagOptionsContainer");
 const input_nb_tags = document.querySelector("#maxTagsInput");
@@ -53,9 +54,9 @@ const wordcloud_compression_input = document.querySelector("#wordcloudCompressio
 const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 
-const DEV_MODE = false;
-const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 3500;
+const DEV_MODE = true;
+const DEV_FILE_PATH = "../data/test.json"
+const SCROLL_TO = 2000;
 const isMobile = window.innerWidth <= 800;
 let userLocale = "default";
 let initial_data = [];
@@ -68,7 +69,8 @@ let moodAveragingValue = 1;
 let moodShowAverage = false;
 let moodShowYears = false;
 let moodTimeOption = "mood";
-let moodShowPixelCard = true;
+let moodFloatPixelCard = true;
+let cardWidth = 500;
 
 // Tags
 let tag_stats = {};
@@ -433,8 +435,8 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mood_chart();
     });
 
-    show_pixel_checkbox.addEventListener("change", (e) => {
-        moodShowPixelCard = e.target.checked;
+    float_pixel_checkbox.addEventListener("change", (e) => {
+        moodFloatPixelCard = e.target.checked;
     });
 
     select_time_option.addEventListener("change", (e) => {
@@ -560,6 +562,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // If mobile, change the placeholder text of the search input
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
+        float_pixel_option.style.display = "none";
+        moodFloatPixelCard = false;
     }
 
 

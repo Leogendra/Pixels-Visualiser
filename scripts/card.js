@@ -3,6 +3,7 @@ const input_date = document.querySelector("#dateSearchInput");
 const input_date_label = document.querySelector("#dateSearchInputLabel");
 const calendar_element = document.querySelector("#calendar");
 const div_date_result = document.querySelector("#dateSearchResult");
+const collapse_pixel_card_button = document.querySelector(".collapse-pixel-card-button");
 
 const div_btn_pixel_nav = document.querySelector(".nav-buttons-card");
 const btn_pixel_prev = document.querySelector("#btnPixelPrev");
@@ -14,20 +15,20 @@ let calendar = null;
 
 
 async function load_colored_score_SVG(score) {
-  if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
-  const res = await fetch(`assets/pixels/score_${score}.svg`);
-  const text = await res.text();
-  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
-  const svg = doc.querySelector("svg");
-  svg.style.color = png_settings.colors[score];
-  return svg;
+    if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
+    const res = await fetch(`assets/pixels/score_${score}.svg`);
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+    const svg = doc.querySelector("svg");
+    svg.style.color = png_settings.colors[score];
+    return svg;
 }
 
 
 async function create_pixel_card(pixel) {
     const card = document.createElement("div");
     card.className = "pixel-card";
-    
+
     const date = new Date(pixel.date);
     const formattedDate = date.toLocaleDateString(userLocale, {
         year: "numeric", month: "long", day: "numeric"
@@ -66,18 +67,18 @@ async function create_pixel_card(pixel) {
     if (pixel.tags.length > 0) {
         const div_tags = document.createElement("div");
         div_tags.className = "div-pixel-tags";
-        
+
         pixel.tags.forEach(category => {
             const div_tag_category = document.createElement("div");
             div_tag_category.className = "tag-category";
-    
+
             const tag_title = document.createElement("div");
             tag_title.className = "tag-category-title";
             tag_title.textContent = category.type;
 
             const tags_container = document.createElement("div");
             tags_container.className = "tag-category-tags";
-            
+
             category.entries.forEach(tag => {
                 const tag_pill = document.createElement("span");
                 tag_pill.className = "tag-pill";
@@ -119,7 +120,7 @@ async function show_pixel_card(dateStr, scroll = false) {
         const card = await create_pixel_card(found);
         div_date_result.innerHTML = card.outerHTML;
         if (calendarMode) { calendar.gotoDate(dateStr); }
-    } 
+    }
     else {
         div_date_result.textContent = "No entry found for this date.";
     }
@@ -132,13 +133,39 @@ async function show_pixel_card(dateStr, scroll = false) {
 }
 
 
-async function display_floating_card(pixels_data, chartElement, pinCard = false) {
-    if (hoverDelay) { return; }
+function setup_card_resizeable_width(card_element) {
+    if (card_element._ro) { card_element._ro.disconnect(); }
 
-    if (chartElement.length === 0) {
-        container_floating_card.style.display = "none";
-        container_floating_card.innerHTML = "";
-        return;
+    if (Number.isFinite(cardWidth) && cardWidth > 0) {
+        card_element.style.setProperty("--pixel-card-width", `${cardWidth}px`);
+    }
+    else {
+        card_element.style.removeProperty("--pixel-card-width");
+    }
+
+    const resize_observer = new ResizeObserver(() => {
+        const card_width = Math.round(card_element.getBoundingClientRect().width);
+        if (card_width < 300) { return; }
+        cardWidth = card_width;
+    });
+    resize_observer.observe(card_element);
+    card_element._ro = resize_observer;
+}
+
+
+async function display_floating_card(pixels_data, chartElement, pinCard = false) {
+    if (moodFloatPixelCard) {
+        if (hoverDelay) { return; } // avoid fickering when hovering quickly
+        container_floating_card.classList.add("floating-card");
+
+        if (chartElement.length === 0) {
+            container_floating_card.style.display = "none";
+            return;
+        }
+    }
+    else {
+        container_floating_card.classList.remove("floating-card");
+        if (chartElement.length === 0) { return; }
     }
 
     const pixelIndex = chartElement[0].index;
@@ -146,8 +173,14 @@ async function display_floating_card(pixels_data, chartElement, pinCard = false)
     const card = await create_pixel_card(pixel);
 
     container_floating_card.innerHTML = "";
+    
+    if (!moodFloatPixelCard) {
+        setup_card_resizeable_width(card);
+    }
+
     container_floating_card.appendChild(card);
-    container_floating_card.style.display = "block";
+    container_floating_card.style.display = "block";  
+
     isCardPinned = pinCard;
 }
 
@@ -185,7 +218,7 @@ async function setup_calendar_frame() {
 
 
 async function toggle_calendar_view() {
-    if (calendarMode) { 
+    if (calendarMode) {
         input_date.style.display = "none";
         input_date_label.style.display = "none";
         calendar_element.style.display = "block";
