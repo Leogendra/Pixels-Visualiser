@@ -93,6 +93,10 @@ function create_tutorial_elements() {
 
 
 function start_tutorial() {
+    // remove anchor from URL to avoid conflicts
+    history.replaceState(null, null, " "); 
+    pendingAnchor = "";
+    
     if (!tutorial_overlay) { create_tutorial_elements(); }
     tutorial_overlay.classList.add("active");
     tutorialCurrent = 0;

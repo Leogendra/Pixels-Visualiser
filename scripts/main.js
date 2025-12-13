@@ -4,6 +4,7 @@ const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const div_intro_content = document.querySelector("#introContent");
 
 const content_container = document.querySelector("#content");
+const section_titles = document.querySelectorAll(".section-title");
 const stats_content_container = document.querySelector("#stats-content");
 const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
@@ -57,6 +58,7 @@ const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 1000;
 const isMobile = window.innerWidth <= 800;
+let pendingAnchor = window.location.hash || "";
 let userLocale = "default";
 let initial_data = [];
 let current_data = [];
@@ -129,7 +131,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, type="msg", duration=10000) {
+function show_popup_message(message, type = "msg", duration = 10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -185,7 +187,7 @@ function fill_empty_dates(data) {
 async function update_stats_and_graphics() {
     div_intro_content.style.display = "none";
     content_container.style.display = "block";
-    
+
     if (current_data.length === 0) {
         data_error_container.style.display = "block";
         stats_content_container.style.display = "none";
@@ -224,12 +226,12 @@ async function filter_pixels(numberOfDays) {
     const firstPixelDate = new Date(initial_data[0].date);
     const lastPixelDate = new Date(initial_data[initial_data.length - 1].date);
     if (!is_date_valid(firstPixelDate) || !is_date_valid(lastPixelDate)) { return; }
-    
+
     let startDate, endDate;
     if (numberOfDays == 0) {
         startDate = new Date(start_date_filter.value + " 00:00:00");
         endDate = new Date(end_date_filter.value + " 00:00:00");
-        
+
         if (!is_date_valid(startDate) || !is_date_valid(endDate) ||
             startDate.getFullYear() < 2015 || endDate.getFullYear() < 2015 ||
             startDate.getFullYear() > 2100 || endDate.getFullYear() > 2100) {
@@ -296,9 +298,10 @@ async function handle_file_upload(file) {
             data.sort((a, b) => new Date(a.date) - new Date(b.date));
             initial_data = data;
             current_data = initial_data;
-            
+
             await load_settings();
-            update_stats_and_graphics();
+            await update_stats_and_graphics();
+            scroll_to_anchor_if_available();
             document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
         }
     }
@@ -338,6 +341,21 @@ function close_words_dialog_settings() {
 }
 
 
+function scroll_to_anchor_if_available() {
+    const hash = (pendingAnchor || window.location.hash || "").trim();
+    if (!hash) { return; }
+
+    const id = decodeURIComponent(hash.replace(/^#/, ""));
+    if (!id) { return; }
+
+    const target = document.getElementById(id);
+    if (!target) { return; }
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    pendingAnchor = "";
+}
+
+
 function handle_click_words_dialog(e) {
     if (e.target === words_dialog_settings) {
         close_words_dialog_settings();
@@ -355,6 +373,15 @@ document.addEventListener("DOMContentLoaded", () => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
     }
+
+    window.addEventListener("hashchange", () => {
+        pendingAnchor = window.location.hash || "";
+        console.log("Hash changed:", pendingAnchor);
+        const contentVisible = (content_container.style.display !== "none") && (stats_content_container.style.display !== "none");
+        if (contentVisible) {
+            scroll_to_anchor_if_available();
+        }
+    });
 
     // If mobile, change the placeholder text of the search input
     if (isMobile) {
@@ -390,6 +417,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+
+    // section titles to copy URL with anchor
+    section_titles.forEach(title => {
+        title.title = "Click to copy link to this section";
+        title.addEventListener("click", () => {
+            const sectionId = title.id;
+            const url = `${window.location.origin}${window.location.pathname}#${sectionId}`;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                show_popup_message("Link copied to clipboard!", "normal", 2000);
+            })
+            .catch(err => {
+                console.error("Failed to copy URL:", err);
+                show_popup_message("Failed to copy link", "error", 2000);
+            });
+        });
+    });
+
 
     // Tutorial
     start_tutorial_button.addEventListener("click", function () {

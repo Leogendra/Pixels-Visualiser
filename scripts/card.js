@@ -6,8 +6,10 @@ const div_date_result = document.querySelector("#dateSearchResult");
 const collapse_pixel_card_button = document.querySelector(".collapse-pixel-card-button");
 
 const div_btn_pixel_nav = document.querySelector(".nav-buttons-card");
-const btn_pixel_prev = document.querySelector("#btnPixelPrev");
-const btn_pixel_next = document.querySelector("#btnPixelNext");
+const btn_pixel_prev_day = document.querySelector("#btnPixelPrevDay");
+const btn_pixel_next_day = document.querySelector("#btnPixelNextDay");
+const btn_pixel_prev_year = document.querySelector("#btnPixelPrevYear");
+const btn_pixel_next_year = document.querySelector("#btnPixelNextYear");
 
 let calendar = null;
 
@@ -118,7 +120,9 @@ async function show_pixel_card(dateStr, scroll = false) {
     const found = current_data.find(p => normalize_date(p.date) === dateStr);
     if (found) {
         const card = await create_pixel_card(found);
-        div_date_result.innerHTML = card.outerHTML;
+        div_date_result.innerHTML = "";
+        div_date_result.appendChild(card);
+        setup_card_resizeable_width(card);
         if (calendarMode) { calendar.gotoDate(dateStr); }
     }
     else {
@@ -153,7 +157,7 @@ function setup_card_resizeable_width(card_element) {
 }
 
 
-async function display_floating_card(pixels_data, chartElement, pinCard = false) {
+async function display_floating_card(pixels_data, chartElement) {
     if (hoverDelay) { return; }
 
     if (chartElement.length === 0) {
@@ -166,7 +170,7 @@ async function display_floating_card(pixels_data, chartElement, pinCard = false)
 
     container_floating_card.innerHTML = "";
     container_floating_card.appendChild(card);
-    container_floating_card.style.display = "block";  
+    container_floating_card.style.display = "block";
     setup_card_resizeable_width(card);
 }
 
@@ -218,10 +222,20 @@ async function toggle_calendar_view() {
 
 function shift_pixel_date(days) {
     const current_date = input_date.value;
-    if (!current_date) return;
-    const date = new Date(current_date);
-    date.setDate(date.getDate() + days);
-    show_pixel_card(normalize_date(date));
+    if (!current_date) { return; }
+    if (days === 365 || days === -365) {
+        const year = parseInt(current_date.split("-")[0], 10);
+        const month = parseInt(current_date.split("-")[1], 10) - 1;
+        const day = parseInt(current_date.split("-")[2], 10);
+        const new_date = new Date(year + (days / 365), month, day);
+        show_pixel_card(normalize_date(new_date));
+        return;
+    }
+    else {
+        const date = new Date(current_date);
+        date.setDate(date.getDate() + days);
+        show_pixel_card(normalize_date(date));
+    }
 }
 
 
@@ -236,8 +250,11 @@ input_date.addEventListener("change", () => {
 });
 
 
-btn_pixel_prev.addEventListener("click", () => shift_pixel_date(-1));
-btn_pixel_next.addEventListener("click", () => shift_pixel_date(+1));
+btn_pixel_prev_year.addEventListener("click", () => shift_pixel_date(-365));
+btn_pixel_prev_day.addEventListener("click", () => shift_pixel_date(-1));
+btn_pixel_next_day.addEventListener("click", () => shift_pixel_date(+1));
+btn_pixel_next_year.addEventListener("click", () => shift_pixel_date(+365));
+
 
 show_calendar_checkbox.addEventListener("change", () => {
     calendarMode = show_calendar_checkbox.checked;

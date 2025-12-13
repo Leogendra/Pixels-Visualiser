@@ -65,7 +65,6 @@
             <div class="div-pill-selector">
                 <div class="pill-selector">
                     <button class="pill" data-range="0">Custom</button>
-                    <!-- <button class="pill" data-range="7">Last week</button> -->
                     <button class="pill" data-range="30">Last month</button>
                     <button class="pill" data-range="180">Last 6 months</button>
                     <button class="pill" data-range="365">Last year</button>
@@ -121,9 +120,7 @@
                 <dialog id="dialogScoreDistribution" class="div-dialog-settings">
                     <div class="dialog-settings">
                         <h3>Score Distribution</h3>
-                        <div class="score-distribution-modal-body">
-                            <canvas id="scoreDistributionDialogChart" width="600" height="400"></canvas>
-                        </div>
+                        <canvas id="scoreDistributionDialogChart" width="600" height="400"></canvas>
                         <div class="dialog-buttons">
                             <button type="button" class="button button-secondary" id="closeScoreDistributionDialog">Close</button>
                         </div>
@@ -131,7 +128,7 @@
                 </dialog>
 
                 <div class="chart-container" id="moodChartContainer">
-                    <h2>📈 Time evolution</h2>
+                    <h2 id="time-evolution" class="section-title">📈 Time evolution</h2>
                     <div class="options" id="moodChartOptions">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60">
@@ -163,9 +160,7 @@
                     </div>
                     <canvas id="moodChart"></canvas>
 
-                    <div id="hoverCardContainer">
-                        <div class="collapse-pixel-card-button" title="Close pixel card">❌</div>
-                    </div>
+                    <div id="hoverCardContainer"></div>
                 </div>
 
 
@@ -193,19 +188,19 @@
 
                 <div class="grid-charts" id="tagChartsContainer">
                     <div class="chart-container group-options" id="tagFrequencyContainer">
-                        <h2>🏷️ Tag frequency</h2>
+                        <h2 id="tag-frequency" class="section-title">🏷️ Tag frequency</h2>
                         <canvas id="tagChart" class="free-canvas"></canvas>
                     </div>
 
                     <div class="chart-container group-options" id="tagScoreContainer">
-                        <h2>😊 Average score per tag</h2>
+                        <h2 id="tag-score" class="section-title">😊 Average score per tag</h2>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
                     </div>
                 </div>
 
                 <div class="grid-charts">
                     <div class="chart-container group-options">
-                        <h2>🔁 Weekdays average scores</h2>
+                        <h2 id="weekdays-scores" class="section-title">🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
                                 <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
@@ -224,7 +219,7 @@
                     </div>
 
                     <div class="chart-container group-options">
-                        <h2>🗓️ Months average scores</h2>
+                        <h2 id="months-scores" class="section-title">🗓️ Months average scores</h2>
                         <div class="options">
                             <div class="option-item">
                                 <div class="option-item">
@@ -238,8 +233,8 @@
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <h2>📝 Most frequent words</h2>
+                <div class="chart-container" id="wordFrequencyContainer">
+                    <h2 id="words-frequency" class="section-title">📝 Most frequent words</h2>
 
                     <div class="options" id="wordsOptionsContainer">
                         <div class="option-item">
@@ -353,7 +348,7 @@
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
-                    <h2>🖼️ Create Pixels image</h2>
+                    <h2 id="pixels-image" class="section-title">🖼️ Create Pixels image</h2>
 
                     <div class="options grid-options" id="PixelGridOptions">
                         <div class="option-item">
@@ -369,21 +364,6 @@
                                 <h3>Image settings</h3>
 
                                 <div class="dialog-settings-group">
-                                    <!-- <label for="color1">Score 1</label>
-                                    <input type="color" id="color1">
-
-                                    <label for="color2">Score 2</label>
-                                    <input type="color" id="color2">
-
-                                    <label for="color3">Score 3</label>
-                                    <input type="color" id="color3">
-
-                                    <label for="color4">Score 4</label>
-                                    <input type="color" id="color4">
-
-                                    <label for="color5">Score 5</label>
-                                    <input type="color" id="color5"> -->
-
                                     <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty">
 
@@ -489,7 +469,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h2>📅 Search Pixels by date</h2>
+                    <h2 id="search-by-date" class="section-title">📅 Search Pixels by date</h2>
 
                     <div class="options">
                         <div class="option-item">
@@ -508,8 +488,10 @@
                     </div>
 
                     <div class="nav-buttons-card">
-                        <button id="btnPixelPrev" class="nav-button">&lt; Previous day</button>
-                        <button id="btnPixelNext" class="nav-button">Next day ></button>
+                        <button id="btnPixelPrevYear" class="nav-button">&lt;&lt; Year</button>
+                        <button id="btnPixelPrevDay" class="nav-button">&lt; Day</button>
+                        <button id="btnPixelNextDay" class="nav-button">Day &gt;</button>
+                        <button id="btnPixelNextYear" class="nav-button">Year &gt;&gt;</button>
                     </div>
 
                     <div id="dateSearchResult" class="pixel-date-result"></div>
