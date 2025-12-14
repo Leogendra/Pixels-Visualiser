@@ -6,7 +6,7 @@ const words_stopwords_language_select = document.querySelector("#stopwordsLangua
 const default_stopwords_textarea = document.querySelector("#defaultStopwordsTextarea");
 const custom_stopwords_textarea = document.querySelector("#customStopwordsTextarea");
 
-let stopwordsLanguage = "en";
+let stopwordsLanguage = "none";
 let default_stopwords = new Set([]);
 let custom_stopwords = new Set([]);
 let STOP_WORDS = new Set([]);

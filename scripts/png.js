@@ -530,7 +530,6 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
     result.push({ date: lastDate, scores: [] });
 
     const target = isTag ? normalize_string(keyword) : compute_regex(parse_logical_string(keyword));
-    console.log("Filtering pixels by", isTag ? "tag" : "keyword", ":", target);
 
     current_data.forEach(pixel => {
         const date = normalize_date(pixel.date);

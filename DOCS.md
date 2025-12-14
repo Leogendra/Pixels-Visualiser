@@ -128,17 +128,27 @@ Open the additional settings panel by clicking the "Settings" button.
 - `Number of words`: limit how many words are shown in the list.
 - `Stopwords`: you can choose a stopword language to add common words to ignore. You can remove stopwords from this list, or add your own custom stopwords. /!\ Remember that changing the stopword language will reset the "Default stopwords" list.
 
-Advanced search:  
-You can try this type of search if you are familiar with search patterns.
-- `*`: In the "Search words" box, use `*` as a wildcard to match unknown words, like "ate with *" to find all words that come after "ate with".
-- `* *`: You can use multiple `*` in a search, for example "ate * with *" to find notes like "ate sandwich with Alice" or "ate pizza with Bob".  
-3 types of word cards are then shown:
-  - Whole match: notes that exactly match the search (e.g., "ate pizza with Bob")
-  - First word match: first word matched by a wildcard (e.g., "sandwich", "pizza", etc.)
-  - Second word match: second word matched by a wildcard (e.g., "Alice", "Bob", etc.)
-- `/`: Adding a `/` after your search (e.g., "ate * with */") will show which words have been matched with each wildcard (e.g. "1-Alice", "2-Pizza", etc.).
+Advanced search patterns:  
+You can try this type of search if you are familiar with search patterns.  
+Remember, searches always uses **all the parameters above** (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
 
-Remember, searches always uses all the parameters above (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
+- `*`: In the "Search words" box, use `*` as a wildcard to match unknown words, like "ate with *" to find all words that come after "ate with".
+  
+- `* *`: You can use multiple `*` in a search, for example "ate * with *" to find notes like "ate sandwich with Alice" or "ate pizza with Bob".  
+    3 types of word cards are then shown:
+    - Whole match: notes that exactly match the search (e.g., "ate pizza with Bob")
+    - First word match: first word matched by a wildcard (e.g., "sandwich", "pizza", etc.)
+    - Second word match: second word matched by a wildcard (e.g., "Alice", "Bob", etc.)
+  - `/`: Adding a `/` after your search (e.g., "ate * with */") will show which words have been matched with each wildcard (e.g. "1-Alice", "2-Pizza", etc.).
+
+- `***`: You can also use `***` to match *any sequence of words*, not just a single word like `*`.
+    This is useful when you don’t know how many words appear between two parts of a sentence.
+    - Example: `ate ***` will match "Tom", "Pizzawith Tom", "Tom at home", etc...
+
+- `***[][]`: You can add stop-conditions using square brackets to stop the match at first occurence of words/chars in the brackets.
+    - Example: `ate ***[with][,][.]` when applied to "ate pizza and fries with tom" will match "pizza", "pizza and fries" but NOT "pizza and fries with Tom".
+    - Important note: if your `***` returns multiple words, those words are split and counted separately. 
+      For example, when searching for `ate ***[with]`, if you have notes like "ate pizza and fries", it will count +1 for "pizza" and +1 "pizza and fries" separately.  
 
 <div align="center">
     <img src="assets/screenshots/words.png" alt="Word frequency list and search" />

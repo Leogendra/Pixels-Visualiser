@@ -45,7 +45,7 @@
             <input type="file" id="fileInput" accept=".json" style="display: none;">
         </div>
 
-        <div id="privacyNotice">
+        <div id="introContent">
             <div class="notice">
                 <p>
                     This is a fully static website built with vanilla JavaScript. Your data never leaves your device:
@@ -54,24 +54,9 @@
             </div>
 
             <div class="help-export">
+                <p>First time visiting? Click the button below ⬇️ (more infos on the <a href="https://github.com/Leogendra/Pixels-Visualiser/blob/main/DOCS.md" class="info-link" target="_blank" rel="noopener noreferrer">documentation</a>).</p>
+                <button id="startTutorialBtn" class="button" title="Start the tutorial">Start tutorial</button>
 
-                    <p>
-                        First time visiting? Click the button below to start the tutorial.
-                    </p>
-                    <button id="startTutorialBtn" class="button" title="Start the tutorial">Start tutorial</button>
-                    
-                    <div class="empty-line"><hr></div>
-
-                    <p>
-                        You can also read the <a href="https://github.com/Leogendra/Pixels-Visualiser/blob/main/DOCS.md" class="info-link" target="_blank" rel="noopener noreferrer">DOCS on Github</a>.
-                    </p>
-
-                    <!-- <p>Where do you export your
-                        <span>
-                            <a href="https://pixelstracker.app/" target="_blank" rel="noopener noreferrer" class="info-link">Pixels</a>
-                        </span>
-                    data ?</p>
-                    <img src="assets/help_export.png" alt="Export Pixels data button in settings" title="Where to export your Pixels data" class="help-image"> -->
             </div>
         </div>
 
@@ -80,7 +65,6 @@
             <div class="div-pill-selector">
                 <div class="pill-selector">
                     <button class="pill" data-range="0">Custom</button>
-                    <!-- <button class="pill" data-range="7">Last week</button> -->
                     <button class="pill" data-range="30">Last month</button>
                     <button class="pill" data-range="180">Last 6 months</button>
                     <button class="pill" data-range="365">Last year</button>
@@ -133,14 +117,24 @@
 
                 <div class="stats-grid" id="statsContainer"></div>
 
+                <dialog id="dialogScoreDistribution" class="div-dialog-settings">
+                    <div class="dialog-settings">
+                        <h3>Score Distribution</h3>
+                        <canvas id="scoreDistributionDialogChart" width="600" height="400"></canvas>
+                        <div class="dialog-buttons">
+                            <button type="button" class="button button-secondary" id="closeScoreDistributionDialog">Close</button>
+                        </div>
+                    </div>
+                </dialog>
+
                 <div class="chart-container" id="moodChartContainer">
-                    <h2>📈 Time evolution</h2>
+                    <h2 id="time-evolution" class="section-title">📈 Time evolution</h2>
                     <div class="options" id="moodChartOptions">
                         <label for="rollingSlider">Rolling average: <span id="rollingValue">1</span> days</label>
                         <input type="range" id="rollingSlider" class="range-slider" min="1" max="60">
 
                         <div class="option-item">
-                            <label for="showAverageCheckbox" title="Show an horizontal line to visualise your average score">Show average</label>
+                            <label for="showAverageCheckbox" title="Show your average score as a line on all charts">Show average</label>
                             <input type="checkbox" id="showAverageCheckbox" class="checkbox">
                         </div>
 
@@ -150,8 +144,8 @@
                         </div>
 
                         <div class="option-item">
-                            <label for="showPixelCheckbox" title="Show a card that displays the Pixel of the day when hovering on a point. Hover the card to fix it">Show Pixel</label>
-                            <input type="checkbox" id="showPixelCheckbox" class="checkbox">
+                            <label for="showPixelCardCheckbox" title="Show a card that displays the Pixel of the day when hovering on a point. Click the point to fix it">Show Pixel</label>
+                            <input type="checkbox" id="showPixelCardCheckbox" class="checkbox">
                         </div>
 
                         <div class="option-item">
@@ -165,9 +159,10 @@
                         </div>
                     </div>
                     <canvas id="moodChart"></canvas>
+
+                    <div id="hoverCardContainer"></div>
                 </div>
 
-                <div id="hoverCardContainer"></div>
 
                 <div class="chart-container group-options" id="tagOptionsContainer">
                     <div class="options small title"><img src="assets/settings_icon_black.svg" alt="Settings" class="icon-settings"><span>Tag options</span></div>
@@ -193,19 +188,19 @@
 
                 <div class="grid-charts" id="tagChartsContainer">
                     <div class="chart-container group-options" id="tagFrequencyContainer">
-                        <h2>🏷️ Tag frequency</h2>
+                        <h2 id="tag-frequency" class="section-title">🏷️ Tag frequency</h2>
                         <canvas id="tagChart" class="free-canvas"></canvas>
                     </div>
 
                     <div class="chart-container group-options" id="tagScoreContainer">
-                        <h2>😊 Average score per tag</h2>
+                        <h2 id="tag-score" class="section-title">😊 Average score per tag</h2>
                         <canvas id="tagScoreChart" class="free-canvas"></canvas>
                     </div>
                 </div>
 
                 <div class="grid-charts">
                     <div class="chart-container group-options">
-                        <h2>🔁 Weekdays average scores</h2>
+                        <h2 id="weekdays-scores" class="section-title">🔁 Weekdays average scores</h2>
                         <div class="options">
                             <div class="option-item">
                                 <label for="firstDayOfWeekSelect" title="Which day do you want the week to start on">First day of the week</label>
@@ -224,7 +219,7 @@
                     </div>
 
                     <div class="chart-container group-options">
-                        <h2>🗓️ Months average scores</h2>
+                        <h2 id="months-scores" class="section-title">🗓️ Months average scores</h2>
                         <div class="options">
                             <div class="option-item">
                                 <div class="option-item">
@@ -238,8 +233,8 @@
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <h2>📝 Most frequent words</h2>
+                <div class="chart-container" id="wordFrequencyContainer">
+                    <h2 id="words-frequency" class="section-title">📝 Most frequent words</h2>
 
                     <div class="options" id="wordsOptionsContainer">
                         <div class="option-item">
@@ -353,7 +348,7 @@
                 </div>
 
                 <div class="chart-container" id="pixelGridExportContainer">
-                    <h2>🖼️ Create Pixels image</h2>
+                    <h2 id="pixels-image" class="section-title">🖼️ Create Pixels image</h2>
 
                     <div class="options grid-options" id="PixelGridOptions">
                         <div class="option-item">
@@ -369,21 +364,6 @@
                                 <h3>Image settings</h3>
 
                                 <div class="dialog-settings-group">
-                                    <!-- <label for="color1">Score 1</label>
-                                    <input type="color" id="color1">
-
-                                    <label for="color2">Score 2</label>
-                                    <input type="color" id="color2">
-
-                                    <label for="color3">Score 3</label>
-                                    <input type="color" id="color3">
-
-                                    <label for="color4">Score 4</label>
-                                    <input type="color" id="color4">
-
-                                    <label for="color5">Score 5</label>
-                                    <input type="color" id="color5"> -->
-
                                     <label for="colorEmpty">Background</label>
                                     <input type="color" id="colorEmpty">
 
@@ -489,7 +469,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h2>📅 Search Pixels by date</h2>
+                    <h2 id="search-by-date" class="section-title">📅 Search Pixels by date</h2>
 
                     <div class="options">
                         <div class="option-item">
@@ -508,8 +488,10 @@
                     </div>
 
                     <div class="nav-buttons-card">
-                        <button id="btnPixelPrev" class="nav-button">&lt; Previous day</button>
-                        <button id="btnPixelNext" class="nav-button">Next day ></button>
+                        <button id="btnPixelPrevYear" class="nav-button">&lt;&lt; Year</button>
+                        <button id="btnPixelPrevDay" class="nav-button">&lt; Day</button>
+                        <button id="btnPixelNextDay" class="nav-button">Day &gt;</button>
+                        <button id="btnPixelNextYear" class="nav-button">Year &gt;&gt;</button>
                     </div>
 
                     <div id="dateSearchResult" class="pixel-date-result"></div>
@@ -531,8 +513,8 @@
                 <img src="assets/coffee_logo.png" alt="Buy me a coffee">
             </a>
         </div>
-        <div class="version">Version: v1.7.0</div>
-        <div class="version">Last update: 2025-12-09</div>
+        <div class="version">Version: v1.7.1</div>
+        <div class="version">Last update: 2025-12-14</div>
     </footer>
 
     <!-- Charts.js for graphs -->

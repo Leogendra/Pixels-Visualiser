@@ -3,10 +3,13 @@ const input_date = document.querySelector("#dateSearchInput");
 const input_date_label = document.querySelector("#dateSearchInputLabel");
 const calendar_element = document.querySelector("#calendar");
 const div_date_result = document.querySelector("#dateSearchResult");
+const collapse_pixel_card_button = document.querySelector(".collapse-pixel-card-button");
 
 const div_btn_pixel_nav = document.querySelector(".nav-buttons-card");
-const btn_pixel_prev = document.querySelector("#btnPixelPrev");
-const btn_pixel_next = document.querySelector("#btnPixelNext");
+const btn_pixel_prev_day = document.querySelector("#btnPixelPrevDay");
+const btn_pixel_next_day = document.querySelector("#btnPixelNextDay");
+const btn_pixel_prev_year = document.querySelector("#btnPixelPrevYear");
+const btn_pixel_next_year = document.querySelector("#btnPixelNextYear");
 
 let calendar = null;
 
@@ -14,20 +17,20 @@ let calendar = null;
 
 
 async function load_colored_score_SVG(score) {
-  if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
-  const res = await fetch(`assets/pixels/score_${score}.svg`);
-  const text = await res.text();
-  const doc = new DOMParser().parseFromString(text, "image/svg+xml");
-  const svg = doc.querySelector("svg");
-  svg.style.color = png_settings.colors[score];
-  return svg;
+    if (!Number.isInteger(score) || score < 1 || score > 5) return document.createElement("span");
+    const res = await fetch(`assets/pixels/score_${score}.svg`);
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+    const svg = doc.querySelector("svg");
+    svg.style.color = png_settings.colors[score];
+    return svg;
 }
 
 
 async function create_pixel_card(pixel) {
     const card = document.createElement("div");
     card.className = "pixel-card";
-    
+
     const date = new Date(pixel.date);
     const formattedDate = date.toLocaleDateString(userLocale, {
         year: "numeric", month: "long", day: "numeric"
@@ -66,18 +69,18 @@ async function create_pixel_card(pixel) {
     if (pixel.tags.length > 0) {
         const div_tags = document.createElement("div");
         div_tags.className = "div-pixel-tags";
-        
+
         pixel.tags.forEach(category => {
             const div_tag_category = document.createElement("div");
             div_tag_category.className = "tag-category";
-    
+
             const tag_title = document.createElement("div");
             tag_title.className = "tag-category-title";
             tag_title.textContent = category.type;
 
             const tags_container = document.createElement("div");
             tags_container.className = "tag-category-tags";
-            
+
             category.entries.forEach(tag => {
                 const tag_pill = document.createElement("span");
                 tag_pill.className = "tag-pill";
@@ -117,9 +120,11 @@ async function show_pixel_card(dateStr, scroll = false) {
     const found = current_data.find(p => normalize_date(p.date) === dateStr);
     if (found) {
         const card = await create_pixel_card(found);
-        div_date_result.innerHTML = card.outerHTML;
+        div_date_result.innerHTML = "";
+        div_date_result.appendChild(card);
+        setup_card_resizeable_width(card);
         if (calendarMode) { calendar.gotoDate(dateStr); }
-    } 
+    }
     else {
         div_date_result.textContent = "No entry found for this date.";
     }
@@ -132,23 +137,45 @@ async function show_pixel_card(dateStr, scroll = false) {
 }
 
 
-async function display_floating_card(pixels_data, chartElement, pinCard = false) {
-    if (hoverDelay) { return; }
+function setup_card_resizeable_width(card_element) {
+    if (card_element._ro) { card_element._ro.disconnect(); }
 
-    if (chartElement.length === 0) {
+    if (Number.isFinite(cardWidth) && cardWidth > 0) {
+        card_element.style.setProperty("--pixel-card-width", `${cardWidth}px`);
+    }
+    else {
+        card_element.style.removeProperty("--pixel-card-width");
+    }
+
+    const resize_observer = new ResizeObserver(() => {
+        const card_width = Math.round(card_element.getBoundingClientRect().width);
+        if (card_width < 300) { return; }
+        cardWidth = card_width;
+    });
+    resize_observer.observe(card_element);
+    card_element._ro = resize_observer;
+}
+
+
+async function display_floating_card(chartElement) {
+    if (hoverDelay) { return; }
+    
+    if (!chartElement) {
         container_floating_card.style.display = "none";
-        container_floating_card.innerHTML = "";
+        return;
+    }
+    else if (chartElement.length === 0) {
         return;
     }
 
     const pixelIndex = chartElement[0].index;
-    const pixel = pixels_data[pixelIndex];
+    const pixel = current_data[pixelIndex];
     const card = await create_pixel_card(pixel);
 
     container_floating_card.innerHTML = "";
     container_floating_card.appendChild(card);
     container_floating_card.style.display = "block";
-    isCardPinned = pinCard;
+    setup_card_resizeable_width(card);
 }
 
 
@@ -185,7 +212,7 @@ async function setup_calendar_frame() {
 
 
 async function toggle_calendar_view() {
-    if (calendarMode) { 
+    if (calendarMode) {
         input_date.style.display = "none";
         input_date_label.style.display = "none";
         calendar_element.style.display = "block";
@@ -199,10 +226,20 @@ async function toggle_calendar_view() {
 
 function shift_pixel_date(days) {
     const current_date = input_date.value;
-    if (!current_date) return;
-    const date = new Date(current_date);
-    date.setDate(date.getDate() + days);
-    show_pixel_card(normalize_date(date));
+    if (!current_date) { return; }
+    if (days === 365 || days === -365) {
+        const year = parseInt(current_date.split("-")[0], 10);
+        const month = parseInt(current_date.split("-")[1], 10) - 1;
+        const day = parseInt(current_date.split("-")[2], 10);
+        const new_date = new Date(year + (days / 365), month, day);
+        show_pixel_card(normalize_date(new_date));
+        return;
+    }
+    else {
+        const date = new Date(current_date);
+        date.setDate(date.getDate() + days);
+        show_pixel_card(normalize_date(date));
+    }
 }
 
 
@@ -217,8 +254,11 @@ input_date.addEventListener("change", () => {
 });
 
 
-btn_pixel_prev.addEventListener("click", () => shift_pixel_date(-1));
-btn_pixel_next.addEventListener("click", () => shift_pixel_date(+1));
+btn_pixel_prev_year.addEventListener("click", () => shift_pixel_date(-365));
+btn_pixel_prev_day.addEventListener("click", () => shift_pixel_date(-1));
+btn_pixel_next_day.addEventListener("click", () => shift_pixel_date(+1));
+btn_pixel_next_year.addEventListener("click", () => shift_pixel_date(+365));
+
 
 show_calendar_checkbox.addEventListener("change", () => {
     calendarMode = show_calendar_checkbox.checked;

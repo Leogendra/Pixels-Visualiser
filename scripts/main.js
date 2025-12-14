@@ -1,9 +1,10 @@
 const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
-const privacy_notice = document.querySelector("#privacyNotice");
+const div_intro_content = document.querySelector("#introContent");
 
 const content_container = document.querySelector("#content");
+const section_titles = document.querySelectorAll(".section-title");
 const stats_content_container = document.querySelector("#stats-content");
 const data_error_container = document.querySelector(".no-data-error");
 const range_pills = document.querySelectorAll(".pill");
@@ -18,9 +19,9 @@ const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
-const show_pixel_checkbox = document.querySelector("#showPixelCheckbox");
+const show_pixel_card_checkbox = document.querySelector("#showPixelCardCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
-const container_floating_card = document.getElementById("hoverCardContainer");
+const container_floating_card = document.querySelector("#hoverCardContainer");
 
 const tag_options_container = document.querySelector("#tagOptionsContainer");
 const input_nb_tags = document.querySelector("#maxTagsInput");
@@ -55,8 +56,9 @@ const btn_download_wordcloud = document.querySelector("#btnDownloadWordcloud");
 
 const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
-const SCROLL_TO = 3500;
+const SCROLL_TO = 1000;
 const isMobile = window.innerWidth <= 800;
+let pendingAnchor = window.location.hash || "";
 let userLocale = "default";
 let initial_data = [];
 let current_data = [];
@@ -69,6 +71,8 @@ let moodShowAverage = false;
 let moodShowYears = false;
 let moodTimeOption = "mood";
 let moodShowPixelCard = true;
+let cardWidth = 500;
+let averageScore = 0;
 
 // Tags
 let tag_stats = {};
@@ -127,7 +131,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, type="msg", duration=10000) {
+function show_popup_message(message, type = "msg", duration = 10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -154,8 +158,7 @@ function show_popup_message(message, type="msg", duration=10000) {
 }
 
 
-
-function fill_empty_dates(data) {
+function fill_missing_dates(data) {
     const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
@@ -181,9 +184,9 @@ function fill_empty_dates(data) {
 
 
 async function update_stats_and_graphics() {
-    privacy_notice.style.display = "none";
+    div_intro_content.style.display = "none";
     content_container.style.display = "block";
-    
+
     if (current_data.length === 0) {
         data_error_container.style.display = "block";
         stats_content_container.style.display = "none";
@@ -192,7 +195,7 @@ async function update_stats_and_graphics() {
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
 
-        fill_empty_dates(current_data);
+        fill_missing_dates(current_data);
 
         await Promise.all([
             calculate_and_display_stats(),
@@ -222,12 +225,12 @@ async function filter_pixels(numberOfDays) {
     const firstPixelDate = new Date(initial_data[0].date);
     const lastPixelDate = new Date(initial_data[initial_data.length - 1].date);
     if (!is_date_valid(firstPixelDate) || !is_date_valid(lastPixelDate)) { return; }
-    
+
     let startDate, endDate;
     if (numberOfDays == 0) {
         startDate = new Date(start_date_filter.value + " 00:00:00");
         endDate = new Date(end_date_filter.value + " 00:00:00");
-        
+
         if (!is_date_valid(startDate) || !is_date_valid(endDate) ||
             startDate.getFullYear() < 2015 || endDate.getFullYear() < 2015 ||
             startDate.getFullYear() > 2100 || endDate.getFullYear() > 2100) {
@@ -294,9 +297,10 @@ async function handle_file_upload(file) {
             data.sort((a, b) => new Date(a.date) - new Date(b.date));
             initial_data = data;
             current_data = initial_data;
-            
+
             await load_settings();
-            update_stats_and_graphics();
+            await update_stats_and_graphics();
+            scroll_to_anchor_if_available();
             document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
         }
     }
@@ -336,6 +340,21 @@ function close_words_dialog_settings() {
 }
 
 
+function scroll_to_anchor_if_available() {
+    const hash = (pendingAnchor || window.location.hash || "").trim();
+    if (!hash) { return; }
+
+    const id = decodeURIComponent(hash.replace(/^#/, ""));
+    if (!id) { return; }
+
+    const target = document.getElementById(id);
+    if (!target) { return; }
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    pendingAnchor = "";
+}
+
+
 function handle_click_words_dialog(e) {
     if (e.target === words_dialog_settings) {
         close_words_dialog_settings();
@@ -352,6 +371,20 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
+    }
+
+    window.addEventListener("hashchange", () => {
+        pendingAnchor = window.location.hash || "";
+        console.log("Hash changed:", pendingAnchor);
+        const contentVisible = (content_container.style.display !== "none") && (stats_content_container.style.display !== "none");
+        if (contentVisible) {
+            scroll_to_anchor_if_available();
+        }
+    });
+
+    // If mobile, change the placeholder text of the search input
+    if (isMobile) {
+        words_search_input.placeholder = 'e.g. "good day"';
     }
 
     file_input.addEventListener("change", async (event) => {
@@ -383,6 +416,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+
+    // section titles to copy URL with anchor
+    section_titles.forEach(title => {
+        title.title = "Click to copy link to this section";
+        title.addEventListener("click", () => {
+            const sectionId = title.id;
+            const url = `${window.location.origin}${window.location.pathname}#${sectionId}`;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                show_popup_message("Link copied to clipboard!", "normal", 2000);
+            })
+            .catch(err => {
+                console.error("Failed to copy URL:", err);
+                show_popup_message("Failed to copy link", "error", 2000);
+            });
+        });
+    });
+
 
     // Tutorial
     start_tutorial_button.addEventListener("click", function () {
@@ -425,7 +477,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     show_average_checkbox.addEventListener("change", (e) => {
         moodShowAverage = e.target.checked;
+        // add average on all charts
         create_mood_chart();
+        create_tag_frequency_chart();
+        create_tag_score_chart();
+        sync_tag_charts_hover();
+        create_month_chart();
+        create_weekday_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
@@ -433,8 +491,9 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mood_chart();
     });
 
-    show_pixel_checkbox.addEventListener("change", (e) => {
+    show_pixel_card_checkbox.addEventListener("change", (e) => {
         moodShowPixelCard = e.target.checked;
+        display_floating_card();
     });
 
     select_time_option.addEventListener("change", (e) => {
@@ -468,7 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Weekdays
     weekday_frequency_select.addEventListener("change", (e) => {
         png_settings.firstDayOfWeek = parseInt(e.target.value);
-        create_weekday_chart(png_settings.firstDayOfWeek);
+        create_weekday_chart();
     });
 
 
@@ -556,11 +615,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn_download_wordcloud.addEventListener("click", () => {
         download_wordcloud();
     });
-
-    // If mobile, change the placeholder text of the search input
-    if (isMobile) {
-        words_search_input.placeholder = 'e.g. "good day"';
-    }
 
 
     // Export PNG

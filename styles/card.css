@@ -3,13 +3,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    max-width: 500px;
+    resize: horizontal;
+    overflow: auto;
+    width: var(--pixel-card-width, auto);
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 300px;
     margin: 1rem auto;
     padding: 1rem;
     border-radius: 8px;
     border-left: 4px solid var(--primary-color);
     border-right: 4px solid var(--primary-color);
-    background-color: var(--secondary-bg);
+    background-color: /* var(--secondary-bg); */ var(--bg-color);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     
     & h3 {
@@ -105,14 +110,6 @@
 
     }
 }
-
-#hoverCardContainer {
-    display: none;
-    position: absolute;
-    z-index: 999;
-    transform: translate(12px, 12px);
-}
-
 
 
 .input-date {
