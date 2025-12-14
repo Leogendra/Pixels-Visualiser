@@ -92,7 +92,7 @@ let full_word_frequency = [];
 let wordDisplayPercentage = false;
 let wordOrderByScore = false;
 let wordRegexSearch = false;
-let wordNbMaxWords = 20;
+let wordNbMaxWords = 30;
 let wordNbMinCount = 10;
 let wordMinScore = 1.0;
 let wordSearchText = "";
@@ -114,7 +114,7 @@ const png_default_settings = {
     },
     firstDayOfWeek: 1,
     squareSize: 50,
-    borderSize: 0,
+    borderSize: 1,
     showBorder: true,
     showLegend: false,
     showDays: false,

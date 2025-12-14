@@ -27,7 +27,7 @@ const setting_showFilter = document.querySelector("#showFilterSelect");
 const setting_scoreType = document.querySelector("#scoreTypeSelect");
 const setting_layout = document.querySelector("#layoutSelect");
 
-// Compare settings
+// compare settings
 const hr_filter = document.querySelector("#hr-filter");
 const div_compareSearchOptions1 = document.querySelector("#compareSearchOptions1");
 const label_compareSelect1 = document.querySelector("#labelCompareSelect1");
@@ -57,7 +57,7 @@ function get_image_settings() {
             empty: setting_colorEmpty.value
         },
         firstDayOfWeek: parseInt(weekday_frequency_select.value, 10),
-        squareSize: parseInt(setting_squareSize.value, 10) || 20,
+        squareSize: parseInt(setting_squareSize.value, 10) || 50,
         borderSize: parseInt(setting_borderSize.value, 10) || 1,
         showBorder: setting_showBorder.checked,
         showLegend: setting_showLegend.checked,
@@ -88,7 +88,7 @@ function set_image_settings(settings) {
     setting_scoreType.value = settings.scoreType;
     setting_layout.value = settings.layout;
 
-    // First day of week
+    // first day of week
     weekday_frequency_select.value = settings.firstDayOfWeek.toString();
 
     set_filter_display();
@@ -110,7 +110,7 @@ async function setup_palette_settings() {
     for (let score = 1; score <= 5; score++) {
         const cell = document.querySelector(`#color${score}`).parentElement;
         const input = document.getElementById(`color${score}`);
-        
+
         input.classList.add("color-picker-overlay");
 
         let old_svg = cell.querySelector("svg");
@@ -233,28 +233,28 @@ async function generate_pixels_PNG() {
 
     data = get_compare_settings();
 
-    // Choose layout and direction
+    // choose layout and direction
     const direction = layout.includes("vertical") ? "col" : "row";
     const isWeek = layout.includes("weeks");
     const textColor = get_contrasting_text_color(colors.empty);
-    const lightTextColor = get_contrasting_text_color(colors.empty, less=true);
+    const lightTextColor = get_contrasting_text_color(colors.empty, less = true);
 
-    // Create a map of pixels by date
+    // create a map of pixels by date
     const pixel_map = new Map();
     for (const pixel of data) {
         const normalizedDate = normalize_date(pixel.date);
         pixel_map.set(normalizedDate, pixel);
     }
 
-    // Obtain all dates from the pixel map
+    // obtain all dates from the pixel map
     const dates = [...pixel_map.keys()].map(d => new Date(d));
-    if (dates.length === 0) { 
-        return; 
+    if (dates.length === 0) {
+        return;
     }
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
 
-    // Align the first date to the start of the week defined by firstDayOfWeek
+    // align the first date to the start of the week defined by firstDayOfWeek
     const firstDate = new Date(minDate);
     if (isWeek) {
         const firstDay = firstDate.getDay();
@@ -262,7 +262,7 @@ async function generate_pixels_PNG() {
         firstDate.setDate(firstDate.getDate() - offset);
     }
 
-    // Generate all dates from the first date to the last date
+    // generate all dates from the first date to the last date
     const allDays = [];
     const current = new Date(firstDate);
     while (current <= maxDate) {
@@ -270,7 +270,7 @@ async function generate_pixels_PNG() {
         current.setDate(current.getDate() + 1);
     }
 
-    // Get all the weeks and months numbers
+    // get all the weeks and months numbers
     const monthGroups = new Map();
     const weekGroups = new Map();
     for (const d of allDays) {
@@ -284,7 +284,7 @@ async function generate_pixels_PNG() {
         monthGroups.get(monthKey).push(d);
     }
 
-    // Dimensions of the grid
+    // dimensions of the grid
     const pixels_groups = isWeek ? [...weekGroups.values()] : [...monthGroups.values()];
     if (pixels_groups.length === 0) {
         return;
@@ -297,8 +297,17 @@ async function generate_pixels_PNG() {
     pixelsCanvas = document.createElement("canvas");
 
     const legendPadding = showLegend ? (squareSize * 1.3) : (squareSize * 0.3);
-    pixelsCanvas.width = cols * squareSize + legendPadding + (squareSize * 0.3); // Add padding for style in the bottom/right
-    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3);
+    const paletteLegendHeight = showLegend ? (squareSize * 1.5) : 0; // space for color palette legend below
+    const paletteItemSize = showLegend ? (squareSize * 0.8) : 0;
+    const paletteItemSpacing = showLegend ? (squareSize * 0.3) : 0;
+    const paletteTotalWidth = showLegend ? ((5 * paletteItemSize) + (4 * paletteItemSpacing)) : 0;
+
+    const gridWidth = cols * squareSize + legendPadding + (squareSize * 0.3);
+    const canvasWidth = Math.max(gridWidth, paletteTotalWidth + (legendPadding * 2));
+    const gridOffsetX = (canvasWidth - gridWidth) / 2;
+
+    pixelsCanvas.width = canvasWidth; // ensure the palette fits horizontally with padding
+    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3) + paletteLegendHeight;
 
     const ctx = pixelsCanvas.getContext("2d");
     ctx.fillStyle = textColor;
@@ -306,11 +315,11 @@ async function generate_pixels_PNG() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = colors.empty;
-    ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);   
+    ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);
 
-    
-    
-    // Draw the grid
+
+
+    // draw the grid
     let lastYear = null;
     let lastMonth = null;
     let firstPixelDrawn = true;
@@ -322,12 +331,12 @@ async function generate_pixels_PNG() {
             const dayOfWeek = (d.getDay() - firstDayOfWeek + 7) % 7; // + 7 to handle negative values
             const color = get_pixel_color(pixel?.scores, colors, scoreType);
 
-            // Labels for legend
+            // labels for legend
             const year = d.getFullYear();
             const month = d.getMonth();
-            const monthLabel = d.toLocaleString(userLocale, { month: "short" });
+            const monthLabel = d.toLocaleString(userLocale, { month: "short" }).replace(/\./g, "");
 
-            // Avoid drawing the first pixels if they are empty
+            // avoid drawing the first pixels if they are empty
             if (!firstPixelDrawn) {
                 if (color === colors.empty) {
                     return; // "continue" for the foreach
@@ -336,8 +345,8 @@ async function generate_pixels_PNG() {
                     firstPixelDrawn = true;
                 }
             }
-            
-            // Calculate the position of the pixel
+
+            // calculate the position of the pixel
             let x, y;
             if (direction === "col") {
                 x = i * squareSize;
@@ -348,23 +357,23 @@ async function generate_pixels_PNG() {
                 x = isWeek ? (dayOfWeek * squareSize) : (j * squareSize);
             }
 
-            x += legendPadding;
+            x += legendPadding + gridOffsetX;
             y += legendPadding;
 
 
-            // Draw the legend labels for month and year
+            // draw the legend labels for month and year
             if (showLegend && (j === (days.length - 1))) {
-                
+
                 ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
 
                 if (year !== lastYear) {
                     ctx.fillStyle = textColor;
-                    const yearLabelX = direction === "col" ? (i * squareSize + legendPadding + squareSize / 2) : (legendPadding / 2);
+                    const yearLabelX = direction === "col" ? (i * squareSize + legendPadding + gridOffsetX + squareSize / 2) : (legendPadding / 2 + gridOffsetX);
                     const yearLabelY = direction === "col" ? (legendPadding / 2) : (i * squareSize + legendPadding + squareSize / 2);
-                    
+
                     if (direction === "col") {
                         ctx.fillText(year, yearLabelX, yearLabelY - (squareSize * 0.1));
-                    } 
+                    }
                     else {
                         ctx.save();
                         ctx.translate(legendPadding / 2, yearLabelY - (squareSize * 0.05));
@@ -374,12 +383,12 @@ async function generate_pixels_PNG() {
                 }
                 if (month !== lastMonth) {
                     ctx.fillStyle = lightTextColor;
-                    const monthLabelX = direction === "col" ? (i * squareSize + legendPadding + squareSize / 2) : (legendPadding / 2);
+                    const monthLabelX = direction === "col" ? (i * squareSize + legendPadding + gridOffsetX + squareSize / 2) : (legendPadding / 2 + gridOffsetX);
                     const monthLabelY = direction === "col" ? (legendPadding / 2) : (i * squareSize + legendPadding + squareSize / 2);
 
                     if (direction === "col") {
                         ctx.fillText(monthLabel, monthLabelX, legendPadding / 2 + (squareSize * 0.3));
-                    } 
+                    }
                     else {
                         ctx.save();
                         if (year !== lastYear) {
@@ -397,7 +406,7 @@ async function generate_pixels_PNG() {
             }
 
 
-            // Draw a gradient if scores are available
+            // draw a gradient if scores are available
             if ((scoreType === "gradient") && pixel && pixel.scores && (pixel.scores.length > 1)) {
                 const gradient = ctx.createLinearGradient(x, y, x + squareSize, y); // horizontal
 
@@ -425,20 +434,7 @@ async function generate_pixels_PNG() {
                 ctx.strokeRect(borderX, borderY, squareSize - 1, squareSize - 1);
             }
 
-            /*
-            // Draw the day number in the center of the square
-            if (showDays) {
-                const dayNumber = d.getDate().toString();
-                ctx.fillStyle = "black";
-                ctx.font = `bold ${squareSize * 0.25}px sans-serif`;
-                ctx.textAlign = "center";
-                const labelX = x + squareSize / 2;
-                const labelY = y + squareSize / 2 + (squareSize * 0.1); 
-                ctx.fillText(dayNumber, labelX, labelY);
-            }
-            */
-
-            // Draw the day number in the bottom right corner of the square
+            // draw the day number in the bottom right corner of the square
             if (showDays) {
                 const dayNumber = d.getDate().toString();
 
@@ -460,7 +456,7 @@ async function generate_pixels_PNG() {
     });
 
 
-    // Write legend of weekdays or month days on the side/top
+    // write legend of weekdays or month days on the side/top
     if (showLegend) {
         ctx.fillStyle = lightTextColor;
         ctx.font = `bold ${squareSize * 0.4}px sans-serif`;
@@ -468,12 +464,12 @@ async function generate_pixels_PNG() {
             const weekdays = 7;
             for (let i = 0; i < weekdays; i++) {
                 const date = new Date(2024, 0, 7 + ((i + firstDayOfWeek) % 7));
-                const label = date.toLocaleDateString(userLocale, { weekday: "short" });
+                const label = date.toLocaleDateString(userLocale, { weekday: "short" }).replace(/\./g, "");
                 if (direction === "row") {
-                    ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2);
-                } 
+                    ctx.fillText(label, i * squareSize + legendPadding + gridOffsetX + squareSize / 2, legendPadding / 2);
+                }
                 else {
-                    ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+                    ctx.fillText(label, legendPadding / 2 + gridOffsetX, i * squareSize + legendPadding + squareSize / 2);
                 }
             }
         }
@@ -482,13 +478,61 @@ async function generate_pixels_PNG() {
             for (let i = 0; i < maxDays; i++) {
                 const label = (i + 1).toString();
                 if (direction === "row") {
-                    ctx.fillText(label, i * squareSize + legendPadding + squareSize / 2, legendPadding / 2 + (squareSize * 0.2));
-                } 
+                    ctx.fillText(label, i * squareSize + legendPadding + gridOffsetX + squareSize / 2, legendPadding / 2 + (squareSize * 0.2));
+                }
                 else {
-                    ctx.fillText(label, legendPadding / 2, i * squareSize + legendPadding + squareSize / 2);
+                    ctx.fillText(label, legendPadding / 2 + gridOffsetX, i * squareSize + legendPadding + squareSize / 2);
                 }
             }
         }
+
+        // draw color palette legend below the grid with pixel icons
+        const paletteStartX = (pixelsCanvas.width - paletteTotalWidth) / 2;
+        const paletteY = rows * squareSize + legendPadding + (squareSize * 0.3) + (paletteLegendHeight - paletteItemSize) / 2;
+
+        // load all pixel icons and draw them with proper coloring
+        const pixelPromises = [];
+        for (let i = 1; i <= 5; i++) {
+            pixelPromises.push(
+                new Promise((resolve) => {
+                    const req = new XMLHttpRequest();
+                    req.open("GET", `assets/pixels/score_${i}.svg`, true);
+                    req.onload = () => {
+                        const parser = new DOMParser();
+                        const svgDoc = parser.parseFromString(req.responseText, "image/svg+xml");
+                        const svg = svgDoc.querySelector("svg");
+
+                        svg.style.color = colors[i];
+                        const serializer = new XMLSerializer();
+                        const svgString = serializer.serializeToString(svg);
+
+                        const img = new Image();
+                        const blob = new Blob([svgString], { type: "image/svg+xml" });
+                        const url = URL.createObjectURL(blob);
+
+                        img.onload = () => {
+                            const x = paletteStartX + ((i - 1) * (paletteItemSize + paletteItemSpacing));
+                            const y = paletteY;
+
+                            ctx.drawImage(img, x, y, paletteItemSize, paletteItemSize);
+
+                            URL.revokeObjectURL(url);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            URL.revokeObjectURL(url);
+                            resolve();
+                        };
+                        img.src = url;
+                    };
+                    req.onerror = () => resolve();
+                    req.send();
+                })
+            );
+        }
+
+        // wait all palette icons before showing
+        await Promise.all(pixelPromises);
     }
 
     const img = document.createElement("img");
@@ -500,7 +544,7 @@ async function generate_pixels_PNG() {
 
     if ((pixelsCanvas.height < 600) || (pixelsCanvas.width > pixelsCanvas.height * 3)) { // if image is landscape or small enough
         result_png.style.height = "fit-content";
-    } 
+    }
     else {
         result_png.style.height = "600px"; // avoid overflow of the image
     }
@@ -521,7 +565,7 @@ async function download_pixels_PNG() {
 }
 
 
-function filter_pixels_by_keyword(keyword, isTag=false) {
+function filter_pixels_by_keyword(keyword, isTag = false) {
     if (!keyword || (keyword.trim() === "") || (current_data.length === 0)) { return []; }
     const result = [];
     const firstDate = normalize_date(current_data[0].date);
@@ -536,7 +580,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
         const scores = pixel.scores || [];
         if (scores.length === 0) { return; }
         const notes = normalize_string(pixel.notes || "");
-        
+
         let hasMatch = false;
         if (isTag) {
             if (Array.isArray(pixel.tags)) {
@@ -550,7 +594,7 @@ function filter_pixels_by_keyword(keyword, isTag=false) {
                 orGroup.some(regexTerm => regexTerm.test(notes))
             );
         }
-        
+
         if (hasMatch) {
             result.push({ date, scores });
         }
@@ -590,7 +634,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
                     tagObj.entries.some(tag => normalize_string(tag) === target1)
                 );
             }
-        } 
+        }
         else {
             const notes = normalize_string(pixel.notes || "");
             match1 = target1.every(orGroup =>
@@ -605,7 +649,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
                     tagObj.entries.some(tag => normalize_string(tag) === target2)
                 );
             }
-        } 
+        }
         else {
             const notes = normalize_string(pixel.notes || "");
             match2 = target2.every(orGroup =>
@@ -621,10 +665,10 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
         else {
             if (match1 && match2) {
                 result.push({ date, scores: [3] });
-            } 
+            }
             else if (match1) {
                 result.push({ date, scores: [5] });
-            } 
+            }
             else if (match2) {
                 result.push({ date, scores: [1] });
             }
@@ -652,7 +696,7 @@ function get_compare_settings() {
         return filter_pixels_by_keyword(value2, compareTag2);
     }
     else {
-        return current_data; // No filtering, return the current data
+        return current_data;
     }
 }
 
@@ -668,7 +712,7 @@ async function set_filter_display() {
     label_compareSelect1.style.color = (filterState === "2") ? png_settings.colors[5] : "black";
     label_compareSelect2.style.color = (filterState === "2") ? png_settings.colors[1] : "black";
 
-    label_compareSelect2.style.textDecoration = (filterState === "3") ?"line-through" : "none";
+    label_compareSelect2.style.textDecoration = (filterState === "3") ? "line-through" : "none";
 
     if (filterState === "1") {
         label_compareSelect1.title = "The pixels with this word/tag will be shown";
@@ -682,7 +726,6 @@ async function set_filter_display() {
         label_compareSelect2.title = "The pixels with this word/tag will be hidden from the image";
     }
 }
-
 
 
 function open_dialog_settings() {
@@ -706,7 +749,7 @@ function close_dialog_settings(save = false) {
 
 function handle_click_dialog(e) {
     if (e.target === dialog_settings) {
-        close_dialog_settings(save=true); // When clicking outside: save settings
+        close_dialog_settings(save = true); // when clicking outside: save settings
     }
 }
 
@@ -723,12 +766,12 @@ btn_reset_palette_settings.addEventListener("click", () => {
 });
 
 btn_save_palette_settings.addEventListener("click", () => {
-    close_dialog_settings(save=true);
+    close_dialog_settings(save = true);
     show_popup_message("Palette settings saved", "success", 3000);
 });
 
 btn_save_dialog_settings.addEventListener("click", () => {
-    close_dialog_settings(save=true);
+    close_dialog_settings(save = true);
 });
 
 btn_generate_png.addEventListener("click", () => {
