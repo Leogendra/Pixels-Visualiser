@@ -34,6 +34,7 @@ const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
+const words_unique_days_checkbox = document.querySelector("#wordsUniqueDaysCheckbox");
 const words_regex_checkbox = document.querySelector("#wordsRegexCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
@@ -91,6 +92,7 @@ let monthSeasonColors = false;
 let full_word_frequency = [];
 let wordDisplayPercentage = false;
 let wordOrderByScore = false;
+let wordCountUniqueDays = false;
 let wordRegexSearch = false;
 let wordNbMaxWords = 30;
 let wordNbMinCount = 10;
@@ -546,6 +548,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     words_order_checkbox.addEventListener("change", (e) => {
         wordOrderByScore = e.target.checked;
+        get_word_frequency();
+        create_word_frequency_section();
+    });
+
+    words_unique_days_checkbox.addEventListener("change", (e) => {
+        wordCountUniqueDays = e.target.checked;
         get_word_frequency();
         create_word_frequency_section();
     });

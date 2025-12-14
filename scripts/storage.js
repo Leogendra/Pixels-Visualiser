@@ -27,6 +27,7 @@ async function store_settings() {
 
             wordDisplayPercentage,
             wordOrderByScore,
+            wordCountUniqueDays,
             wordRegexSearch,
             wordNbMaxWords,
             wordNbMinCount,
@@ -93,6 +94,9 @@ async function load_settings() {
 
             wordOrderByScore = settings.wordOrderByScore ?? wordOrderByScore;
             words_order_checkbox.checked = wordOrderByScore;
+
+            wordCountUniqueDays = settings.wordCountUniqueDays ?? wordCountUniqueDays;
+            words_unique_days_checkbox.checked = wordCountUniqueDays;
 
             wordRegexSearch = settings.wordRegexSearch ?? wordRegexSearch;
             words_regex_checkbox.checked = wordRegexSearch;

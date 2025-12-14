@@ -283,6 +283,7 @@ function get_word_frequency() {
         .map(word => normalize_string(word))
         .filter(word => word);
 
+    // compute regex pattern if needed
     let searchPattern = null;
     if (wordRegexSearch && searchTextLower) {
         try {
@@ -343,17 +344,25 @@ function get_word_frequency() {
                     words_data[searchTextLower] = { count: 0, scores: [] };
                 }
                 // count number of appearances and add the score
-                words_data[searchTextLower].count += notesLower.split(searchTextLower).length - 1
-                words_data[searchTextLower].scores.push(average(entry.scores));
+                if (wordCountUniqueDays) {
+                    words_data[searchTextLower].count += 1;
+                    words_data[searchTextLower].scores.push(average(entry.scores));
+                }
+                else {
+                    const occurrences = notesLower.split(searchTextLower).length - 1;
+                    words_data[searchTextLower].count += occurrences;
+                    for (let i = 0; i < occurrences; i++) {
+                        words_data[searchTextLower].scores.push(average(entry.scores));
+                    }
+                }
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
-                // save time by skipping this entry if no search words match
-                return;
+                return; // save time by skipping this entry if no search words match
             }
         }
 
         // filter words of the notes
-        let words = wordRegexSearch
+        let matched_words = wordRegexSearch
             ? []
             : notesLower
                 .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
@@ -406,9 +415,12 @@ function get_word_frequency() {
             }
         }
 
+        if (wordCountUniqueDays) {
+            matched_words = Array.from(new Set(matched_words));
+        }
 
         // Add each word to the count
-        words.forEach(word => {
+        matched_words.forEach(word => {
             if (!(word in words_data)) {
                 words_data[word] = { count: 0, scores: [] };
             }
@@ -418,7 +430,7 @@ function get_word_frequency() {
 
     });
 
-
+    // convert to sorted array
     full_word_frequency = Object.entries(words_data)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
