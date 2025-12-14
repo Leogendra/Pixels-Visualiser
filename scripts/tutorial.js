@@ -7,13 +7,15 @@ const tutorial_steps = [
         message: "Click here to choose your Pixels backup file, or drop it here.",
         skippable: false,
         backable: false,
-        boxPosition: "bottom"
     },
     {
         element_id: "#paletteContainer",
         message: "You can start by selecting a color palette for the visualisation.",
         backable: false,
-        boxPosition: "bottom"
+    },
+    {
+        element_id: "#statCard3",
+        message: "You can enlarge the pie chart by clicking it to see the distribution of your scores.",
     },
     {
         element_id: "#moodChart",
@@ -96,7 +98,7 @@ function start_tutorial() {
     // remove anchor from URL to avoid conflicts
     history.replaceState(null, null, " "); 
     pendingAnchor = "";
-    
+
     if (!tutorial_overlay) { create_tutorial_elements(); }
     tutorial_overlay.classList.add("active");
     tutorialCurrent = 0;

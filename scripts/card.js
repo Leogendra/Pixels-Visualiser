@@ -157,15 +157,19 @@ function setup_card_resizeable_width(card_element) {
 }
 
 
-async function display_floating_card(pixels_data, chartElement) {
+async function display_floating_card(chartElement) {
     if (hoverDelay) { return; }
-
-    if (chartElement.length === 0) {
+    
+    if (!chartElement) {
+        container_floating_card.style.display = "none";
+        return;
+    }
+    else if (chartElement.length === 0) {
         return;
     }
 
     const pixelIndex = chartElement[0].index;
-    const pixel = pixels_data[pixelIndex];
+    const pixel = current_data[pixelIndex];
     const card = await create_pixel_card(pixel);
 
     container_floating_card.innerHTML = "";

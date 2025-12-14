@@ -28,59 +28,20 @@ function change_average_type(value) {
     create_mood_chart();
 }
 
-function fill_missing_dates(data) {
-    function format_date(date) {
-        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    }
-
-    if (!Array.isArray(data) || data.length === 0) return [];
-
-    data.sort((a, b) => {
-        const [y1, m1, d1] = a.date.split("-").map(Number);
-        const [y2, m2, d2] = b.date.split("-").map(Number);
-        return new Date(y1, m1 - 1, d1) - new Date(y2, m2 - 1, d2);
-    });
-
-    const result = [];
-
-    for (let i = 0; i < data.length - 1; i++) {
-        const current = data[i];
-        current.date = format_date(new Date(current.date));
-        const next = data[i + 1];
-        result.push(current);
-
-        const [y1, m1, d1] = current.date.split("-").map(Number);
-        const [y2, m2, d2] = next.date.split("-").map(Number);
-        let pointer = new Date(y1, m1 - 1, d1);
-        const target = new Date(y2, m2 - 1, d2);
-
-        pointer.setDate(pointer.getDate() + 1);
-        while (pointer < target) {
-            result.push({ date: format_date(pointer), scores: [] });
-            pointer.setDate(pointer.getDate() + 1);
-        }
-    }
-
-    result.push(data[data.length - 1]);
-    return result;
-}
-
-
 
 async function create_mood_chart() {
-    data = fill_missing_dates(current_data);
-    const dates = data.map(entry => entry.date);
+    const dates = current_data.map(entry => entry.date);
 
     let rawScores;
     let minValue;
     let maxValue;
     if (moodTimeOption === "mood") { // average score
-        rawScores = data.map(entry => average(entry.scores));
+        rawScores = current_data.map(entry => average(entry.scores));
         minValue = 1;
         maxValue = 5;
     }
     else if (moodTimeOption === "words") { // number of words
-        rawScores = data.map(entry => {
+        rawScores = current_data.map(entry => {
             if (!entry || !entry.notes || (entry.scores.length === 0)) { return null; }
             return entry.notes.split(/\s+/).length;
         });
@@ -88,7 +49,7 @@ async function create_mood_chart() {
         maxValue = minimum(rawScores);
     }
     else if (moodTimeOption === "tags") { // number of tags
-        rawScores = data.map(entry => {
+        rawScores = current_data.map(entry => {
             if (!entry || !entry.tags || (entry.scores.length === 0)) { return null; }
             return entry.tags.reduce((count, tag) => {
                 if (!Array.isArray(tag.entries)) return count;
@@ -99,7 +60,7 @@ async function create_mood_chart() {
         maxValue = minimum(rawScores);
     }
     else if (moodTimeOption === "scores") { // number of pixels
-        rawScores = data.map(entry => {
+        rawScores = current_data.map(entry => {
             if (!entry || !entry.scores || (entry.scores.length === 0)) { return null; }
             return entry.scores.length;
         });
@@ -226,13 +187,15 @@ async function create_mood_chart() {
                 }
             },
             onClick: async (_, chartElement) => {
-                display_floating_card(data, chartElement);
+                display_floating_card(chartElement);
 
                 hoverDelay = true;
                 setTimeout(() => { hoverDelay = false }, 2000);
             },
             onHover: async function (_, chartElement) {
-                display_floating_card(data, chartElement);
+                if (moodShowPixelCard) {
+                    display_floating_card(chartElement);
+                }
             },
             plugins: {
                 legend: {

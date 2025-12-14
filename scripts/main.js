@@ -158,8 +158,7 @@ function show_popup_message(message, type = "msg", duration = 10000) {
 }
 
 
-
-function fill_empty_dates(data) {
+function fill_missing_dates(data) {
     const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
@@ -196,7 +195,7 @@ async function update_stats_and_graphics() {
         data_error_container.style.display = "none";
         stats_content_container.style.display = "block";
 
-        fill_empty_dates(current_data);
+        fill_missing_dates(current_data);
 
         await Promise.all([
             calculate_and_display_stats(),
@@ -494,6 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     show_pixel_card_checkbox.addEventListener("change", (e) => {
         moodShowPixelCard = e.target.checked;
+        display_floating_card();
     });
 
     select_time_option.addEventListener("change", (e) => {

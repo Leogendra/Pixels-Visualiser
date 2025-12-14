@@ -64,8 +64,8 @@ function calculate_and_display_stats() {
         { title: "Score distribution", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
     ];
 
-    stats_container.innerHTML = stats_array.map(({ title, value }) => `
-    <div class="stat-card">
+    stats_container.innerHTML = stats_array.map(({ title, value }, index) => `
+    <div class="stat-card" id="statCard${index}">
     <h3>${title}</h3>
     ${value}
     </div>
