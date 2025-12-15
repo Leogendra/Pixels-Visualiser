@@ -165,14 +165,14 @@ function show_popup_message(message, type = "msg", duration = 10000) {
 
 
 function fill_missing_dates(data) {
-    const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
+    const datesStrSet = new Set(data.map(entry => normalize_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
     const maxDate = new Date(Math.max(...allDates));
 
     let current = new Date(minDate);
     while (current <= maxDate) {
-        const curentStrDate = pixel_format_date(current);
+        const curentStrDate = normalize_date(current);
         if (!datesStrSet.has(curentStrDate)) {
             data.push({
                 date: curentStrDate,
@@ -184,7 +184,7 @@ function fill_missing_dates(data) {
         current.setDate(current.getDate() + 1);
     }
 
-    data.sort((a, b) => new Date(pixel_format_date(a.date)) - new Date(pixel_format_date(b.date)));
+    data.sort((a, b) => new Date(normalize_date(a.date)) - new Date(normalize_date(b.date)));
     current_data = data;
 }
 
@@ -286,11 +286,32 @@ async function handle_file_upload(file) {
     let data;
 
     if (file.type === "application/json" || file.name.endsWith(".json")) {
-        const text = await file.text();
-        data = JSON.parse(text);
+        try {
+            const text = await file.text();
+            data = JSON.parse(text);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .json file.", "error", 5000);
+            return;
+        }
     }
     else if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-        data = await load_daylio_export(file);
+        try {
+            data = await load_daylio_export(file);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .csv file.", "error", 5000);
+            return;
+        }
+    }
+    else if (file.name.endsWith(".zip")) {
+        try {
+            data = await load_daily_you_export(file);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .zip file.", "error", 5000);
+            return;
+        }
     }
 
     try {
@@ -315,7 +336,7 @@ async function handle_file_upload(file) {
             await update_stats_and_graphics();
             scroll_to_anchor_if_available();
             document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
-            
+
             // Save Pixels data if persistence is enabled
             if (savePixelData) {
                 save_pixels_data(data);
@@ -383,7 +404,7 @@ function handle_click_words_dialog(e) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // auto load data
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
@@ -393,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     else {
         const stored_pixel_data = load_pixels_data();
-        
+
         // Auto load saved Pixels data if enabled
         if (stored_pixel_data) {
             persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
@@ -418,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
     }
-    
+
     // Persist Pixels checkbox toggle
     persist_pixels_checkbox.addEventListener("change", (e) => {
         savePixelData = e.target.checked;
@@ -474,14 +495,14 @@ document.addEventListener("DOMContentLoaded", () => {
         title.addEventListener("click", () => {
             const sectionId = title.id;
             const url = `${window.location.origin}${window.location.pathname}#${sectionId}`;
-            
+
             navigator.clipboard.writeText(url).then(() => {
                 show_popup_message("Link copied to clipboard!", "normal", 2000);
             })
-            .catch(err => {
-                console.error("Failed to copy URL:", err);
-                show_popup_message("Failed to copy link", "error", 2000);
-            });
+                .catch(err => {
+                    console.error("Failed to copy URL:", err);
+                    show_popup_message("Failed to copy link", "error", 2000);
+                });
         });
     });
 

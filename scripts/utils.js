@@ -148,15 +148,6 @@ function compute_regex(cnf_array) {
 
 //////////////// Dates ////////////////
 
-function pixel_format_date(input_date) {
-    const date = new Date(input_date);
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1);
-    const dd = String(date.getDate());
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-
 function normalize_date(input_date) {
     const date = new Date(input_date);
     const yyyy = date.getFullYear();

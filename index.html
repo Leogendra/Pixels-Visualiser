@@ -42,7 +42,7 @@
 
         <div class="upload-section" id="dragAndDropZone">
             <label id="fileInputLabel" for="fileInput" class="button">Choose or drop a backup file (.json)</label>
-            <input type="file" id="fileInput" accept=".json, .csv" style="display: none;">
+            <input type="file" id="fileInput" accept=".json, .csv, .zip" style="display: none;">
             
             <div class="options options-storage">
                 <div class="option-item">
@@ -158,10 +158,10 @@
                         <div class="option-item">
                             <label for="timeOptionSelect" title="Which statistic do you want to visualise">Option to display</label>
                             <select id="timeOptionSelect" class="select">
-                                <option value="mood">Mood</option>
+                                <option value="scores">Scores</option>
                                 <option value="words">Number of words</option>
                                 <option value="tags">Number of tags</option>
-                                <option value="scores">Number of pixels</option>
+                                <option value="pixels">Number of pixels</option>
                             </select>
                         </div>
                     </div>
@@ -539,8 +539,10 @@
     <!-- Fullcalendar.js for date input -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    <!-- Papa parse for csv reader -->
+    <!-- CSV, ZIP and SQL reader -->
     <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://sql.js.org/dist/sql-wasm.js"></script>
 
     <script src="scripts/utils.js"></script>
     <script src="scripts/stopwords.js"></script>
