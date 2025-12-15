@@ -279,10 +279,17 @@ async function filter_pixels(numberOfDays) {
 async function handle_file_upload(file) {
     if (!file) return;
 
-    try {
-        const text = await file.text();
-        const data = JSON.parse(text);
+    let data;
 
+    if (file.type === "application/json" || file.name.endsWith(".json")) {
+        const text = await file.text();
+        data = JSON.parse(text);
+    }
+    else if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        data = await load_daylio_export(file);
+    }
+
+    try {
         if (!Array.isArray(data) || !data.every(entry =>
             entry.date &&
             Array.isArray(entry.scores) &&
@@ -410,8 +417,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
-            if (file.type === "application/json" || file.name.endsWith(".json")) {
+            if (file.type === "application/json" || file.name.endsWith(".json") ||
+                file.type === "text/csv" || file.name.endsWith(".csv")) {
                 handle_file_upload(file);
+                console.log("File dropped:", file.name);
             }
             else {
                 if (e.target === drag_and_drop_zone || drag_and_drop_zone.contains(e.target)) {

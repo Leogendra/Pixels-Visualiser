@@ -42,7 +42,7 @@
 
         <div class="upload-section" id="dragAndDropZone">
             <label id="fileInputLabel" for="fileInput" class="button">Choose or drop a backup file (.json)</label>
-            <input type="file" id="fileInput" accept=".json" style="display: none;">
+            <input type="file" id="fileInput" accept=".json, .csv" style="display: none;">
         </div>
 
         <div id="introContent">
@@ -532,6 +532,9 @@
     <!-- Fullcalendar.js for date input -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
+    <!-- Papa parse for csv reader -->
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
     <script src="scripts/utils.js"></script>
     <script src="scripts/stopwords.js"></script>
     <script src="scripts/tutorial.js"></script>
@@ -540,6 +543,7 @@
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
     <script src="scripts/png.js"></script>
+    <script src="scripts/converter.js"></script>
     <script src="scripts/storage.js"></script>
 </body>
 
