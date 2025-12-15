@@ -1,6 +1,14 @@
 # Pixels Visualiser
 
-Pixels Visualiser is a client-side web app that allows users to visualise data from the [Pixels app](https://teovogel.me/pixels/) by Teo Vogel or the [Daylio app](https://daylio.net/) by Habitics, and explore their emotional data through various statistics and charts. You can access the app at [https://pixels-visualiser.gatienh.fr/](https://pixels-visualiser.gatienh.fr/).
+Pixels Visualiser is a client-side web application that lets you explore and visualise emotional data exported from supported mood-tracking apps. The app runs entirely in your browser and never uploads your data. You can access the app at [https://pixels-visualiser.gatienh.fr/](https://pixels-visualiser.gatienh.fr/).
+
+### Supported apps
+
+- [Pixels](https://teovogel.me/pixels/) by Teo Vogel -> JSON Pixels export
+- [Daylio](https://daylio.net/) by Habitics -> CSV export
+- [Daily You](https://github.com/Demizo/Daily_You) by Demizo -> ZIP export
+
+The app runs entirely in your browser and never uploads your data.
 
 ## Features
 
