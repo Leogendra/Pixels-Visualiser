@@ -2,6 +2,7 @@ const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const div_intro_content = document.querySelector("#introContent");
+const persist_pixels_checkbox = document.querySelector("#persistPixelsCheckbox");
 
 const content_container = document.querySelector("#content");
 const section_titles = document.querySelectorAll(".section-title");
@@ -59,6 +60,9 @@ const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 1000;
 const isMobile = window.innerWidth <= 800;
+
+// App state variables
+let savePixelData = false;
 let pendingAnchor = window.location.hash || "";
 let userLocale = "default";
 let initial_data = [];
@@ -311,6 +315,11 @@ async function handle_file_upload(file) {
             await update_stats_and_graphics();
             scroll_to_anchor_if_available();
             document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
+            
+            // Save Pixels data if persistence is enabled
+            if (savePixelData) {
+                save_pixels_data(data);
+            }
         }
     }
     catch (error) {
@@ -374,12 +383,26 @@ function handle_click_words_dialog(e) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Auto load data
+    
+    // auto load data
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
         setTimeout(() => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
+    }
+    else {
+        const stored_pixel_data = load_pixels_data();
+        
+        // Auto load saved Pixels data if enabled
+        if (stored_pixel_data) {
+            persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
+            initial_data = stored_pixel_data;
+            current_data = initial_data;
+            load_settings();
+            update_stats_and_graphics();
+            scroll_to_anchor_if_available();
+        }
     }
 
     window.addEventListener("hashchange", () => {
@@ -395,6 +418,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
     }
+    
+    // Persist Pixels checkbox toggle
+    persist_pixels_checkbox.addEventListener("change", (e) => {
+        savePixelData = e.target.checked;
+        if (e.target.checked) {
+            // enable persistence: save current data
+            if (initial_data && initial_data.length > 0) {
+                save_pixels_data(initial_data);
+            }
+        }
+        else {
+            delete_pixels_data();
+        }
+    });
 
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];

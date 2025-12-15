@@ -43,6 +43,13 @@
         <div class="upload-section" id="dragAndDropZone">
             <label id="fileInputLabel" for="fileInput" class="button">Choose or drop a backup file (.json)</label>
             <input type="file" id="fileInput" accept=".json, .csv" style="display: none;">
+            
+            <div class="options options-storage">
+                <div class="option-item">
+                    <input type="checkbox" id="persistPixelsCheckbox" class="checkbox">
+                    <label for="persistPixelsCheckbox" title="Save your Pixel data in browser storage for quick access on next visit">Keep Pixel data stored locally</label>
+                </div>
+            </div>
         </div>
 
         <div id="introContent">
