@@ -15,6 +15,9 @@ On the desktop version, you can hover every settings label to see more informati
     - [Score](#score)
     - [Pixel card](#pixel-card)
   - [Quick Start](#quick-start)
+    - [Export from Pixels app](#export-from-pixels-app)
+    - [Export from Daylio app](#export-from-daylio-app)
+    - [Import into Pixels Visualiser](#import-into-pixels-visualiser)
   - [Choose the dates and palette](#choose-the-dates-and-palette)
   - [Time evolution](#time-evolution)
   - [Tags frequency and average score](#tags-frequency-and-average-score)
@@ -45,14 +48,22 @@ The Pixel card shows the date, score icons, notes and tags for a specific day.
 
 ## Quick Start
 
+### Export from Pixels app
+
 To get the file from the Pixels app: open Pixels -> Settings -> `Export Pixels data` and save the file to your device.  
 
 <div align="center">
     <img src="assets/screenshots/export.png" alt="Export Pixels data from the app" style="width:40%;height:auto;" />
 </div>
 
+### Export from Daylio app
+
+To get the file from the Daylio app: open Daylio -> More -> Export Entries -> `CSV (table)` and save the file to your device.
+
+### Import into Pixels Visualiser
+
 1. Open [pixels-visualiser.gatienh.fr](https://pixels-visualiser.gatienh.fr/) in your browser.
-2. Click `Choose or drop a backup file` and select the Pixels export file (you can also drag-and-drop your exported .json file onto the page). 
+2. Click `Choose or drop a backup file` and select the exported backup file (you can also drag-and-drop your exported .json/.csv file onto the page). 
 
 
 ## Choose the dates and palette
