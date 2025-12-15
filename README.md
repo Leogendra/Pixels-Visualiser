@@ -1,6 +1,6 @@
 # Pixels Visualiser
 
-Pixels Visualiser is a client-side web app that allows users to load a JSON file from [Pixels app](https://teovogel.me/pixels/) by Teo Vogel, and explore their emotional data through various statistics and charts. You can access the app at [https://pixels-visualiser.gatienh.fr/](https://pixels-visualiser.gatienh.fr/).
+Pixels Visualiser is a client-side web app that allows users to visualise data from the [Pixels app](https://teovogel.me/pixels/) by Teo Vogel or the [Daylio app](https://daylio.net/) by Habitics, and explore their emotional data through various statistics and charts. You can access the app at [https://pixels-visualiser.gatienh.fr/](https://pixels-visualiser.gatienh.fr/).
 
 ## Features
 
