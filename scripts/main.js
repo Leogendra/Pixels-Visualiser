@@ -74,7 +74,7 @@ let last_end_date = null;
 let moodAveragingValue = 1;
 let moodShowAverage = false;
 let moodShowYears = false;
-let moodTimeOption = "mood";
+let moodTimeOption = "scores";
 let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
@@ -428,7 +428,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener("hashchange", () => {
         pendingAnchor = window.location.hash || "";
-        console.log("Hash changed:", pendingAnchor);
         const contentVisible = (content_container.style.display !== "none") && (stats_content_container.style.display !== "none");
         if (contentVisible) {
             scroll_to_anchor_if_available();
@@ -478,7 +477,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (file.type === "application/json" || file.name.endsWith(".json") ||
                 file.type === "text/csv" || file.name.endsWith(".csv")) {
                 handle_file_upload(file);
-                console.log("File dropped:", file.name);
             }
             else {
                 if (e.target === drag_and_drop_zone || drag_and_drop_zone.contains(e.target)) {

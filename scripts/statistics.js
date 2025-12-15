@@ -19,8 +19,7 @@ function calculate_streaks() {
     ).map(dateStr => {
         const [year, month, day] = dateStr.split("-").map(Number);
         return new Date(Date.UTC(year, month - 1, day));
-    })
-        .sort((a, b) => a - b);
+    }).sort((a, b) => a - b);
 
     let bestStreak = 1;
     let currentStreak = 1;
@@ -274,14 +273,36 @@ function get_word_frequency() {
     const words_data = {}; // { word: { count: X, scores: [n, n, ...] } }
     let searchTextLower = normalize_string(wordSearchText);
     let splitWordsFlag = false;
+    let negativeFilterPattern = null;
+    let positiveFilterPattern = null;
+
+    // negative filter pattern: (!...)
+    const negativeMatch = searchTextLower.match(/\(!([^)]+)\)/);
+    if (negativeMatch) {
+        const negativeText = negativeMatch[1];
+        if (negativeText) {
+            negativeFilterPattern = new RegExp(negativeText, "gi");
+        }
+        // remove the negative filter part from search text
+        searchTextLower = searchTextLower.replace(/\(!([^)]+)\)/, "").trim();
+    }
+
+    // positive filter pattern: (+...)
+    const positiveMatch = searchTextLower.match(/\(\+([^)]+)\)/);
+    if (positiveMatch) {
+        const positiveText = positiveMatch[1];
+        if (positiveText) {
+            positiveFilterPattern = new RegExp(positiveText, "gi");
+        }
+        // remove the positive filter part from search text
+        searchTextLower = searchTextLower.replace(/\(\+([^)]+)\)/, "").trim();
+    }
+
+    // split words flag /
     if (searchTextLower && searchTextLower.endsWith("/")) {
         searchTextLower = searchTextLower.slice(0, -1).trim();
         splitWordsFlag = true;
     }
-    const searchWords = searchTextLower
-        .split(/\s+/)
-        .map(word => normalize_string(word))
-        .filter(word => word);
 
     // compute regex pattern if needed
     let searchPattern = null;
@@ -329,6 +350,11 @@ function get_word_frequency() {
             searchPattern = new RegExp(pattern, "gi");
         }
     }
+    
+    const searchWords = searchTextLower
+        .split(/\s+/)
+        .map(word => normalize_string(word))
+        .filter(word => word);
 
     current_data.forEach(entry => {
         const averageScore = average(entry.scores);
@@ -336,6 +362,16 @@ function get_word_frequency() {
 
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
+
+        // Skip this entry if it matches the negative filter
+        if (negativeFilterPattern && negativeFilterPattern.test(notesLower)) {
+            return;
+        }
+
+        // Skip this entry if it doesn't match the positive filter
+        if (positiveFilterPattern && !positiveFilterPattern.test(notesLower)) {
+            return;
+        }
 
         // add the search term as a word if it matches the notes
         if (searchTextLower && !wordRegexSearch) {
