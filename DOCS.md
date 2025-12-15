@@ -128,7 +128,7 @@ Options:
 
 ## Most frequent words
 
-This lists the most frequent words from notes and provides search/filter options.
+This lists the most frequent words from notes and provides search/filter options. Note that all accents are ignored to improve matching (e.g., "café" and "cafe" are treated the same).  
 
 Options:
 - `Minimum count (n)`: only show words that appear at least `n` times.
@@ -138,7 +138,7 @@ Options:
 More settings:  
 Open the additional settings panel by clicking the "Settings" button.
 - `Show percentage`: display how often each word appears as a percentage (instead of a count) of total days in the selected period. /!\ If you word is used twice a day, it counts as 2 occurrences, so you can have words with more than 100%.
-- [TODO] Limit to one per day: only count a word once per day, even if it appears multiple times in the same note. The resulting percentage will then reflect the number of days the word appeared in, not the total number of occurrences.
+- `Count unique days`: only count a word once per day, even if it appears multiple times in the same note. The resulting count will reflect the number of days the word appeared in, not the total number of occurrences.
 - `Order by score`: sort words by average score instead of frequency.
 - `Number of words`: limit how many words are shown in the list.
 - `Stopwords`: you can choose a stopword language to add common words to ignore. You can remove stopwords from this list, or add your own custom stopwords. /!\ Remember that changing the stopword language will reset the "Default stopwords" list.
@@ -146,6 +146,14 @@ Open the additional settings panel by clicking the "Settings" button.
 Advanced search patterns:  
 You can try this type of search if you are familiar with search patterns.  
 Remember, searches always uses **all the parameters above** (number of words, min score, stopwords, etc.), if you don't see expected results, try changing those settings.
+
+- `(!excluded words)`: This negative filter exclude all Pixels that contain the excluded words. This allows you to see word frequencies only from Pixels that don't mention these excluded terms.
+  - Example: `(!work)` will show words only from Pixels that don't mention "work".
+  - The negative filter can be combined with other search patterns (e.g., `(!work)ate *` to find words after "ate" but exclude Pixels mentioning "work").
+
+- `(+mandatory words)`: The positive filter will only include Pixels that contain the specified words. This allows you to see word frequencies from a specific subset of Pixels.
+- Example: `(+work)` will show words only from Pixels that mention "work".
+- Can be combined with other patterns and negative filters: `(+travel)(!work)` finds words only in Pixels about travel that don't mention "work".
 
 - `*`: In the "Search words" box, use `*` as a wildcard to match unknown words, like "ate with *" to find all words that come after "ate with".
   
