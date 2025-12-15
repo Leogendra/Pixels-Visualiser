@@ -414,7 +414,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 handle_file_upload(file);
             }
             else {
-                alert("Please drop a valid .json file");
+                if (e.target === drag_and_drop_zone || drag_and_drop_zone.contains(e.target)) {
+                    show_popup_message("Please drop a .json file", "error", 3000);
+                }
             }
         }
     });
