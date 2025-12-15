@@ -60,6 +60,10 @@ To get the file from the Pixels app: open Pixels -> Settings -> `Export Pixels d
 
 To get the file from the Daylio app: open Daylio -> More -> Export Entries -> `CSV (table)` and save the file to your device.
 
+### Export from Daily You app
+
+To get the file from the Daily You app: open Daily You -> Settings -> Backup & Restore -> `Backup` and save the file to your device.
+
 ### Import into Pixels Visualiser
 
 1. Open [pixels-visualiser.gatienh.fr](https://pixels-visualiser.gatienh.fr/) in your browser.
