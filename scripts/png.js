@@ -217,6 +217,71 @@ async function set_tags_selects() {
 }
 
 
+function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, excludeTag = false) {
+    let filteredData = [];
+    if (isTag) {
+        filteredData = current_data.filter(pixel => {
+            if (!Array.isArray(pixel.tags) || pixel.scores.length === 0) { return false; }
+            const target = normalize_string(keyword);
+            return pixel.tags.some(tagObj =>
+                tagObj.entries.some(tag => normalize_string(tag) === target)
+            );
+        });
+    }
+    else {
+        filteredData = current_data.filter(pixel => {
+            if (!Array.isArray(pixel.scores) || pixel.scores.length === 0) { return false; }
+            const notes = normalize_string(pixel.notes || "");
+            const target = compute_regex(parse_logical_string(keyword));
+            return target.every(orGroup =>
+                orGroup.some(regexTerm => regexTerm.test(notes))
+            );
+        });
+    }
+
+    // if exclude keyword provided, filter out matching entries
+    if (excludeKeyword) {
+        if (excludeTag) {
+            filteredData = filteredData.filter(pixel => {
+                if (!Array.isArray(pixel.tags)) { return true; }
+                const target = normalize_string(excludeKeyword);
+                return !pixel.tags.some(tagObj =>
+                    tagObj.entries.some(tag => normalize_string(tag) === target)
+                );
+            });
+        } 
+        else {
+            filteredData = filteredData.filter(pixel => {
+                const notes = normalize_string(pixel.notes || "");
+                const target = compute_regex(parse_logical_string(excludeKeyword));
+                return !target.every(orGroup =>
+                    orGroup.some(regexTerm => regexTerm.test(notes))
+                );
+            });
+        }
+    }
+
+    const stats = { matchCount: filteredData.length, bestStreak: 0 };
+    if (filteredData.length > 0) {
+        const uniqueDates = Array.from(new Set(filteredData.map(entry => normalize_date(entry.date)))).sort();
+        let best = 1;
+        let current = 1;
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const prev = new Date(uniqueDates[i - 1]);
+            const cur = new Date(uniqueDates[i]);
+            const diffDays = (cur - prev) / (1000 * 60 * 60 * 24);
+            if (diffDays === 1) {
+                current += 1;
+                best = Math.max(best, current);
+            } else {
+                current = 1;
+            }
+        }
+        stats.bestStreak = best;
+    }
+    return stats;
+};
+
 
 async function generate_pixels_PNG() {
     const {
@@ -232,6 +297,31 @@ async function generate_pixels_PNG() {
     } = get_image_settings();
 
     data = get_compare_settings();
+
+    // Check if filter fields are not empty
+    const { showFilter, compareTag1, compareTag2, value1, value2 } = get_filter_value();
+    const hasValue1 = value1 && value1.trim() !== "";
+    const hasValue2 = value2 && value2.trim() !== "";
+    const isCompareMode = (showFilter === 2) && hasValue1 && hasValue2;
+
+    let stats1 = { matchCount: 0, bestStreak: 0 };
+    let stats2 = { matchCount: 0, bestStreak: 0 };
+
+    if ((showFilter === 2) && hasValue1 && hasValue2) {
+        // compare mode
+        stats1 = calculate_keyword_stats(value1, compareTag1);
+        stats2 = calculate_keyword_stats(value2, compareTag2);
+    }
+    else if ((showFilter === 3) && hasValue1 && hasValue2) {
+        // exclude mode
+        stats1 = calculate_keyword_stats(value1, compareTag1, value2, compareTag2);
+    }
+    else if ((showFilter > 0) && hasValue1) {
+        stats1 = calculate_keyword_stats(value1, compareTag1);
+    }
+    else if ((showFilter === 2) && hasValue2) {
+        stats2 = calculate_keyword_stats(value2, compareTag2);
+    }
 
     // choose layout and direction
     const direction = layout.includes("vertical") ? "col" : "row";
@@ -297,17 +387,20 @@ async function generate_pixels_PNG() {
     pixelsCanvas = document.createElement("canvas");
 
     const legendPadding = showLegend ? (squareSize * 1.3) : (squareSize * 0.3);
-    const paletteLegendHeight = showLegend ? (squareSize * 1.5) : 0; // space for color palette legend below
-    const paletteItemSize = showLegend ? (squareSize * 0.8) : 0;
-    const paletteItemSpacing = showLegend ? (squareSize * 0.3) : 0;
-    const paletteTotalWidth = showLegend ? ((5 * paletteItemSize) + (4 * paletteItemSpacing)) : 0;
+    const showPaletteLegend = showLegend && !isCompareMode;
+    const paletteLegendHeight = showPaletteLegend ? (squareSize * 1.5) : 0; // space for color palette legend below
+    const paletteItemSize = showPaletteLegend ? (squareSize * 0.8) : 0;
+    const paletteItemSpacing = showPaletteLegend ? (squareSize * 0.3) : 0;
+    const paletteTotalWidth = showPaletteLegend ? ((5 * paletteItemSize) + (4 * paletteItemSpacing)) : 0;
+    const statsBottomPadding = showLegend ? (squareSize * 0.3) : 0;
+    const filterStatsHeight = (hasValue1 || hasValue2) ? (squareSize * 0.9) : 0;
 
     const gridWidth = cols * squareSize + legendPadding + (squareSize * 0.3);
     const canvasWidth = Math.max(gridWidth, paletteTotalWidth + (legendPadding * 2));
     const gridOffsetX = (canvasWidth - gridWidth) / 2;
 
     pixelsCanvas.width = canvasWidth; // ensure the palette fits horizontally with padding
-    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3) + paletteLegendHeight;
+    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3) + paletteLegendHeight + filterStatsHeight + statsBottomPadding;
 
     const ctx = pixelsCanvas.getContext("2d");
     ctx.fillStyle = textColor;
@@ -487,52 +580,102 @@ async function generate_pixels_PNG() {
         }
 
         // draw color palette legend below the grid with pixel icons
-        const paletteStartX = (pixelsCanvas.width - paletteTotalWidth) / 2;
-        const paletteY = rows * squareSize + legendPadding + (squareSize * 0.3) + (paletteLegendHeight - paletteItemSize) / 2;
+        if (showPaletteLegend) {
+            const paletteStartX = (pixelsCanvas.width - paletteTotalWidth) / 2;
+            const paletteY = rows * squareSize + legendPadding + (squareSize * 0.3) + (paletteLegendHeight - paletteItemSize) / 2;
 
-        // load all pixel icons and draw them with proper coloring
-        const pixelPromises = [];
-        for (let i = 1; i <= 5; i++) {
-            pixelPromises.push(
-                new Promise((resolve) => {
-                    const req = new XMLHttpRequest();
-                    req.open("GET", `assets/pixels/score_${i}.svg`, true);
-                    req.onload = () => {
-                        const parser = new DOMParser();
-                        const svgDoc = parser.parseFromString(req.responseText, "image/svg+xml");
-                        const svg = svgDoc.querySelector("svg");
+            // load all pixel icons and draw them with proper coloring
+            const pixelPromises = [];
+            for (let i = 1; i <= 5; i++) {
+                pixelPromises.push(
+                    new Promise((resolve) => {
+                        const req = new XMLHttpRequest();
+                        req.open("GET", `assets/pixels/score_${i}.svg`, true);
+                        req.onload = () => {
+                            const parser = new DOMParser();
+                            const svgDoc = parser.parseFromString(req.responseText, "image/svg+xml");
+                            const svg = svgDoc.querySelector("svg");
 
-                        svg.style.color = colors[i];
-                        const serializer = new XMLSerializer();
-                        const svgString = serializer.serializeToString(svg);
+                            svg.style.color = colors[i];
+                            const serializer = new XMLSerializer();
+                            const svgString = serializer.serializeToString(svg);
 
-                        const img = new Image();
-                        const blob = new Blob([svgString], { type: "image/svg+xml" });
-                        const url = URL.createObjectURL(blob);
+                            const img = new Image();
+                            const blob = new Blob([svgString], { type: "image/svg+xml" });
+                            const url = URL.createObjectURL(blob);
 
-                        img.onload = () => {
-                            const x = paletteStartX + ((i - 1) * (paletteItemSize + paletteItemSpacing));
-                            const y = paletteY;
+                            img.onload = () => {
+                                const x = paletteStartX + ((i - 1) * (paletteItemSize + paletteItemSpacing));
+                                const y = paletteY;
 
-                            ctx.drawImage(img, x, y, paletteItemSize, paletteItemSize);
+                                ctx.drawImage(img, x, y, paletteItemSize, paletteItemSize);
 
-                            URL.revokeObjectURL(url);
-                            resolve();
+                                URL.revokeObjectURL(url);
+                                resolve();
+                            };
+                            img.onerror = () => {
+                                URL.revokeObjectURL(url);
+                                resolve();
+                            };
+                            img.src = url;
                         };
-                        img.onerror = () => {
-                            URL.revokeObjectURL(url);
-                            resolve();
-                        };
-                        img.src = url;
-                    };
-                    req.onerror = () => resolve();
-                    req.send();
-                })
-            );
+                        req.onerror = () => resolve();
+                        req.send();
+                    })
+                );
+            }
+
+            // wait all palette icons before showing
+            await Promise.all(pixelPromises);
         }
+    }
 
-        // wait all palette icons before showing
-        await Promise.all(pixelPromises);
+    // draw filter stats line (only when a filter is applied and legend is shown)
+    if (showLegend && (hasValue1 || hasValue2) && (isCompareMode || hasValue1 || hasValue2)) {
+        const font = `bold ${squareSize * 0.32}px sans-serif`;
+        const statsY = rows * squareSize + legendPadding + paletteLegendHeight + (filterStatsHeight / 2);
+        ctx.font = font;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+
+        if (isCompareMode && hasValue1 && hasValue2) {
+            const doubleSeparator = " | ";
+
+            const word1Text = `${value1}, nb: ${stats1.matchCount}, streak: ${stats1.bestStreak}`;
+            const word2Text = `${value2}, nb: ${stats2.matchCount}, streak: ${stats2.bestStreak}`;
+
+            ctx.fillStyle = colors[5];
+            const word1Width = ctx.measureText(word1Text).width;
+            ctx.fillStyle = colors[1];
+            const word2Width = ctx.measureText(word2Text).width;
+
+            const doubleSepWidth = ctx.measureText(doubleSeparator).width;
+            const totalWidth = word1Width + doubleSepWidth + word2Width;
+            let currentX = pixelsCanvas.width / 2 - totalWidth / 2;
+
+            // Display word1 with its stats in color 5
+            ctx.fillStyle = colors[5];
+            ctx.fillText(word1Text, currentX, statsY);
+            currentX += word1Width;
+
+            // Display double separator
+            ctx.fillStyle = lightTextColor;
+            ctx.fillText(doubleSeparator, currentX, statsY);
+            currentX += doubleSepWidth;
+
+            // Display word2 with its stats in color 1
+            ctx.fillStyle = colors[1];
+            ctx.fillText(word2Text, currentX, statsY);
+        }
+        else {
+            // Simple filter mode: display word + metrics
+            let keyword = hasValue1 ? value1 : value2;
+            let stats = hasValue1 ? stats1 : stats2;
+            const statsText = `Filter: ${keyword}, matches: ${stats.matchCount}, best streak: ${stats.bestStreak}`;
+            ctx.fillStyle = lightTextColor;
+            ctx.textAlign = "center";
+            ctx.fillText(statsText, pixelsCanvas.width / 2, statsY);
+        }
     }
 
     const img = document.createElement("img");
@@ -679,13 +822,20 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
 }
 
 
-function get_compare_settings() {
+function get_filter_value() {
     const showFilter = parseInt(setting_showFilter.value, 10);
     const compareTag1 = compareSelect1.value === "tag";
     const compareTag2 = compareSelect2.value === "tag";
-    const isExcludeMode = (showFilter === 3);
     const value1 = compareTag1 ? compareTagSelect1.value : compareWordInput1.value.trim();
     const value2 = compareTag2 ? compareTagSelect2.value : compareWordInput2.value.trim();
+    return { showFilter, compareTag1, compareTag2, value1, value2 };
+}
+
+
+function get_compare_settings() {
+    const { showFilter, compareTag1, compareTag2, value1, value2 } = get_filter_value();
+    const isExcludeMode = (showFilter === 3);
+
     if ((showFilter > 1) && value1 && value2) {
         return filter_pixels_by_two_keywords(value1, value2, compareTag1, compareTag2, isExcludeMode);
     }
