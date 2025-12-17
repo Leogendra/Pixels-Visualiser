@@ -440,7 +440,7 @@ function get_word_frequency() {
                     // split match for ***[] patterns
                     const words_captured = captured.split(/\s+/);
                     for (let k = 1; k <= words_captured.length; k++) {
-                        const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, '').trim(); // remove , . and trim
+                        const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, "").trim(); // remove , . and trim
                         if (!(sub in words_data)) {
                             words_data[sub] = { count: 0, scores: [] };
                         }

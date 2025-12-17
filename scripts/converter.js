@@ -63,7 +63,7 @@ async function load_daylio_export(file) {
 async function unzip_find_daily_you_db(zipArrayBuffer) {
     const zip = await JSZip.loadAsync(zipArrayBuffer);
 
-    // on privilégie explicitement daily_you.db
+    // we look for an exact match first
     const exact = Object.values(zip.files).find(
         f => !f.dir && /(^|\/)daily_you\.db$/i.test(f.name)
     );
@@ -73,7 +73,7 @@ async function unzip_find_daily_you_db(zipArrayBuffer) {
         .sort((a, b) => a.name.localeCompare(b.name));
 
     const dbFile = exact || candidates[0];
-    if (!dbFile) throw new Error('Aucun fichier .db/.sqlite trouvé dans le zip (attendu "daily_you.db").');
+    if (!dbFile) { throw new Error(`No .db/.sqlite file found in the zip (expected "daily_you.db").`); }
 
     const bytes = await dbFile.async("uint8array");
     return { filename: dbFile.name, bytes };

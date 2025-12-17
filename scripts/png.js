@@ -9,6 +9,7 @@ const btn_generate_png = document.querySelector("#btnGeneratePixelGrid");
 const btn_download_png = document.querySelector("#btnDownloadPixelGrid");
 const div_result_png = document.querySelector("#pixelGridResults");
 const result_png = document.querySelector(".pixel-png-img");
+const filter_stats_display = document.querySelector("#filterStatsDisplay");
 
 const setting_color1 = document.querySelector("#color1");
 const setting_color2 = document.querySelector("#color2");
@@ -221,7 +222,7 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
     let filteredData = [];
     if (isTag) {
         filteredData = current_data.filter(pixel => {
-            if (!Array.isArray(pixel.tags) || pixel.scores.length === 0) { return false; }
+            if (!Array.isArray(pixel.scores) || pixel.scores.length === 0) { return false; }
             const target = normalize_string(keyword);
             return pixel.tags.some(tagObj =>
                 tagObj.entries.some(tag => normalize_string(tag) === target)
@@ -243,13 +244,12 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
     if (excludeKeyword) {
         if (excludeTag) {
             filteredData = filteredData.filter(pixel => {
-                if (!Array.isArray(pixel.tags)) { return true; }
                 const target = normalize_string(excludeKeyword);
                 return !pixel.tags.some(tagObj =>
                     tagObj.entries.some(tag => normalize_string(tag) === target)
                 );
             });
-        } 
+        }
         else {
             filteredData = filteredData.filter(pixel => {
                 const notes = normalize_string(pixel.notes || "");
@@ -264,20 +264,21 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
     const stats = { matchCount: filteredData.length, bestStreak: 0 };
     if (filteredData.length > 0) {
         const uniqueDates = Array.from(new Set(filteredData.map(entry => normalize_date(entry.date)))).sort();
-        let best = 1;
-        let current = 1;
+        let bestStreak = 1;
+        let currentStreak = 1;
         for (let i = 1; i < uniqueDates.length; i++) {
             const prev = new Date(uniqueDates[i - 1]);
             const cur = new Date(uniqueDates[i]);
             const diffDays = (cur - prev) / (1000 * 60 * 60 * 24);
             if (diffDays === 1) {
-                current += 1;
-                best = Math.max(best, current);
-            } else {
-                current = 1;
+                currentStreak += 1;
+                bestStreak = Math.max(bestStreak, currentStreak);
+            } 
+            else {
+                currentStreak = 1;
             }
         }
-        stats.bestStreak = best;
+        stats.bestStreak = bestStreak;
     }
     return stats;
 };
@@ -300,27 +301,25 @@ async function generate_pixels_PNG() {
 
     // Check if filter fields are not empty
     const { showFilter, compareTag1, compareTag2, value1, value2 } = get_filter_value();
-    const hasValue1 = value1 && value1.trim() !== "";
-    const hasValue2 = value2 && value2.trim() !== "";
-    const isCompareMode = (showFilter === 2) && hasValue1 && hasValue2;
+    const isCompareMode = (showFilter === 2) && value1 && value2;
 
-    let stats1 = { matchCount: 0, bestStreak: 0 };
-    let stats2 = { matchCount: 0, bestStreak: 0 };
+    let stats_filter_1 = { matchCount: 0, bestStreak: 0 };
+    let stats_filter_2 = { matchCount: 0, bestStreak: 0 };
 
-    if ((showFilter === 2) && hasValue1 && hasValue2) {
+    if (isCompareMode) {
         // compare mode
-        stats1 = calculate_keyword_stats(value1, compareTag1);
-        stats2 = calculate_keyword_stats(value2, compareTag2);
+        stats_filter_1 = calculate_keyword_stats(value1, compareTag1);
+        stats_filter_2 = calculate_keyword_stats(value2, compareTag2);
     }
-    else if ((showFilter === 3) && hasValue1 && hasValue2) {
+    else if ((showFilter === 3) && value1 && value2) {
         // exclude mode
-        stats1 = calculate_keyword_stats(value1, compareTag1, value2, compareTag2);
+        stats_filter_1 = calculate_keyword_stats(value1, compareTag1, value2, compareTag2);
     }
-    else if ((showFilter > 0) && hasValue1) {
-        stats1 = calculate_keyword_stats(value1, compareTag1);
+    else if ((showFilter > 0) && value1) {
+        stats_filter_1 = calculate_keyword_stats(value1, compareTag1);
     }
-    else if ((showFilter === 2) && hasValue2) {
-        stats2 = calculate_keyword_stats(value2, compareTag2);
+    else if ((showFilter === 2) && value2) {
+        stats_filter_2 = calculate_keyword_stats(value2, compareTag2);
     }
 
     // choose layout and direction
@@ -393,7 +392,7 @@ async function generate_pixels_PNG() {
     const paletteItemSpacing = showPaletteLegend ? (squareSize * 0.3) : 0;
     const paletteTotalWidth = showPaletteLegend ? ((5 * paletteItemSize) + (4 * paletteItemSpacing)) : 0;
     const statsBottomPadding = showLegend ? (squareSize * 0.3) : 0;
-    const filterStatsHeight = (hasValue1 || hasValue2) ? (squareSize * 0.9) : 0;
+    const filterStatsHeight = (value1 || value2) ? (squareSize * 0.9) : 0;
 
     const gridWidth = cols * squareSize + legendPadding + (squareSize * 0.3);
     const canvasWidth = Math.max(gridWidth, paletteTotalWidth + (legendPadding * 2));
@@ -628,53 +627,45 @@ async function generate_pixels_PNG() {
             // wait all palette icons before showing
             await Promise.all(pixelPromises);
         }
-    }
 
-    // draw filter stats line (only when a filter is applied and legend is shown)
-    if (showLegend && (hasValue1 || hasValue2) && (isCompareMode || hasValue1 || hasValue2)) {
-        const font = `bold ${squareSize * 0.32}px sans-serif`;
-        const statsY = rows * squareSize + legendPadding + paletteLegendHeight + (filterStatsHeight / 2);
-        ctx.font = font;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
+        // draw filter stats line when a filter is applied
+        if (value1 || value2) {
+            ctx.font = `bold ${squareSize * 0.32}px sans-serif`;
+            ctx.textAlign = "left";
+            const statsY = rows * squareSize + legendPadding + paletteLegendHeight + (filterStatsHeight / 2);
 
-        if (isCompareMode && hasValue1 && hasValue2) {
-            const doubleSeparator = " | ";
+            if (isCompareMode) {
+                const doubleSeparator = " | ";
 
-            const word1Text = `${value1}, nb: ${stats1.matchCount}, streak: ${stats1.bestStreak}`;
-            const word2Text = `${value2}, nb: ${stats2.matchCount}, streak: ${stats2.bestStreak}`;
+                const word1Text = `${value1}, nb: ${stats_filter_1.matchCount}, streak: ${stats_filter_1.bestStreak}`;
+                const word2Text = `${value2}, nb: ${stats_filter_2.matchCount}, streak: ${stats_filter_2.bestStreak}`;
 
-            ctx.fillStyle = colors[5];
-            const word1Width = ctx.measureText(word1Text).width;
-            ctx.fillStyle = colors[1];
-            const word2Width = ctx.measureText(word2Text).width;
+                const word1Width = ctx.measureText(word1Text).width;
+                const word2Width = ctx.measureText(word2Text).width;
+                const doubleSepWidth = ctx.measureText(doubleSeparator).width;
+                const totalWidth = word1Width + doubleSepWidth + word2Width;
+                let currentX = pixelsCanvas.width / 2 - totalWidth / 2;
 
-            const doubleSepWidth = ctx.measureText(doubleSeparator).width;
-            const totalWidth = word1Width + doubleSepWidth + word2Width;
-            let currentX = pixelsCanvas.width / 2 - totalWidth / 2;
+                ctx.fillStyle = colors[5];
+                ctx.fillText(word1Text, currentX, statsY);
+                currentX += word1Width;
 
-            // Display word1 with its stats in color 5
-            ctx.fillStyle = colors[5];
-            ctx.fillText(word1Text, currentX, statsY);
-            currentX += word1Width;
+                ctx.fillStyle = lightTextColor;
+                ctx.fillText(doubleSeparator, currentX, statsY);
+                currentX += doubleSepWidth;
 
-            // Display double separator
-            ctx.fillStyle = lightTextColor;
-            ctx.fillText(doubleSeparator, currentX, statsY);
-            currentX += doubleSepWidth;
+                ctx.fillStyle = colors[1];
+                ctx.fillText(word2Text, currentX, statsY);
+            }
+            else {
+                let keyword = value1 ? value1 : value2;
+                let stats = value1 ? stats_filter_1 : stats_filter_2;
 
-            // Display word2 with its stats in color 1
-            ctx.fillStyle = colors[1];
-            ctx.fillText(word2Text, currentX, statsY);
-        }
-        else {
-            // Simple filter mode: display word + metrics
-            let keyword = hasValue1 ? value1 : value2;
-            let stats = hasValue1 ? stats1 : stats2;
-            const statsText = `Filter: ${keyword}, matches: ${stats.matchCount}, best streak: ${stats.bestStreak}`;
-            ctx.fillStyle = lightTextColor;
-            ctx.textAlign = "center";
-            ctx.fillText(statsText, pixelsCanvas.width / 2, statsY);
+                const statsText = `Filter: ${keyword}, matches: ${stats.matchCount}, best streak: ${stats.bestStreak}`;
+                ctx.fillStyle = lightTextColor;
+                ctx.textAlign = "center";
+                ctx.fillText(statsText, pixelsCanvas.width / 2, statsY);
+            }
         }
     }
 
@@ -690,6 +681,33 @@ async function generate_pixels_PNG() {
     }
     else {
         result_png.style.height = "600px"; // avoid overflow of the image
+    }
+
+    // display filter stats above the image if filters are applied
+    if (value1 || value2) {
+
+        const generate_stats_div_results = (value, nbMatches, bestStreak) => {
+            return `<div class="stat-item">
+                <strong>${value}</strong>: ${nbMatches} matches, best streak: ${bestStreak} days
+            </div>`;
+        };
+        let statsHTML = "";
+        
+        if (isCompareMode) {
+            statsHTML = generate_stats_div_results(value1, stats_filter_1.matchCount, stats_filter_1.bestStreak) + generate_stats_div_results(value2, stats_filter_2.matchCount, stats_filter_2.bestStreak);
+        } 
+        else {
+            let keyword = value1 ? value1 : value2;
+            let stats = value1 ? stats_filter_1 : stats_filter_2;
+            
+            statsHTML = generate_stats_div_results(keyword, stats.matchCount, stats.bestStreak);
+        }
+        
+        filter_stats_display.innerHTML = statsHTML;
+        filter_stats_display.style.display = "block";
+    } 
+    else {
+        filter_stats_display.style.display = "none";
     }
 
     btn_download_png.style.display = "flex";

@@ -365,6 +365,26 @@ a {
 }
 
 
+.filter-stats-display {
+    display: none;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    background-color: var(--secondary-bg);
+    border-radius: 4px;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    
+    & .stat-item {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+
 
 
 @media (max-width: 800px) {

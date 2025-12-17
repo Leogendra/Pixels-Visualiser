@@ -137,7 +137,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, type = "msg", duration = 10000) {
+function show_popup_message(message, type = "info", duration = 10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else {
         const stored_pixel_data = load_pixels_data();
 
-        // Auto load saved Pixels data if enabled
+        // auto load saved Pixels data if enabled
         if (stored_pixel_data) {
             persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
             initial_data = stored_pixel_data;
@@ -423,6 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
             load_settings();
             update_stats_and_graphics();
             scroll_to_anchor_if_available();
+            show_popup_message("Loaded saved Pixels data.", "info", 3000);
         }
     }
 
@@ -495,7 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const url = `${window.location.origin}${window.location.pathname}#${sectionId}`;
 
             navigator.clipboard.writeText(url).then(() => {
-                show_popup_message("Link copied to clipboard!", "normal", 2000);
+                show_popup_message("Link copied to clipboard!", "info", 2000);
             })
                 .catch(err => {
                     console.error("Failed to copy URL:", err);
