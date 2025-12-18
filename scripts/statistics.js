@@ -51,13 +51,14 @@ function calculate_and_display_stats() {
     const streaks = calculate_streaks();
     const moodCounts = {};
     averageScore = average(allScores);
+    nbTotalDays = current_data.filter(entry => entry.scores.length > 0).length;
 
     allScores.forEach(score => {
         moodCounts[score] = (moodCounts[score] || 0) + 1;
     });
 
     stats_array = [
-        { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
+        { title: "Number of Pixels", value: `<p>${nbTotalDays}</p>` },
         { title: "Average score", value: `<p>${averageScore.toFixed(2)}</p>` },
         { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
         { title: "Score distribution", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
@@ -209,7 +210,7 @@ function compute_tag_stats() {
         counts: tag_counts,
         scores: tag_scores,
         categories: tag_categories,
-        totalPixels: current_data.filter(entry => entry.scores.length > 0).length,
+        totalPixels: nbTotalDays,
     };
     set_tags_selects();
     setup_tag_categories();
@@ -350,7 +351,7 @@ function get_word_frequency() {
             searchPattern = new RegExp(pattern, "gi");
         }
     }
-    
+
     const searchWords = searchTextLower
         .split(/\s+/)
         .map(word => normalize_string(word))
@@ -500,7 +501,7 @@ async function create_word_frequency_section() {
             }
             return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
-                    <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / current_data.length).toFixed(1) + "%" : word.count}</p>
+                    <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / nbTotalDays).toFixed(1) + "%" : word.count}</p>
                     <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                     </div>`
         }
