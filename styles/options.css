@@ -220,14 +220,24 @@ input[type="color"], select {
         align-items: center;
         grid-template-columns: 1fr 1fr;
         min-width: 300px;
-        gap: 10px 0px;
+        gap: 5px 0px;
         background-color: var(--secondary-bg);
-        padding: 1rem;
+        padding: 0.8rem;
         border-radius: 8px;
+
+        & .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light-color);
+        }
 
         & label {
             font-size: 1rem;
+            padding: 0.6rem 0.5rem;
             color: var(--text-color);
+        }
+
+        & button {
+            margin: 0;
         }
     }
 
