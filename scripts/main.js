@@ -47,6 +47,8 @@ const words_search_label = document.querySelector("#labelSearchInput");
 const words_dialog_settings = document.querySelector("#dialogWordsSettings");
 const btn_open_words_dialog_settings = document.querySelector("#openWordsSettingsDialog");
 const btn_save_words_dialog_settings = document.querySelector("#saveWordsSettingsDialog");
+const btn_export_words = document.querySelector("#exportWordsBtn");
+const label_export_words = document.querySelector("#exportWordsLabel");
 
 const wordcloud_container = document.querySelector("#wordcloudContainer");
 const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
@@ -78,6 +80,7 @@ let moodTimeOption = "scores";
 let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
+let nbTotalDays = 0;
 
 // Tags
 let tag_stats = {};
@@ -408,6 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // auto load data
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
+        show_popup_message(`[DEV_MODE] Auto loading of ${DEV_FILE_PATH.split("/").pop()}`, "info", 2000);
         setTimeout(() => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
@@ -690,6 +694,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn_download_wordcloud.addEventListener("click", () => {
         download_wordcloud();
+    });
+
+    btn_export_words.addEventListener("click", () => {
+        download_word_list();
     });
 
 

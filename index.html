@@ -257,23 +257,32 @@
                                 <h3>Words settings</h3>
 
                                 <div class="dialog-settings-group">
+                                    <label for="wordsUniqueDaysCheckbox" title="Count the number of days containing the word instead of total occurrences">Count unique days</label>
+                                    <input type="checkbox" id="wordsUniqueDaysCheckbox" class="checkbox">
+
                                     <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                                     <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
 
                                     <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
                                     <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
 
-                                    <label for="wordsUniqueDaysCheckbox" title="Count unique days with the word instead of total occurrences">Count unique days</label>
-                                    <input type="checkbox" id="wordsUniqueDaysCheckbox" class="checkbox">
-
-                                    <label for="wordsRegexCheckbox" title="Advanced feature. Allow searching with regular expressions">Search by regex</label>
-                                    <input type="checkbox" id="wordsRegexCheckbox" class="checkbox">
-
                                     <label for="maxWordsInput" title="Number of words to display">Number of words</label>
                                     <input type="number" id="maxWordsInput" class="input-nb" min="1">
 
                                     <label for="openStopwordsSettingsDialog" title="Choose which words you want to exclude from the word list">Customise stopwords</label>
                                     <button class="button" id="openStopwordsSettingsDialog">Stopwords</button>
+
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
+
+                                    <label class="section-subtitle">Advanced settings</label>
+                                    <div></div>
+
+                                    <label for="wordsRegexCheckbox" title="Advanced feature. Allow searching with regular expressions">Search by regex</label>
+                                    <input type="checkbox" id="wordsRegexCheckbox" class="checkbox">
+
+                                    <label for="exportWordsBtn" id="exportWordsLabel" title="Export the words list as a text file">Download words (.txt)</label>
+                                    <button class="button" id="exportWordsBtn">Export</button>
                                 </div>
 
                                 <div class="dialog-buttons">
@@ -526,7 +535,7 @@
             </a>
         </div>
         <div class="version">Version: v1.7.1</div>
-        <div class="version">Last update: 2025-12-14</div>
+        <div class="version">Last update: 2025-12-19</div>
     </footer>
 
     <!-- Charts.js for graphs -->

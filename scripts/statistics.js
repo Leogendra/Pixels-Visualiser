@@ -399,7 +399,7 @@ function get_word_frequency() {
         }
 
         // filter words of the notes
-        let matched_words = wordRegexSearch
+        let matched_words = (wordRegexSearch && searchPattern)
             ? []
             : notesLower
                 .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
@@ -491,6 +491,9 @@ async function create_word_frequency_section() {
         .slice(0, wordNbMaxWords);
 
     if (words_filtered.length > 0) {
+        label_export_words.style.display = "block";
+        btn_export_words.style.display = "flex";
+
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
             let isWordSearched = false;
@@ -507,7 +510,12 @@ async function create_word_frequency_section() {
         }
         ).join("")}`
     }
-    else { word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>"; }
+    else {
+        word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>";
+        label_export_words.style.display = "none";
+        btn_export_words.style.display = "none";
+        return;
+    }
 
 
     // Avoid updating the wordcloud too frequently
@@ -517,6 +525,38 @@ async function create_word_frequency_section() {
     update_wordcloud_timeout = setTimeout(() => {
         update_wordcloud();
     }, 1000);
+}
+
+
+function download_word_list() {
+    const lines_split = full_word_frequency
+        .filter(word => (word.count >= wordNbMinCount))
+        .map(word => {
+            const displayCount = wordDisplayPercentage
+                ? (100 * word.count / nbTotalDays).toFixed(2) + "%"
+                : `${word.count}`;
+
+            return [word.word, displayCount, word.avg_score.toFixed(2)];
+        });
+
+    const maxWordLength = Math.max(...lines_split.map(parts => parts[0].length));
+    const maxCountLength = Math.max(...lines_split.map(parts => parts[1].length));
+    const content = lines_split
+        .map(line => {
+            const word = line[0].padEnd(maxWordLength); // align columns
+            const count = line[1].padStart(maxCountLength);
+            const score = line[2];
+            return `${word} | ${count} | ${score}`;
+        })
+        .join("\n");
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "word_list.txt";
+    link.click();
+    URL.revokeObjectURL(url);
 }
 
 
