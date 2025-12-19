@@ -1,7 +1,42 @@
 let storeSettingsTimeout = false;
 
+// =====================
+// Pixels data storage
+// =====================
+
+function save_pixels_data(data) {
+    try {
+        localStorage.setItem("pixelsData", JSON.stringify(data));
+    } 
+    catch (e) {
+        console.error("Failed to save Pixels data to localStorage", e);
+    }
+}
+
+function load_pixels_data() {
+    try {
+        const saved = localStorage.getItem("pixelsData");
+        return saved ? JSON.parse(saved) : null;
+    } 
+    catch (e) {
+        console.error("Failed to load Pixels data from localStorage", e);
+        return null;
+    }
+}
+
+function delete_pixels_data() {
+    try {
+        localStorage.removeItem("pixelsData");
+    } 
+    catch (e) {
+        console.error("Failed to delete Pixels data from localStorage", e);
+    }
+}
 
 
+// =====================
+// Settings storage
+// =====================
 
 async function store_settings() {
     // Ensure all inputs are updated and avoid multiple rapid calls
@@ -27,6 +62,7 @@ async function store_settings() {
 
             wordDisplayPercentage,
             wordOrderByScore,
+            wordCountUniqueDays,
             wordRegexSearch,
             wordNbMaxWords,
             wordNbMinCount,
@@ -93,6 +129,9 @@ async function load_settings() {
 
             wordOrderByScore = settings.wordOrderByScore ?? wordOrderByScore;
             words_order_checkbox.checked = wordOrderByScore;
+
+            wordCountUniqueDays = settings.wordCountUniqueDays ?? wordCountUniqueDays;
+            words_unique_days_checkbox.checked = wordCountUniqueDays;
 
             wordRegexSearch = settings.wordRegexSearch ?? wordRegexSearch;
             words_regex_checkbox.checked = wordRegexSearch;

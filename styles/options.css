@@ -56,10 +56,10 @@ input[type="color"], select {
     align-items: center;
     justify-content: center;
     gap: .4rem;
-    padding: 1rem;
-    background-color: var(--secondary-bg);
-    border-radius: 8px;
     margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: var(--secondary-bg);
 
     &.small {
         padding: 0.6rem 1rem;
@@ -115,6 +115,22 @@ input[type="color"], select {
     white-space: nowrap;
     gap: 0.3rem;
     margin: 0.2rem 0.5rem;
+}
+
+
+.options-storage {
+    opacity: 0;
+    height: fit-content;
+    max-height: 0;
+    margin: 0;
+    padding: 0 1rem;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+.upload-section:hover .options-storage {
+    opacity: 1;
+    max-height: 100px;
+    padding: 1rem 1rem 0;
 }
 
 
@@ -204,14 +220,24 @@ input[type="color"], select {
         align-items: center;
         grid-template-columns: 1fr 1fr;
         min-width: 300px;
-        gap: 10px 0px;
+        gap: 5px 0px;
         background-color: var(--secondary-bg);
-        padding: 1rem;
+        padding: 0.8rem;
         border-radius: 8px;
+
+        & .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light-color);
+        }
 
         & label {
             font-size: 1rem;
+            padding: 0.6rem 0.5rem;
             color: var(--text-color);
+        }
+
+        & button {
+            margin: 0;
         }
     }
 

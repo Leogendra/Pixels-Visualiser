@@ -42,7 +42,14 @@
 
         <div class="upload-section" id="dragAndDropZone">
             <label id="fileInputLabel" for="fileInput" class="button">Choose or drop a backup file (.json)</label>
-            <input type="file" id="fileInput" accept=".json" style="display: none;">
+            <input type="file" id="fileInput" accept=".json, .csv, .zip" style="display: none;">
+            
+            <div class="options options-storage">
+                <div class="option-item">
+                    <input type="checkbox" id="persistPixelsCheckbox" class="checkbox">
+                    <label for="persistPixelsCheckbox" title="Save your Pixel data in browser storage for quick access on next visit">Keep Pixel data stored locally</label>
+                </div>
+            </div>
         </div>
 
         <div id="introContent">
@@ -151,10 +158,10 @@
                         <div class="option-item">
                             <label for="timeOptionSelect" title="Which statistic do you want to visualise">Option to display</label>
                             <select id="timeOptionSelect" class="select">
-                                <option value="mood">Mood</option>
+                                <option value="scores">Scores</option>
                                 <option value="words">Number of words</option>
                                 <option value="tags">Number of tags</option>
-                                <option value="scores">Number of pixels</option>
+                                <option value="pixels">Number of pixels</option>
                             </select>
                         </div>
                     </div>
@@ -250,20 +257,32 @@
                                 <h3>Words settings</h3>
 
                                 <div class="dialog-settings-group">
+                                    <label for="wordsUniqueDaysCheckbox" title="Count the number of days containing the word instead of total occurrences">Count unique days</label>
+                                    <input type="checkbox" id="wordsUniqueDaysCheckbox" class="checkbox">
+
                                     <label for="wordsPercentageCheckbox" title="Show percentage of appearance among all Pixels instead of raw values">Show percentages</label>
                                     <input type="checkbox" id="wordsPercentageCheckbox" class="checkbox">
 
                                     <label for="wordsOrderCheckbox" title="Order the words bellow by decreasing score">Order by score</label>
                                     <input type="checkbox" id="wordsOrderCheckbox" class="checkbox">
 
-                                    <label for="wordsRegexCheckbox" title="Advanced feature. Allow searching with regular expressions">Search by regex</label>
-                                    <input type="checkbox" id="wordsRegexCheckbox" class="checkbox">
-
                                     <label for="maxWordsInput" title="Number of words to display">Number of words</label>
                                     <input type="number" id="maxWordsInput" class="input-nb" min="1">
 
                                     <label for="openStopwordsSettingsDialog" title="Choose which words you want to exclude from the word list">Customise stopwords</label>
                                     <button class="button" id="openStopwordsSettingsDialog">Stopwords</button>
+
+                                    <div class="empty-line"><hr></div>
+                                    <div class="empty-line"><hr></div>
+
+                                    <label class="section-subtitle">Advanced settings</label>
+                                    <div></div>
+
+                                    <label for="wordsRegexCheckbox" title="Advanced feature. Allow searching with regular expressions">Search by regex</label>
+                                    <input type="checkbox" id="wordsRegexCheckbox" class="checkbox">
+
+                                    <label for="exportWordsBtn" id="exportWordsLabel" title="Export the words list as a text file">Download words (.txt)</label>
+                                    <button class="button" id="exportWordsBtn">Export</button>
                                 </div>
 
                                 <div class="dialog-buttons">
@@ -370,10 +389,11 @@
                                     <div class="empty-line"><hr></div>
                                     <div class="empty-line"><hr></div>
 
-                                    <label for="squareSizeInput" title="The size of each Pixel on the generated image">Square size (px)</label>
-                                    <input type="number" id="squareSizeInput" class="input-nb" min="2" max="100">
-
                                     <!-- hidden setting -->
+
+                                    <label for="squareSizeInput" style="display: none;" title="The size of each Pixel on the generated image">Square size (px)</label>
+                                    <input type="number" id="squareSizeInput" style="display: none;" class="input-nb" min="2" max="100">
+
                                     <label for="borderSizeInput" style="display: none;" title="The size of the border on each Pixels">Border size (px)</label>
                                     <input type="number" id="borderSizeInput" style="display: none;" class="input-nb" min="0" max="10">
 
@@ -460,6 +480,7 @@
 
 
                     <div id="pixelGridResults" class="div-results-img">
+                        <div id="filterStatsDisplay" class="filter-stats-display"></div>
                         <div class="pixel-png-img"></div>
                         <button class="button" id="btnDownloadPixelGrid">
                             <img src="assets/download_icon.svg" alt="Download" class="icon-settings">
@@ -513,8 +534,8 @@
                 <img src="assets/coffee_logo.png" alt="Buy me a coffee">
             </a>
         </div>
-        <div class="version">Version: v1.7.1</div>
-        <div class="version">Last update: 2025-12-14</div>
+        <div class="version">Version: v1.8.0</div>
+        <div class="version">Last update: 2025-12-19</div>
     </footer>
 
     <!-- Charts.js for graphs -->
@@ -528,6 +549,11 @@
     <!-- Fullcalendar.js for date input -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
+    <!-- CSV, ZIP and SQL reader -->
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://sql.js.org/dist/sql-wasm.js"></script>
+
     <script src="scripts/utils.js"></script>
     <script src="scripts/stopwords.js"></script>
     <script src="scripts/tutorial.js"></script>
@@ -536,6 +562,7 @@
     <script src="scripts/graphs.js"></script>
     <script src="scripts/statistics.js"></script>
     <script src="scripts/png.js"></script>
+    <script src="scripts/converter.js"></script>
     <script src="scripts/storage.js"></script>
 </body>
 

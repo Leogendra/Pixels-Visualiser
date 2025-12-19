@@ -2,6 +2,7 @@ const body = document.querySelector("body");
 const file_input = document.querySelector("#fileInput");
 const drag_and_drop_zone = document.querySelector("#dragAndDropZone");
 const div_intro_content = document.querySelector("#introContent");
+const persist_pixels_checkbox = document.querySelector("#persistPixelsCheckbox");
 
 const content_container = document.querySelector("#content");
 const section_titles = document.querySelectorAll(".section-title");
@@ -34,6 +35,7 @@ const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
 const words_order_checkbox = document.querySelector("#wordsOrderCheckbox");
+const words_unique_days_checkbox = document.querySelector("#wordsUniqueDaysCheckbox");
 const words_regex_checkbox = document.querySelector("#wordsRegexCheckbox");
 const words_words_input = document.querySelector("#maxWordsInput");
 const words_count_input = document.querySelector("#minCountInput");
@@ -45,6 +47,8 @@ const words_search_label = document.querySelector("#labelSearchInput");
 const words_dialog_settings = document.querySelector("#dialogWordsSettings");
 const btn_open_words_dialog_settings = document.querySelector("#openWordsSettingsDialog");
 const btn_save_words_dialog_settings = document.querySelector("#saveWordsSettingsDialog");
+const btn_export_words = document.querySelector("#exportWordsBtn");
+const label_export_words = document.querySelector("#exportWordsLabel");
 
 const wordcloud_container = document.querySelector("#wordcloudContainer");
 const wordcloud_canvas = document.querySelector("#wordcloudCanvas");
@@ -58,6 +62,9 @@ const DEV_MODE = false;
 const DEV_FILE_PATH = "../data/pixels.json"
 const SCROLL_TO = 1000;
 const isMobile = window.innerWidth <= 800;
+
+// App state variables
+let savePixelData = false;
 let pendingAnchor = window.location.hash || "";
 let userLocale = "default";
 let initial_data = [];
@@ -69,10 +76,11 @@ let last_end_date = null;
 let moodAveragingValue = 1;
 let moodShowAverage = false;
 let moodShowYears = false;
-let moodTimeOption = "mood";
+let moodTimeOption = "scores";
 let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
+let nbTotalDays = 0;
 
 // Tags
 let tag_stats = {};
@@ -91,8 +99,9 @@ let monthSeasonColors = false;
 let full_word_frequency = [];
 let wordDisplayPercentage = false;
 let wordOrderByScore = false;
+let wordCountUniqueDays = false;
 let wordRegexSearch = false;
-let wordNbMaxWords = 20;
+let wordNbMaxWords = 30;
 let wordNbMinCount = 10;
 let wordMinScore = 1.0;
 let wordSearchText = "";
@@ -114,7 +123,7 @@ const png_default_settings = {
     },
     firstDayOfWeek: 1,
     squareSize: 50,
-    borderSize: 0,
+    borderSize: 1,
     showBorder: true,
     showLegend: false,
     showDays: false,
@@ -131,7 +140,7 @@ let getDynamicBorders = true; // not editable
 
 
 
-function show_popup_message(message, type = "msg", duration = 10000) {
+function show_popup_message(message, type = "info", duration = 10000) {
     const popup = document.createElement("div");
     popup.className = "popup-message";
     const timerBar = document.createElement("div");
@@ -159,14 +168,14 @@ function show_popup_message(message, type = "msg", duration = 10000) {
 
 
 function fill_missing_dates(data) {
-    const datesStrSet = new Set(data.map(entry => pixel_format_date(entry.date)));
+    const datesStrSet = new Set(data.map(entry => normalize_date(entry.date)));
     const allDates = Array.from(datesStrSet).map(dateStr => new Date(dateStr));
     const minDate = new Date(Math.min(...allDates));
     const maxDate = new Date(Math.max(...allDates));
 
     let current = new Date(minDate);
     while (current <= maxDate) {
-        const curentStrDate = pixel_format_date(current);
+        const curentStrDate = normalize_date(current);
         if (!datesStrSet.has(curentStrDate)) {
             data.push({
                 date: curentStrDate,
@@ -178,7 +187,7 @@ function fill_missing_dates(data) {
         current.setDate(current.getDate() + 1);
     }
 
-    data.sort((a, b) => new Date(pixel_format_date(a.date)) - new Date(pixel_format_date(b.date)));
+    data.sort((a, b) => new Date(normalize_date(a.date)) - new Date(normalize_date(b.date)));
     current_data = data;
 }
 
@@ -277,10 +286,38 @@ async function filter_pixels(numberOfDays) {
 async function handle_file_upload(file) {
     if (!file) return;
 
-    try {
-        const text = await file.text();
-        const data = JSON.parse(text);
+    let data;
 
+    if (file.type === "application/json" || file.name.endsWith(".json")) {
+        try {
+            const text = await file.text();
+            data = JSON.parse(text);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .json file.", "error", 5000);
+            return;
+        }
+    }
+    else if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        try {
+            data = await load_daylio_export(file);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .csv file.", "error", 5000);
+            return;
+        }
+    }
+    else if (file.name.endsWith(".zip")) {
+        try {
+            data = await load_daily_you_export(file);
+        }
+        catch (error) {
+            show_popup_message("Make sure to import a valid .zip file.", "error", 5000);
+            return;
+        }
+    }
+
+    try {
         if (!Array.isArray(data) || !data.every(entry =>
             entry.date &&
             Array.isArray(entry.scores) &&
@@ -302,6 +339,11 @@ async function handle_file_upload(file) {
             await update_stats_and_graphics();
             scroll_to_anchor_if_available();
             document.dispatchEvent(new CustomEvent("tutorialStepResult", { detail: { success: true, stepId: "#fileInputLabel" } }));
+
+            // Save Pixels data if persistence is enabled
+            if (savePixelData) {
+                save_pixels_data(data);
+            }
         }
     }
     catch (error) {
@@ -365,17 +407,32 @@ function handle_click_words_dialog(e) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Auto load data
+
+    // auto load data
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
+        show_popup_message(`[DEV_MODE] Auto loading of ${DEV_FILE_PATH.split("/").pop()}`, "info", 2000);
         setTimeout(() => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
     }
+    else {
+        const stored_pixel_data = load_pixels_data();
+
+        // auto load saved Pixels data if enabled
+        if (stored_pixel_data) {
+            persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
+            initial_data = stored_pixel_data;
+            current_data = initial_data;
+            load_settings();
+            update_stats_and_graphics();
+            scroll_to_anchor_if_available();
+            show_popup_message("Loaded saved Pixels data.", "info", 3000);
+        }
+    }
 
     window.addEventListener("hashchange", () => {
         pendingAnchor = window.location.hash || "";
-        console.log("Hash changed:", pendingAnchor);
         const contentVisible = (content_container.style.display !== "none") && (stats_content_container.style.display !== "none");
         if (contentVisible) {
             scroll_to_anchor_if_available();
@@ -386,6 +443,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isMobile) {
         words_search_input.placeholder = 'e.g. "good day"';
     }
+
+    // Persist Pixels checkbox toggle
+    persist_pixels_checkbox.addEventListener("change", (e) => {
+        savePixelData = e.target.checked;
+        if (e.target.checked) {
+            // enable persistence: save current data
+            if (initial_data && initial_data.length > 0) {
+                save_pixels_data(initial_data);
+            }
+        }
+        else {
+            delete_pixels_data();
+        }
+    });
 
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
@@ -408,11 +479,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
-            if (file.type === "application/json" || file.name.endsWith(".json")) {
+            if (file.type === "application/json" || file.name.endsWith(".json") ||
+                file.type === "text/csv" || file.name.endsWith(".csv")) {
                 handle_file_upload(file);
             }
             else {
-                alert("Please drop a valid .json file");
+                if (e.target === drag_and_drop_zone || drag_and_drop_zone.contains(e.target)) {
+                    show_popup_message("Please drop a .json file", "error", 3000);
+                }
             }
         }
     });
@@ -424,14 +498,14 @@ document.addEventListener("DOMContentLoaded", () => {
         title.addEventListener("click", () => {
             const sectionId = title.id;
             const url = `${window.location.origin}${window.location.pathname}#${sectionId}`;
-            
+
             navigator.clipboard.writeText(url).then(() => {
-                show_popup_message("Link copied to clipboard!", "normal", 2000);
+                show_popup_message("Link copied to clipboard!", "info", 2000);
             })
-            .catch(err => {
-                console.error("Failed to copy URL:", err);
-                show_popup_message("Failed to copy link", "error", 2000);
-            });
+                .catch(err => {
+                    console.error("Failed to copy URL:", err);
+                    show_popup_message("Failed to copy link", "error", 2000);
+                });
         });
     });
 
@@ -550,6 +624,12 @@ document.addEventListener("DOMContentLoaded", () => {
         create_word_frequency_section();
     });
 
+    words_unique_days_checkbox.addEventListener("change", (e) => {
+        wordCountUniqueDays = e.target.checked;
+        get_word_frequency();
+        create_word_frequency_section();
+    });
+
     words_regex_checkbox.addEventListener("change", (e) => {
         wordRegexSearch = e.target.checked;
         words_search_label.textContent = wordRegexSearch ? "Search regex" : "Search words";
@@ -614,6 +694,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn_download_wordcloud.addEventListener("click", () => {
         download_wordcloud();
+    });
+
+    btn_export_words.addEventListener("click", () => {
+        download_word_list();
     });
 
 

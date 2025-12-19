@@ -35,7 +35,7 @@ async function create_mood_chart() {
     let rawScores;
     let minValue;
     let maxValue;
-    if (moodTimeOption === "mood") { // average score
+    if (moodTimeOption === "scores") { // average score
         rawScores = current_data.map(entry => average(entry.scores));
         minValue = 1;
         maxValue = 5;
@@ -59,7 +59,7 @@ async function create_mood_chart() {
         minValue = maximum(rawScores);
         maxValue = minimum(rawScores);
     }
-    else if (moodTimeOption === "scores") { // number of pixels
+    else if (moodTimeOption === "pixels") { // number of pixels
         rawScores = current_data.map(entry => {
             if (!entry || !entry.scores || (entry.scores.length === 0)) { return null; }
             return entry.scores.length;
@@ -134,32 +134,35 @@ async function create_mood_chart() {
         });
     }
 
-    // weighted moving average centered on each day
-    const half = Math.floor(moodAveragingValue / 2);
-    const halfOddCorrection = ((moodAveragingValue % 2) === 1) ? 1 : 0;
+    let averagedScores = rawScores;
+    if (moodAveragingValue > 1) {
+        // weighted moving average centered on each day
+        const half = Math.floor(moodAveragingValue / 2);
+        const halfOddCorrection = ((moodAveragingValue % 2) === 1) ? 1 : 0;
 
-    const averagedScores = rawScores.map((value, i) => {
-        if (value == null) { return null; }
+        averagedScores = rawScores.map((value, i) => {
+            if (value == null) { return null; }
 
-        const start = Math.max(0, i - (half + halfOddCorrection));
-        const end = Math.min(rawScores.length - 1, i + half);
+            const start = Math.max(0, i - (half + halfOddCorrection));
+            const end = Math.min(rawScores.length - 1, i + half);
 
-        let weightedSum = 0;
-        let weightTotal = 0;
+            let weightedSum = 0;
+            let weightTotal = 0;
 
-        for (let j = start; j <= end; j++) {
-            const distance = Math.abs(j - i);
-            const weight = half + halfOddCorrection + 1 - distance;
+            for (let j = start; j <= end; j++) {
+                const distance = Math.abs(j - i);
+                const weight = half + halfOddCorrection + 1 - distance;
 
-            const score = rawScores[j];
-            if (score != null) {
-                weightedSum += score * weight;
-                weightTotal += weight;
+                const score = rawScores[j];
+                if (score != null) {
+                    weightedSum += score * weight;
+                    weightTotal += weight;
+                }
             }
-        }
 
-        return weightTotal > 0 ? weightedSum / weightTotal : null;
-    });
+            return weightTotal > 0 ? weightedSum / weightTotal : null;
+        });
+    }
 
 
     if (mood_chart_instance) { mood_chart_instance.destroy(); }

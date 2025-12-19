@@ -19,8 +19,7 @@ function calculate_streaks() {
     ).map(dateStr => {
         const [year, month, day] = dateStr.split("-").map(Number);
         return new Date(Date.UTC(year, month - 1, day));
-    })
-        .sort((a, b) => a - b);
+    }).sort((a, b) => a - b);
 
     let bestStreak = 1;
     let currentStreak = 1;
@@ -52,13 +51,14 @@ function calculate_and_display_stats() {
     const streaks = calculate_streaks();
     const moodCounts = {};
     averageScore = average(allScores);
+    nbTotalDays = current_data.filter(entry => entry.scores.length > 0).length;
 
     allScores.forEach(score => {
         moodCounts[score] = (moodCounts[score] || 0) + 1;
     });
 
     stats_array = [
-        { title: "Number of Pixels", value: `<p>${current_data.filter(entry => entry.scores.length > 0).length}</p>` },
+        { title: "Number of Pixels", value: `<p>${nbTotalDays}</p>` },
         { title: "Average score", value: `<p>${averageScore.toFixed(2)}</p>` },
         { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
         { title: "Score distribution", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
@@ -210,7 +210,7 @@ function compute_tag_stats() {
         counts: tag_counts,
         scores: tag_scores,
         categories: tag_categories,
-        totalPixels: current_data.filter(entry => entry.scores.length > 0).length,
+        totalPixels: nbTotalDays,
     };
     set_tags_selects();
     setup_tag_categories();
@@ -274,15 +274,38 @@ function get_word_frequency() {
     const words_data = {}; // { word: { count: X, scores: [n, n, ...] } }
     let searchTextLower = normalize_string(wordSearchText);
     let splitWordsFlag = false;
+    let negativeFilterPattern = null;
+    let positiveFilterPattern = null;
+
+    // negative filter pattern: (!...)
+    const negativeMatch = searchTextLower.match(/\(!([^)]+)\)/);
+    if (negativeMatch) {
+        const negativeText = negativeMatch[1];
+        if (negativeText) {
+            negativeFilterPattern = new RegExp(negativeText, "gi");
+        }
+        // remove the negative filter part from search text
+        searchTextLower = searchTextLower.replace(/\(!([^)]+)\)/, "").trim();
+    }
+
+    // positive filter pattern: (+...)
+    const positiveMatch = searchTextLower.match(/\(\+([^)]+)\)/);
+    if (positiveMatch) {
+        const positiveText = positiveMatch[1];
+        if (positiveText) {
+            positiveFilterPattern = new RegExp(positiveText, "gi");
+        }
+        // remove the positive filter part from search text
+        searchTextLower = searchTextLower.replace(/\(\+([^)]+)\)/, "").trim();
+    }
+
+    // split words flag /
     if (searchTextLower && searchTextLower.endsWith("/")) {
         searchTextLower = searchTextLower.slice(0, -1).trim();
         splitWordsFlag = true;
     }
-    const searchWords = searchTextLower
-        .split(/\s+/)
-        .map(word => normalize_string(word))
-        .filter(word => word);
 
+    // compute regex pattern if needed
     let searchPattern = null;
     if (wordRegexSearch && searchTextLower) {
         try {
@@ -329,12 +352,27 @@ function get_word_frequency() {
         }
     }
 
+    const searchWords = searchTextLower
+        .split(/\s+/)
+        .map(word => normalize_string(word))
+        .filter(word => word);
+
     current_data.forEach(entry => {
         const averageScore = average(entry.scores);
         if (averageScore < wordMinScore) { return; }
 
         const notesLower = normalize_string(entry.notes);
         if (!notesLower) { return; }
+
+        // Skip this entry if it matches the negative filter
+        if (negativeFilterPattern && negativeFilterPattern.test(notesLower)) {
+            return;
+        }
+
+        // Skip this entry if it doesn't match the positive filter
+        if (positiveFilterPattern && !positiveFilterPattern.test(notesLower)) {
+            return;
+        }
 
         // add the search term as a word if it matches the notes
         if (searchTextLower && !wordRegexSearch) {
@@ -343,17 +381,25 @@ function get_word_frequency() {
                     words_data[searchTextLower] = { count: 0, scores: [] };
                 }
                 // count number of appearances and add the score
-                words_data[searchTextLower].count += notesLower.split(searchTextLower).length - 1
-                words_data[searchTextLower].scores.push(average(entry.scores));
+                if (wordCountUniqueDays) {
+                    words_data[searchTextLower].count += 1;
+                    words_data[searchTextLower].scores.push(average(entry.scores));
+                }
+                else {
+                    const occurrences = notesLower.split(searchTextLower).length - 1;
+                    words_data[searchTextLower].count += occurrences;
+                    for (let i = 0; i < occurrences; i++) {
+                        words_data[searchTextLower].scores.push(average(entry.scores));
+                    }
+                }
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
-                // save time by skipping this entry if no search words match
-                return;
+                return; // save time by skipping this entry if no search words match
             }
         }
 
         // filter words of the notes
-        let words = wordRegexSearch
+        let matched_words = (wordRegexSearch && searchPattern)
             ? []
             : notesLower
                 .replace(/[^\p{L}\p{N}\p{Extended_Pictographic}\u200D\uFE0F]+/gu, " ")
@@ -395,7 +441,7 @@ function get_word_frequency() {
                     // split match for ***[] patterns
                     const words_captured = captured.split(/\s+/);
                     for (let k = 1; k <= words_captured.length; k++) {
-                        const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, '').trim(); // remove , . and trim
+                        const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, "").trim(); // remove , . and trim
                         if (!(sub in words_data)) {
                             words_data[sub] = { count: 0, scores: [] };
                         }
@@ -406,9 +452,12 @@ function get_word_frequency() {
             }
         }
 
+        if (wordCountUniqueDays) {
+            matched_words = Array.from(new Set(matched_words));
+        }
 
         // Add each word to the count
-        words.forEach(word => {
+        matched_words.forEach(word => {
             if (!(word in words_data)) {
                 words_data[word] = { count: 0, scores: [] };
             }
@@ -418,7 +467,7 @@ function get_word_frequency() {
 
     });
 
-
+    // convert to sorted array
     full_word_frequency = Object.entries(words_data)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
@@ -442,6 +491,9 @@ async function create_word_frequency_section() {
         .slice(0, wordNbMaxWords);
 
     if (words_filtered.length > 0) {
+        label_export_words.style.display = "block";
+        btn_export_words.style.display = "flex";
+
         word_freq_container.innerHTML = `
             ${words_filtered.map(word => {
             let isWordSearched = false;
@@ -452,13 +504,18 @@ async function create_word_frequency_section() {
             }
             return `<div class="word-card ${isWordSearched ? "searched-word" : ""}">
                     <h4>${capitalize(word.word)}</h4>
-                    <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / current_data.length).toFixed(1) + "%" : word.count}</p>
+                    <p title="Number of apearance">count: ${wordDisplayPercentage ? (100 * word.count / nbTotalDays).toFixed(1) + "%" : word.count}</p>
                     <p title="Average score">score: ${(word.avg_score).toFixed(2)}</p>
                     </div>`
         }
         ).join("")}`
     }
-    else { word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>"; }
+    else {
+        word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>";
+        label_export_words.style.display = "none";
+        btn_export_words.style.display = "none";
+        return;
+    }
 
 
     // Avoid updating the wordcloud too frequently
@@ -468,6 +525,38 @@ async function create_word_frequency_section() {
     update_wordcloud_timeout = setTimeout(() => {
         update_wordcloud();
     }, 1000);
+}
+
+
+function download_word_list() {
+    const lines_split = full_word_frequency
+        .filter(word => (word.count >= wordNbMinCount))
+        .map(word => {
+            const displayCount = wordDisplayPercentage
+                ? (100 * word.count / nbTotalDays).toFixed(2) + "%"
+                : `${word.count}`;
+
+            return [word.word, displayCount, word.avg_score.toFixed(2)];
+        });
+
+    const maxWordLength = Math.max(...lines_split.map(parts => parts[0].length));
+    const maxCountLength = Math.max(...lines_split.map(parts => parts[1].length));
+    const content = lines_split
+        .map(line => {
+            const word = line[0].padEnd(maxWordLength); // align columns
+            const count = line[1].padStart(maxCountLength);
+            const score = line[2];
+            return `${word} | ${count} | ${score}`;
+        })
+        .join("\n");
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "word_list.txt";
+    link.click();
+    URL.revokeObjectURL(url);
 }
 
 
