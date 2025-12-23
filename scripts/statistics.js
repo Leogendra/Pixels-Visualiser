@@ -84,8 +84,17 @@ async function show_score_distribution_dialog() {
             return acc;
         }, {});
 
-    const scoresCount = Object.keys(rawScores).map(Number);
+    const existingScores = Object.keys(rawScores).map(Number);
+    const minScore = Math.min(...existingScores);
+    const maxScore = Math.max(...existingScores);
+
+    const scoresCount = Array.from({ length: maxScore - minScore + 1 }, (_, i) => minScore + i);
     const values = scoresCount.map(score => rawScores[score] || 0);
+    const barColors = scoresCount.map(score => {
+        const colors = get_user_colors();
+        const idx = Math.max(1, Math.min(5, score)) - 1;
+        return colors[idx];
+    });
     dialog_score_distribution.showModal();
 
     if (score_distribution_dialog_chart_instance) {
@@ -98,7 +107,7 @@ async function show_score_distribution_dialog() {
             datasets: [{
                 label: "Scores",
                 data: values,
-                backgroundColor: get_user_colors(rawScores),
+                backgroundColor: barColors,
                 borderColor: "#000000",
                 borderWidth: 1
             }]
@@ -137,9 +146,10 @@ async function create_scores_pie_chart() {
 
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
+    let chart_canvas = document.querySelector("#scoresPieChart");
 
     if (scores_pie_chart_instance) { scores_pie_chart_instance.destroy(); }
-    scores_pie_chart_instance = new Chart(document.querySelector("#scoresPieChart"), {
+    scores_pie_chart_instance = new Chart(chart_canvas, {
         type: "pie",
         data: {
             labels: scoresCount,
