@@ -226,3 +226,12 @@ function get_contrasting_text_color(bgColor, less = false) {
     }
     return luminance > 186 ? "#000000" : "#ffffff";
 }
+
+
+function get_color_with_alpha(color, alpha) {
+    const clamp_alpha = Math.min(Math.max(alpha, 0), 1);
+    let r = parseInt(color.slice(1, 3), 16);
+    let g = parseInt(color.slice(3, 5), 16);
+    let b = parseInt(color.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${clamp_alpha})`;
+}
