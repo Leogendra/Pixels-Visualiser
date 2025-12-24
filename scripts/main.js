@@ -422,7 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // auto load saved Pixels data if enabled
         if (stored_pixel_data) {
-            persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
+            persist_pixels_checkbox.checked = stored_pixel_data.length > 0;
+            savePixelData = true;
             initial_data = stored_pixel_data;
             current_data = initial_data;
             load_settings();
