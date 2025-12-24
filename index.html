@@ -522,6 +522,20 @@
         </div>
     </div>
 
+    <dialog id="dialogMoodMapping" class="div-dialog-settings">
+        <div class="dialog-settings">
+            <h3>Map Custom Moods to Scores</h3>
+            <p style="text-align: center; margin: 0.5rem 0; max-width: 400px; font-size: 0.95rem;">
+                We found custom moods that aren't in the base set.
+                <br>Please map each one to a score (1-5):
+            </p>
+            <div id="moodMappingContainer" class="dialog-settings-group" style="grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
+            <div class="dialog-buttons">
+                <button type="submit" class="button button-tertiary" id="confirmMoodDialog">Confirm</button>
+            </div>
+        </div>
+    </dialog>
+
     <footer>
         <div class="footer-link-container">
             <a class="" href="https://github.com/Leogendra/Pixels-Visualiser" target="_blank" rel="noopener noreferrer" title="GitHub repository">
@@ -535,7 +549,6 @@
             </a>
         </div>
         <div class="version">Version: v1.8.0</div>
-        <div class="version">Last update: 2025-12-19</div>
     </footer>
 
     <!-- Charts.js for graphs -->

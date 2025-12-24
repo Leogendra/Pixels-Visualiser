@@ -84,15 +84,11 @@ async function show_score_distribution_dialog() {
             return acc;
         }, {});
 
-    const existingScores = Object.keys(rawScores).map(Number);
-    const minScore = Math.min(...existingScores);
-    const maxScore = Math.max(...existingScores);
-
-    const scoresCount = Array.from({ length: maxScore - minScore + 1 }, (_, i) => minScore + i);
+    const scoresCount = [1, 2, 3, 4, 5]; // force 1-5 scores
     const values = scoresCount.map(score => rawScores[score] || 0);
     const barColors = scoresCount.map(score => {
         const colors = get_user_colors();
-        const idx = Math.max(1, Math.min(5, score)) - 1;
+        const idx = score - 1;
         return colors[idx];
     });
     dialog_score_distribution.showModal();
