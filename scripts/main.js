@@ -362,9 +362,11 @@ async function auto_load_data(filePath) {
         file.text = async () => JSON.stringify(data);
 
         await handle_file_upload(file);
+        show_popup_message(`[DEV_MODE] Auto loading of ${DEV_FILE_PATH.split("/").pop()}`, "info", 2000);
     }
     catch (error) {
         console.error("auto_load_data Error:", error.message);
+        show_popup_message(`[DEV_MODE] Failed to load ${DEV_FILE_PATH.split("/").pop()}`, "error", 5000);
     }
 }
 
@@ -411,7 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // auto load data
     if (DEV_MODE) {
         auto_load_data(DEV_FILE_PATH);
-        show_popup_message(`[DEV_MODE] Auto loading of ${DEV_FILE_PATH.split("/").pop()}`, "info", 2000);
         setTimeout(() => {
             window.scrollTo(0, SCROLL_TO);
         }, 500);
@@ -421,7 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // auto load saved Pixels data if enabled
         if (stored_pixel_data) {
-            persist_pixels_checkbox.checked = stored_pixel_data?.length > 0;
+            persist_pixels_checkbox.checked = stored_pixel_data.length > 0;
+            savePixelData = true;
             initial_data = stored_pixel_data;
             current_data = initial_data;
             load_settings();

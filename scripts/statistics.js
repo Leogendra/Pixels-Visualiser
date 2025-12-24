@@ -84,8 +84,13 @@ async function show_score_distribution_dialog() {
             return acc;
         }, {});
 
-    const scoresCount = Object.keys(rawScores).map(Number);
+    const scoresCount = [1, 2, 3, 4, 5]; // force 1-5 scores
     const values = scoresCount.map(score => rawScores[score] || 0);
+    const barColors = scoresCount.map(score => {
+        const colors = get_user_colors();
+        const idx = score - 1;
+        return colors[idx];
+    });
     dialog_score_distribution.showModal();
 
     if (score_distribution_dialog_chart_instance) {
@@ -98,7 +103,7 @@ async function show_score_distribution_dialog() {
             datasets: [{
                 label: "Scores",
                 data: values,
-                backgroundColor: get_user_colors(rawScores),
+                backgroundColor: barColors,
                 borderColor: "#000000",
                 borderWidth: 1
             }]
@@ -137,9 +142,10 @@ async function create_scores_pie_chart() {
 
     const scoresCount = Object.keys(rawScores).map(Number);
     const values = scoresCount.map(score => rawScores[score] || 0);
+    let chart_canvas = document.querySelector("#scoresPieChart");
 
     if (scores_pie_chart_instance) { scores_pie_chart_instance.destroy(); }
-    scores_pie_chart_instance = new Chart(document.querySelector("#scoresPieChart"), {
+    scores_pie_chart_instance = new Chart(chart_canvas, {
         type: "pie",
         data: {
             labels: scoresCount,
@@ -277,6 +283,19 @@ function get_word_frequency() {
     let negativeFilterPattern = null;
     let positiveFilterPattern = null;
 
+    const record_word = (word, score, entryIndex, occurrences = 1) => {
+        if (!(word in words_data)) {
+            words_data[word] = { count: 0, scores: [], indexes: new Set() };
+        }
+        const info = words_data[word];
+
+        info.indexes.add(entryIndex);
+        info.count += occurrences;
+        for (let i = 0; i < occurrences; i++) {
+            info.scores.push(score);
+        }
+    };
+
     // negative filter pattern: (!...)
     const negativeMatch = searchTextLower.match(/\(!([^)]+)\)/);
     if (negativeMatch) {
@@ -357,7 +376,7 @@ function get_word_frequency() {
         .map(word => normalize_string(word))
         .filter(word => word);
 
-    current_data.forEach(entry => {
+    current_data.forEach((entry, entryIndex) => {
         const averageScore = average(entry.scores);
         if (averageScore < wordMinScore) { return; }
 
@@ -377,20 +396,13 @@ function get_word_frequency() {
         // add the search term as a word if it matches the notes
         if (searchTextLower && !wordRegexSearch) {
             if (notesLower.includes(searchTextLower)) {
-                if (!(searchTextLower in words_data)) {
-                    words_data[searchTextLower] = { count: 0, scores: [] };
-                }
                 // count number of appearances and add the score
                 if (wordCountUniqueDays) {
-                    words_data[searchTextLower].count += 1;
-                    words_data[searchTextLower].scores.push(average(entry.scores));
+                    record_word(searchTextLower, averageScore, entryIndex, 1);
                 }
                 else {
                     const occurrences = notesLower.split(searchTextLower).length - 1;
-                    words_data[searchTextLower].count += occurrences;
-                    for (let i = 0; i < occurrences; i++) {
-                        words_data[searchTextLower].scores.push(average(entry.scores));
-                    }
+                    record_word(searchTextLower, averageScore, entryIndex, occurrences);
                 }
             }
             else if (!searchWords.some(sw => notesLower.includes(sw))) {
@@ -442,11 +454,7 @@ function get_word_frequency() {
                     const words_captured = captured.split(/\s+/);
                     for (let k = 1; k <= words_captured.length; k++) {
                         const sub = words_captured.slice(0, k).join(" ").replace(/[.,]+/g, "").trim(); // remove , . and trim
-                        if (!(sub in words_data)) {
-                            words_data[sub] = { count: 0, scores: [] };
-                        }
-                        words_data[sub].count += 1;
-                        words_data[sub].scores.push(averageScore);
+                        record_word(sub, averageScore, entryIndex, 1);
                     }
                 }
             }
@@ -458,11 +466,7 @@ function get_word_frequency() {
 
         // Add each word to the count
         matched_words.forEach(word => {
-            if (!(word in words_data)) {
-                words_data[word] = { count: 0, scores: [] };
-            }
-            words_data[word].count += 1;
-            words_data[word].scores.push(averageScore);
+            record_word(word, averageScore, entryIndex, 1);
         });
 
     });
@@ -471,7 +475,7 @@ function get_word_frequency() {
     full_word_frequency = Object.entries(words_data)
         .map(([word, info]) => {
             const avg = info.scores.reduce((a, b) => a + b, 0) / info.scores.length;
-            return { word, count: info.count, avg_score: avg };
+            return { word, count: info.count, avg_score: avg, indexes: Array.from(info.indexes) };
         })
         .sort((a, b) => {
             if (wordOrderByScore) {
@@ -509,6 +513,8 @@ async function create_word_frequency_section() {
                     </div>`
         }
         ).join("")}`
+
+        setup_word_cards_interactions(words_filtered);
     }
     else {
         word_freq_container.innerHTML = "<p>No word frequency data available. Try to change search words, or lower the minimum count.</p>";
@@ -525,6 +531,57 @@ async function create_word_frequency_section() {
     update_wordcloud_timeout = setTimeout(() => {
         update_wordcloud();
     }, 1000);
+}
+
+
+function highlight_mood_chart_for_word(wordInfo) {
+    if (!mood_chart_instance || !wordInfo) { return; }
+
+    // get the points of the chart instead of redrawing everything
+    const time_evolution_dataset = mood_chart_instance.data?.datasets?.[0];
+    const matchingIndexes = new Set(wordInfo.indexes || []);
+
+    // disable the hover of non matching points
+    const pointHitRadius = time_evolution_dataset.data.map((_, idx) =>
+        matchingIndexes.has(idx) ? 10 : 0
+    );
+    const pointHoverRadius = time_evolution_dataset.data.map((_, idx) =>
+        matchingIndexes.has(idx) ? 5 : 0
+    );
+    time_evolution_dataset.pointHitRadius = pointHitRadius;
+    time_evolution_dataset.pointHoverRadius = pointHoverRadius;
+
+    // dim non-matching points
+    const dimmedColor = get_color_with_alpha(primaryColor, 0.1);
+    const pointColors = time_evolution_dataset.data.map((_, idx) => matchingIndexes.has(idx) ? tertiaryColor : dimmedColor);
+    time_evolution_dataset.pointBackgroundColor = pointColors;
+    time_evolution_dataset.pointBorderColor = pointColors;
+    time_evolution_dataset.borderColor = dimmedColor;
+
+    mood_chart_instance.update();
+}
+
+
+function scroll_to_time_evolution_section() {
+    const timeEvolutionTitle = document.querySelector("#time-evolution");
+    if (timeEvolutionTitle) {
+        timeEvolutionTitle.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+
+
+function setup_word_cards_interactions(words_filtered) {
+    const cards = word_freq_container.querySelectorAll(".word-card");
+
+    cards.forEach((card, index) => {
+        const wordInfo = words_filtered[index];
+        if (!wordInfo) { return; }
+
+        card.addEventListener("click", () => {
+            scroll_to_time_evolution_section();
+            highlight_mood_chart_for_word(wordInfo);
+        });
+    });
 }
 
 

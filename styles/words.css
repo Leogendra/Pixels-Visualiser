@@ -23,6 +23,7 @@
     border-radius: 8px;
     padding: 1.2rem 0.8rem;
     color: var(--text-color);
+    cursor: pointer;
 
     &.searched-word {
         background-color: var(--tertiary-color);

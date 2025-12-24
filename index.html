@@ -96,7 +96,7 @@
 
             <div id="stats-content">
                 <div id="paletteContainer" class="chart-container">
-                    <div class="options small title"><img src="assets/palette_icon.svg" alt="Palette" class="icon-settings"><span>Customise your palette</span></div>
+                    <div class="options small title"><img src="assets/icons/palette.svg" alt="Palette" class="icon-settings"><span>Customise your palette</span></div>
                     
                     <div id="paletteGrid" class="palette-grid">
                         <div class="color-cell">
@@ -172,7 +172,7 @@
 
 
                 <div class="chart-container group-options" id="tagOptionsContainer">
-                    <div class="options small title"><img src="assets/settings_icon_black.svg" alt="Settings" class="icon-settings"><span>Tag options</span></div>
+                    <div class="options small title"><img src="assets/icons/settings_black.svg" alt="Settings" class="icon-settings"><span>Tag options</span></div>
 
                     <div class="options small">
                         <div class="option-item">
@@ -246,7 +246,7 @@
                     <div class="options" id="wordsOptionsContainer">
                         <div class="option-item">
                             <button class="button open-settings" id="openWordsSettingsDialog">
-                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                                <img src="assets/icons/settings.svg" alt="Settings" class="icon-settings">
                                 <span>Settings</span>
                             </button>
                         </div>
@@ -360,7 +360,7 @@
                         <canvas id="wordcloudCanvas" width="1000" height="400"></canvas>
 
                         <button class="button" id="btnDownloadWordcloud">
-                            <img src="assets/download_icon.svg" alt="Download" class="icon-settings">
+                            <img src="assets/icons/download.svg" alt="Download" class="icon-settings">
                             <span>Download</span>
                         </button>
                     </div>
@@ -372,7 +372,7 @@
                     <div class="options grid-options" id="PixelGridOptions">
                         <div class="option-item">
                             <button class="button open-settings" id="openImageSettingsDialog">
-                                <img src="assets/settings_icon.svg" alt="Settings" class="icon-settings">
+                                <img src="assets/icons/settings.svg" alt="Settings" class="icon-settings">
                                 <span>Settings</span>
                             </button>
                         </div>
@@ -483,7 +483,7 @@
                         <div id="filterStatsDisplay" class="filter-stats-display"></div>
                         <div class="pixel-png-img"></div>
                         <button class="button" id="btnDownloadPixelGrid">
-                            <img src="assets/download_icon.svg" alt="Download" class="icon-settings">
+                            <img src="assets/icons/download.svg" alt="Download" class="icon-settings">
                             <span>Download</span>
                         </button>
                     </div>
@@ -522,20 +522,33 @@
         </div>
     </div>
 
+    <dialog id="dialogMoodMapping" class="div-dialog-settings">
+        <div class="dialog-settings">
+            <h3>Map Custom Moods to Scores</h3>
+            <p style="text-align: center; margin: 0.5rem 0; max-width: 400px; font-size: 0.95rem;">
+                We found custom moods that aren't in the base set.
+                <br>Please map each one to a score (1-5):
+            </p>
+            <div id="moodMappingContainer" class="dialog-settings-group" style="grid-template-columns: 1fr 1fr; gap: 1rem;"></div>
+            <div class="dialog-buttons">
+                <button type="submit" class="button button-tertiary" id="confirmMoodDialog">Confirm</button>
+            </div>
+        </div>
+    </dialog>
+
     <footer>
         <div class="footer-link-container">
             <a class="" href="https://github.com/Leogendra/Pixels-Visualiser" target="_blank" rel="noopener noreferrer" title="GitHub repository">
-                <img src="assets/github.png" alt="github">
+                <img src="assets/logos/github.png" alt="github">
             </a>
             <a class="" href="https://github.com/Leogendra/Pixels-Memories" target="_blank" rel="noopener noreferrer" title="Pixels Memories repository">
-                <img src="assets/pixels_memories_logo.png" alt="Pixels Memories">
+                <img src="assets/logos/pixels_memories.png" alt="Pixels Memories">
             </a>
-            <a class="" href="https://buymeacoffee.com/leogendra" target="_blank" rel="noopener noreferrer" title="Buy me a coffee">
-                <img src="assets/coffee_logo.png" alt="Buy me a coffee">
+            <a class="" href="https://ko-fi.com/leogendra" target="_blank" rel="noopener noreferrer" title="Ko-fi page">
+                <img src="assets/logos/kofi.png" alt="Ko-fi">
             </a>
         </div>
-        <div class="version">Version: v1.8.0</div>
-        <div class="version">Last update: 2025-12-19</div>
+        <div class="version">Version: v1.8.1</div>
     </footer>
 
     <!-- Charts.js for graphs -->
