@@ -17,6 +17,7 @@ On the desktop version, you can hover every settings label to see more informati
   - [Quick Start](#quick-start)
     - [Export from Pixels app](#export-from-pixels-app)
     - [Export from Daylio app](#export-from-daylio-app)
+    - [Export from Daily You app](#export-from-daily-you-app)
     - [Import into Pixels Visualiser](#import-into-pixels-visualiser)
   - [Choose the dates and palette](#choose-the-dates-and-palette)
   - [Time evolution](#time-evolution)
@@ -42,7 +43,7 @@ If a day contains sub-pixels, the displayed score is the average of those sub-pi
 The Pixel card shows the date, score icons, notes and tags for a specific day.
 
 <div align="center">
-    <img src="assets/screenshots/pixel-card.png" alt="Pixel card showing date, scores, notes and tags" style="width:60%;border-radius:5px;" />
+    <img src="assets/docs-screenshots/pixel-card.png" alt="Pixel card showing date, scores, notes and tags" style="width:60%;border-radius:5px;" />
 </div>
 
 
@@ -53,14 +54,14 @@ The Pixel card shows the date, score icons, notes and tags for a specific day.
 To get the file from the Pixels app: open Pixels -> Settings -> `Export Pixels data` and save the file to your device.  
 
 <div align="center">
-    <img src="assets/screenshots/export.png" alt="Export Pixels data from the app" style="width:40%;height:auto;" />
+    <img src="assets/docs-screenshots/export.png" alt="Export Pixels data from the app" style="width:40%;height:auto;" />
 </div>
 
 ### Export from Daylio app
 
 To get the file from the Daylio app: open Daylio -> More -> Export Entries -> `CSV (table)` and save the file to your device.
 
-### Export from Daily You app
+### Export from Daily You app
 
 To get the file from the Daily You app: open Daily You -> Settings -> Backup & Restore -> `Backup` and save the file to your device.
 
@@ -75,7 +76,7 @@ To get the file from the Daily You app: open Daily You -> Settings -> Backup & R
 Use the top range pills (e.g. `Last month`, `All time`) or `Custom` to pick exact start/end dates. Customize palette colors in the palette panel and click `Apply` to update visuals.
 
 <div align="center">
-    <img src="assets/screenshots/palette.png" alt="Palette editor for score colors" style="border-radius:5px;" />
+    <img src="assets/docs-screenshots/palette.png" alt="Palette editor for score colors" style="border-radius:5px;" />
 </div>
 
 
@@ -95,7 +96,7 @@ Options:
   - `Number of Pixels`: sub-pixels count.
 
 <div align="center">
-    <img src="assets/screenshots/time-evolution.png" alt="Time evolution chart" style="border-radius:5px;" />
+    <img src="assets/docs-screenshots/time-evolution.png" alt="Time evolution chart" style="border-radius:5px;" />
 </div>
 
 
@@ -109,7 +110,7 @@ Options:
 - `Tag categories`: filter by tag category.
 
 <div align="center">
-    <img src="assets/screenshots/tags.png" alt="Tag frequency and average score charts" style="border-radius:5px;" />
+    <img src="assets/docs-screenshots/tags.png" alt="Tag frequency and average score charts" style="border-radius:5px;" />
 </div>
 
 
@@ -122,7 +123,7 @@ Options:
 - `Season colors`: color months by season.
 
 <div align="center">
-    <img src="assets/screenshots/week-month.png" alt="Weekday and month charts" style="border-radius:5px;" />
+    <img src="assets/docs-screenshots/week-month.png" alt="Weekday and month charts" style="border-radius:5px;" />
 </div>
 
 
@@ -174,7 +175,7 @@ Remember, searches always uses **all the parameters above** (number of words, mi
       For example, when searching for `ate ***[with]`, if you have notes like "ate pizza and fries", it will count +1 for "pizza" and +1 "pizza and fries" separately.  
 
 <div align="center">
-    <img src="assets/screenshots/words.png" alt="Word frequency list and search" />
+    <img src="assets/docs-screenshots/words.png" alt="Word frequency list and search" />
 </div>
 
 
@@ -188,7 +189,7 @@ Options:
 - `Word compression`: an higher compression will make different words have similar sizes, while a lower compression will make the size difference more pronounced.
 
 <div align="center">
-    <img src="assets/screenshots/wordcloud.png" alt="Wordcloud preview" />
+    <img src="assets/docs-screenshots/wordcloud.png" alt="Wordcloud preview" />
 </div>
 
 
@@ -217,7 +218,7 @@ Open the additional settings panel by clicking the "Settings" button.
   - `Exclude words`: shows all Pixels that contain the first tag/word but *do not* contain the second one.
 
 <div align="center">
-    <img src="assets/screenshots/pixels-image.png" alt="Exported pixels image with legend" />
+    <img src="assets/docs-screenshots/pixels-image.png" alt="Exported pixels image with legend" />
 </div>
 
 
