@@ -18,8 +18,6 @@ const setting_color4 = document.querySelector("#color4");
 const setting_color5 = document.querySelector("#color5");
 const setting_colorEmpty = document.querySelector("#colorEmpty");
 
-const setting_squareSize = document.querySelector("#squareSizeInput");
-const setting_borderSize = document.querySelector("#borderSizeInput");
 const setting_showBorder = document.querySelector("#showBorderCheckbox");
 const setting_showLegend = document.querySelector("#showLegendCheckbox");
 const setting_showDays = document.querySelector("#showDaysCheckbox");
@@ -57,9 +55,9 @@ function get_image_settings() {
             5: setting_color5.value,
             empty: setting_colorEmpty.value
         },
-        firstDayOfWeek: parseInt(weekday_frequency_select.value, 10),
-        squareSize: parseInt(setting_squareSize.value, 10) || 50,
-        borderSize: parseInt(setting_borderSize.value, 10) || 1,
+        firstDayOfWeek: parseInt(weekday_frequency_select.value, 10) ?? 1,
+        squareSize: 50,
+        borderSize: 1,
         showBorder: setting_showBorder.checked,
         showLegend: setting_showLegend.checked,
         showDays: setting_showDays.checked,
@@ -80,8 +78,6 @@ function set_image_settings(settings) {
         update_svg_color(i, settings.colors[i]);
     }
     setting_colorEmpty.value = settings.colors.empty;
-    setting_squareSize.value = settings.squareSize.toString();
-    setting_borderSize.value = settings.borderSize.toString();
     setting_showBorder.checked = settings.showBorder;
     setting_showLegend.checked = settings.showLegend;
     setting_showDays.checked = settings.showDays;
