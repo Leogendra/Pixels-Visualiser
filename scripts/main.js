@@ -13,8 +13,6 @@ const div_date_range_filter = document.querySelector("#dateRangeFilter");
 const start_date_filter = document.querySelector("#startDateFilterInput");
 const end_date_filter = document.querySelector("#endDateFilterInput");
 
-const palette_container = document.querySelector("#paletteContainer");
-const palette_grid = document.querySelector("#paletteGrid");
 const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
