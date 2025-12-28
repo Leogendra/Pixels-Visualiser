@@ -380,6 +380,7 @@ async function generate_pixels_PNG() {
     const rows = direction === "row" ? pixels_groups.length : maxGroupLength;
 
     pixels_canvas = document.createElement("canvas");
+    pixels_canvas.classList.add("free-canvas");
 
     const legendPadding = showLegend ? (squareSize * 1.3) : (squareSize * 0.3);
     const showPaletteLegend = showLegend && !isCompareMode;
@@ -765,11 +766,14 @@ async function generate_pixels_PNG() {
         pixels_canvas._hoverOverlay = null;
     }
     const overlay = document.createElement("canvas");
+    overlay.classList.add("free-canvas");
     overlay.width = pixels_canvas.width;
     overlay.height = pixels_canvas.height;
     overlay.style.position = "absolute";
     overlay.style.left = "0";
     overlay.style.top = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
     overlay.style.pointerEvents = "none";
     overlay.style.zIndex = 5;
     result_png.appendChild(overlay);
@@ -875,15 +879,6 @@ async function generate_pixels_PNG() {
             pixels_canvas._lastHoverKey = null;
         }
     });
-
-    if ((pixels_canvas.height < 600) || (pixels_canvas.width > pixels_canvas.height * 3)) { 
-        // if image is landscape or small enough
-        result_png.style.height = "fit-content";
-    }
-    else {
-        // avoid overflow of the image
-        result_png.style.height = "600px"; 
-    }
 
     // display filter stats above the image if filters are applied
     if (value1 || value2) {
