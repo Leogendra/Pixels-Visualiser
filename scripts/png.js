@@ -18,8 +18,6 @@ const setting_color4 = document.querySelector("#color4");
 const setting_color5 = document.querySelector("#color5");
 const setting_colorEmpty = document.querySelector("#colorEmpty");
 
-const setting_squareSize = document.querySelector("#squareSizeInput");
-const setting_borderSize = document.querySelector("#borderSizeInput");
 const setting_showBorder = document.querySelector("#showBorderCheckbox");
 const setting_showLegend = document.querySelector("#showLegendCheckbox");
 const setting_showDays = document.querySelector("#showDaysCheckbox");
@@ -42,7 +40,7 @@ const compareSelect2 = document.querySelector("#compareSelect2");
 const compareWordInput2 = document.querySelector("#compareWordInput2");
 const compareTagSelect2 = document.querySelector("#compareTagSelect2");
 
-let pixelsCanvas;
+let pixels_canvas;
 
 
 
@@ -57,9 +55,9 @@ function get_image_settings() {
             5: setting_color5.value,
             empty: setting_colorEmpty.value
         },
-        firstDayOfWeek: parseInt(weekday_frequency_select.value, 10),
-        squareSize: parseInt(setting_squareSize.value, 10) || 50,
-        borderSize: parseInt(setting_borderSize.value, 10) || 1,
+        firstDayOfWeek: parseInt(weekday_frequency_select.value, 10) ?? 1,
+        squareSize: 50,
+        borderSize: 1,
         showBorder: setting_showBorder.checked,
         showLegend: setting_showLegend.checked,
         showDays: setting_showDays.checked,
@@ -80,8 +78,6 @@ function set_image_settings(settings) {
         update_svg_color(i, settings.colors[i]);
     }
     setting_colorEmpty.value = settings.colors.empty;
-    setting_squareSize.value = settings.squareSize.toString();
-    setting_borderSize.value = settings.borderSize.toString();
     setting_showBorder.checked = settings.showBorder;
     setting_showLegend.checked = settings.showLegend;
     setting_showDays.checked = settings.showDays;
@@ -273,7 +269,7 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
             if (diffDays === 1) {
                 currentStreak += 1;
                 bestStreak = Math.max(bestStreak, currentStreak);
-            } 
+            }
             else {
                 currentStreak = 1;
             }
@@ -383,7 +379,8 @@ async function generate_pixels_PNG() {
     const cols = direction === "col" ? pixels_groups.length : maxGroupLength;
     const rows = direction === "row" ? pixels_groups.length : maxGroupLength;
 
-    pixelsCanvas = document.createElement("canvas");
+    pixels_canvas = document.createElement("canvas");
+    pixels_canvas.classList.add("free-canvas");
 
     const legendPadding = showLegend ? (squareSize * 1.3) : (squareSize * 0.3);
     const showPaletteLegend = showLegend && !isCompareMode;
@@ -398,16 +395,16 @@ async function generate_pixels_PNG() {
     const canvasWidth = Math.max(gridWidth, paletteTotalWidth + (legendPadding * 2));
     const gridOffsetX = (canvasWidth - gridWidth) / 2;
 
-    pixelsCanvas.width = canvasWidth; // ensure the palette fits horizontally with padding
-    pixelsCanvas.height = rows * squareSize + legendPadding + (squareSize * 0.3) + paletteLegendHeight + filterStatsHeight + statsBottomPadding;
+    pixels_canvas.width = canvasWidth; // ensure the palette fits horizontally with padding
+    pixels_canvas.height = rows * squareSize + legendPadding + (squareSize * 0.3) + paletteLegendHeight + filterStatsHeight + statsBottomPadding;
 
-    const ctx = pixelsCanvas.getContext("2d");
+    const ctx = pixels_canvas.getContext("2d");
     ctx.fillStyle = textColor;
     ctx.font = `${squareSize * 0.25}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = colors.empty;
-    ctx.fillRect(0, 0, pixelsCanvas.width, pixelsCanvas.height);
+    ctx.fillRect(0, 0, pixels_canvas.width, pixels_canvas.height);
 
 
 
@@ -580,7 +577,7 @@ async function generate_pixels_PNG() {
 
         // draw color palette legend below the grid with pixel icons
         if (showPaletteLegend) {
-            const paletteStartX = (pixelsCanvas.width - paletteTotalWidth) / 2;
+            const paletteStartX = (pixels_canvas.width - paletteTotalWidth) / 2;
             const paletteY = rows * squareSize + legendPadding + (squareSize * 0.3) + (paletteLegendHeight - paletteItemSize) / 2;
 
             // load all pixel icons and draw them with proper coloring
@@ -644,7 +641,7 @@ async function generate_pixels_PNG() {
                 const word2Width = ctx.measureText(word2Text).width;
                 const doubleSepWidth = ctx.measureText(doubleSeparator).width;
                 const totalWidth = word1Width + doubleSepWidth + word2Width;
-                let currentX = pixelsCanvas.width / 2 - totalWidth / 2;
+                let currentX = pixels_canvas.width / 2 - totalWidth / 2;
 
                 ctx.fillStyle = colors[5];
                 ctx.fillText(word1Text, currentX, statsY);
@@ -664,24 +661,224 @@ async function generate_pixels_PNG() {
                 const statsText = `Filter: ${keyword}, matches: ${stats.matchCount}, best streak: ${stats.bestStreak}`;
                 ctx.fillStyle = lightTextColor;
                 ctx.textAlign = "center";
-                ctx.fillText(statsText, pixelsCanvas.width / 2, statsY);
+                ctx.fillText(statsText, pixels_canvas.width / 2, statsY);
             }
         }
     }
 
-    const img = document.createElement("img");
-    img.src = pixelsCanvas.toDataURL("image/png");
-    img.alt = "Pixels image";
+    // mapping from click -> date
+    const mapping = {
+        firstDayOfWeek,
+        squareSize,
+        legendPadding,
+        gridOffsetX,
+        direction,
+        isWeek,
+        rows,
+        cols,
+        pixelMap: pixel_map
+    };
 
-    result_png.innerHTML = "";
-    result_png.appendChild(img);
-
-    if ((pixelsCanvas.height < 600) || (pixelsCanvas.width > pixelsCanvas.height * 3)) { // if image is landscape or small enough
-        result_png.style.height = "fit-content";
+    if (isWeek) {
+        // day-indexed map per group for fast lookup (groupIndex -> [dayIndex -> dateStr|null])
+        mapping.groupDayMap = pixels_groups.map(group => {
+            const dayMap = new Array(7).fill(null);
+            group.forEach(d => {
+                const dayIndex = (d.getDay() - firstDayOfWeek + 7) % 7;
+                dayMap[dayIndex] = normalize_date(d);
+            });
+            return dayMap;
+        });
     }
     else {
-        result_png.style.height = "600px"; // avoid overflow of the image
+        // normalized date strings per group in order
+        mapping.groupIndexMap = pixels_groups.map(group => group.map(d => normalize_date(d)));
     }
+
+    pixels_canvas._pixelMapping = mapping;
+    pixels_canvas.style.cursor = "pointer";
+
+    pixels_canvas.addEventListener("click", (evt) => {
+        try {
+            const rect = pixels_canvas.getBoundingClientRect();
+            const scaleX = pixels_canvas.width / rect.width;
+            const scaleY = pixels_canvas.height / rect.height;
+            const clientX = evt.clientX;
+            const clientY = evt.clientY;
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
+
+            const relX = x - mapping.legendPadding - mapping.gridOffsetX;
+            const relY = y - mapping.legendPadding;
+            if (relX < 0 || relY < 0) { return; }
+
+            let groupIndex, posIndex, clickedDateStr = null;
+
+            if (mapping.direction === "col") {
+                groupIndex = Math.floor(relX / mapping.squareSize);
+                if (mapping.isWeek) {
+                    const dayIdx = Math.floor(relY / mapping.squareSize);
+                    if (groupIndex >= 0 && groupIndex < mapping.groupDayMap.length && dayIdx >= 0 && dayIdx < mapping.groupDayMap[groupIndex].length) {
+                        clickedDateStr = mapping.groupDayMap[groupIndex][dayIdx];
+                    }
+                }
+                else {
+                    posIndex = Math.floor(relY / mapping.squareSize);
+                    if (groupIndex >= 0 && groupIndex < mapping.groupIndexMap.length && posIndex >= 0 && posIndex < mapping.groupIndexMap[groupIndex].length) {
+                        clickedDateStr = mapping.groupIndexMap[groupIndex][posIndex];
+                    }
+                }
+            }
+            else { // direction === "row"
+                groupIndex = Math.floor(relY / mapping.squareSize);
+                if (mapping.isWeek) {
+                    const dayIdx = Math.floor(relX / mapping.squareSize);
+                    if (groupIndex >= 0 && groupIndex < mapping.groupDayMap.length && dayIdx >= 0 && dayIdx < mapping.groupDayMap[groupIndex].length) {
+                        clickedDateStr = mapping.groupDayMap[groupIndex][dayIdx];
+                    }
+                }
+                else {
+                    posIndex = Math.floor(relX / mapping.squareSize);
+                    if (groupIndex >= 0 && groupIndex < mapping.groupIndexMap.length && posIndex >= 0 && posIndex < mapping.groupIndexMap[groupIndex].length) {
+                        clickedDateStr = mapping.groupIndexMap[groupIndex][posIndex];
+                    }
+                }
+            }
+
+            if (clickedDateStr) {
+                const pixel = mapping.pixelMap.get(clickedDateStr) || null;
+                // if available, show the pixel card and scroll to it
+                show_pixel_card(clickedDateStr, true);
+            }
+        }
+        catch (e) {
+            console.error("Error handling canvas click:", e);
+        }
+    });
+
+    // append the actual canvas so it stays interactive (and usable for download)
+    result_png.innerHTML = "";
+    result_png.appendChild(pixels_canvas);
+
+    // overlay canvas for hover highlight
+    if (pixels_canvas._hoverOverlay) {
+        pixels_canvas._hoverOverlay.remove();
+        pixels_canvas._hoverOverlay = null;
+    }
+    const overlay = document.createElement("canvas");
+    overlay.classList.add("free-canvas");
+    overlay.width = pixels_canvas.width;
+    overlay.height = pixels_canvas.height;
+    overlay.style.position = "absolute";
+    overlay.style.left = "0";
+    overlay.style.top = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.pointerEvents = "none";
+    overlay.style.zIndex = 5;
+    result_png.appendChild(overlay);
+    const octx = overlay.getContext("2d");
+    pixels_canvas._hoverOverlay = overlay;
+
+    // hover effect
+    let lastHover = { g: -1, p: -1 };
+    pixels_canvas.addEventListener("mousemove", (evt) => {
+        try {
+            const rect = pixels_canvas.getBoundingClientRect();
+            const scaleX = pixels_canvas.width / rect.width;
+            const scaleY = pixels_canvas.height / rect.height;
+            const x = (evt.clientX - rect.left) * scaleX;
+            const y = (evt.clientY - rect.top) * scaleY;
+
+            const relX = x - mapping.legendPadding - mapping.gridOffsetX;
+            const relY = y - mapping.legendPadding;
+            if (relX < 0 || relY < 0) {
+                if (lastHover.g !== -1) {
+                    octx.clearRect(0, 0, overlay.width, overlay.height);
+                    lastHover = { g: -1, p: -1 };
+                }
+                return;
+            }
+
+            let groupIndex, posIndex, dayIdx = -1;
+            if (mapping.direction === "col") {
+                groupIndex = Math.floor(relX / mapping.squareSize);
+                if (mapping.isWeek) {
+                    dayIdx = Math.floor(relY / mapping.squareSize);
+                }
+                else {
+                    posIndex = Math.floor(relY / mapping.squareSize);
+                }
+            }
+            else {
+                groupIndex = Math.floor(relY / mapping.squareSize);
+                if (mapping.isWeek) {
+                    dayIdx = Math.floor(relX / mapping.squareSize);
+                }
+                else {
+                    posIndex = Math.floor(relX / mapping.squareSize);
+                }
+            }
+
+            // avoid unnecessary redraws
+            const hoverKey = `${groupIndex}:${dayIdx}:${posIndex}`;
+            if (pixels_canvas._lastHoverKey === hoverKey) { return; }
+            pixels_canvas._lastHoverKey = hoverKey;
+
+            // determine the normalized date under cursor (if any)
+            let hoveredDate = null;
+            if (mapping.isWeek) {
+                if (groupIndex >= 0 && groupIndex < mapping.groupDayMap.length && dayIdx >= 0 && dayIdx < 7) {
+                    hoveredDate = mapping.groupDayMap[groupIndex][dayIdx];
+                }
+            }
+            else {
+                if (groupIndex >= 0 && groupIndex < mapping.groupIndexMap.length && posIndex >= 0 && posIndex < mapping.groupIndexMap[groupIndex].length) {
+                    hoveredDate = mapping.groupIndexMap[groupIndex][posIndex];
+                }
+            }
+
+            // compute rectangle for highlight
+            let px, py;
+            const baseX = mapping.legendPadding + mapping.gridOffsetX;
+            const baseY = mapping.legendPadding;
+            if (mapping.direction === "col") {
+                px = baseX + (groupIndex * mapping.squareSize);
+                py = baseY + (mapping.isWeek ? (dayIdx * mapping.squareSize) : (posIndex * mapping.squareSize));
+            }
+            else {
+                py = baseY + (groupIndex * mapping.squareSize);
+                px = baseX + (mapping.isWeek ? (dayIdx * mapping.squareSize) : (posIndex * mapping.squareSize));
+            }
+
+            octx.clearRect(0, 0, overlay.width, overlay.height);
+            if (hoveredDate) {
+                // subtle fill + contrasting stroke
+                octx.fillStyle = "rgba(255, 255, 255, 0.12)";
+                octx.fillRect(px + 1, py + 1, mapping.squareSize - 2, mapping.squareSize - 2);
+                octx.strokeStyle = textColor || "#000";
+                octx.lineWidth = Math.max(1, Math.round(mapping.squareSize * 0.06));
+                octx.setLineDash([3, 3]);
+                octx.strokeRect(px + 1.5, py + 1.5, mapping.squareSize - 3, mapping.squareSize - 3);
+                octx.setLineDash([]);
+            }
+            else {
+                // nothing hovered
+                octx.clearRect(0, 0, overlay.width, overlay.height);
+            }
+        }
+        catch (e) {
+            // pass
+        }
+    });
+
+    pixels_canvas.addEventListener("mouseleave", () => {
+        if (pixels_canvas._hoverOverlay) {
+            const oc = pixels_canvas._hoverOverlay.getContext("2d");
+            oc.clearRect(0, 0, pixels_canvas._hoverOverlay.width, pixels_canvas._hoverOverlay.height);
+            pixels_canvas._lastHoverKey = null;
+        }
+    });
 
     // display filter stats above the image if filters are applied
     if (value1 || value2) {
@@ -692,20 +889,20 @@ async function generate_pixels_PNG() {
             </div>`;
         };
         let statsHTML = "";
-        
+
         if (isCompareMode) {
             statsHTML = generate_stats_div_results(value1, stats_filter_1.matchCount, stats_filter_1.bestStreak) + generate_stats_div_results(value2, stats_filter_2.matchCount, stats_filter_2.bestStreak);
-        } 
+        }
         else {
             let keyword = value1 ? value1 : value2;
             let stats = value1 ? stats_filter_1 : stats_filter_2;
-            
+
             statsHTML = generate_stats_div_results(keyword, stats.matchCount, stats.bestStreak);
         }
-        
+
         filter_stats_display.innerHTML = statsHTML;
         filter_stats_display.style.display = "block";
-    } 
+    }
     else {
         filter_stats_display.style.display = "none";
     }
@@ -715,13 +912,13 @@ async function generate_pixels_PNG() {
 
 
 async function download_pixels_PNG() {
-    if (!pixelsCanvas) {
+    if (!pixels_canvas) {
         alert("Please generate the pixel grid first.");
         return;
     }
     const link = document.createElement("a");
     link.download = "pixels.png";
-    link.href = pixelsCanvas.toDataURL("image/png");
+    link.href = pixels_canvas.toDataURL("image/png");
     link.click();
 }
 
