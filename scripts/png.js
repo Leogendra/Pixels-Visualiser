@@ -257,7 +257,7 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
         }
     }
 
-    const stats = { matchCount: filteredData.length, bestStreak: 0 };
+    const stats = { matchCount: filteredData.length, bestStreak: 0, averageScore: 0 };
     if (filteredData.length > 0) {
         const uniqueDates = Array.from(new Set(filteredData.map(entry => normalize_date(entry.date)))).sort();
         let bestStreak = 1;
@@ -275,6 +275,12 @@ function calculate_keyword_stats(keyword, isTag = false, excludeKeyword = null, 
             }
         }
         stats.bestStreak = bestStreak;
+        
+        // Calculate average score
+        const allScores = filteredData.flatMap(pixel => pixel.scores || []);
+        if (allScores.length > 0) {
+            stats.averageScore = average(allScores);
+        }
     }
     return stats;
 };
@@ -883,21 +889,28 @@ async function generate_pixels_PNG() {
     // display filter stats above the image if filters are applied
     if (value1 || value2) {
 
-        const generate_stats_div_results = (value, nbMatches, bestStreak) => {
-            return `<div class="stat-item">
-                <strong>${value}</strong>: ${nbMatches} matches, best streak: ${bestStreak} days
-            </div>`;
+        const generate_stats_div_results = (value, nbMatches, bestStreak, averageScore) => {
+            if (nbMatches === 0) {
+                return `<div class="stat-item">
+                    <strong>${value}</strong>- no matches found.
+                </div>`;
+            }
+            else {
+                return `<div class="stat-item">
+                    <strong>${value}</strong>- ${(nbMatches > 1) ? "matches" : "match"}: ${nbMatches} (${((nbMatches / nbTotalDays) * 100).toFixed(2)}%), avg score: ${averageScore.toFixed(2)}, best streak: ${bestStreak}d
+                </div>`;
+            }
         };
         let statsHTML = "";
 
         if (isCompareMode) {
-            statsHTML = generate_stats_div_results(value1, stats_filter_1.matchCount, stats_filter_1.bestStreak) + generate_stats_div_results(value2, stats_filter_2.matchCount, stats_filter_2.bestStreak);
+            statsHTML = generate_stats_div_results(value1, stats_filter_1.matchCount, stats_filter_1.bestStreak, stats_filter_1.averageScore) + generate_stats_div_results(value2, stats_filter_2.matchCount, stats_filter_2.bestStreak, stats_filter_2.averageScore);
         }
         else {
             let keyword = value1 ? value1 : value2;
             let stats = value1 ? stats_filter_1 : stats_filter_2;
 
-            statsHTML = generate_stats_div_results(keyword, stats.matchCount, stats.bestStreak);
+            statsHTML = generate_stats_div_results(keyword, stats.matchCount, stats.bestStreak, stats.averageScore);
         }
 
         filter_stats_display.innerHTML = statsHTML;
@@ -924,7 +937,7 @@ async function download_pixels_PNG() {
 
 
 function filter_pixels_by_keyword(keyword, isTag = false) {
-    if (!keyword || (keyword.trim() === "") || (current_data.length === 0)) { return []; }
+    if (!keyword || (keyword.trim() === "") || (nbTotalDays === 0)) { return []; }
     const result = [];
     const firstDate = normalize_date(current_data[0].date);
     const lastDate = normalize_date(current_data[current_data.length - 1].date);
@@ -966,7 +979,7 @@ function filter_pixels_by_two_keywords(keyword1, keyword2, isTag1 = false, isTag
     if (
         !keyword1 || keyword1.trim() === "" ||
         !keyword2 || keyword2.trim() === "" ||
-        current_data.length === 0
+        nbTotalDays === 0
     ) { return []; }
     const result = [];
     const firstDate = normalize_date(current_data[0].date);
