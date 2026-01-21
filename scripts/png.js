@@ -96,14 +96,14 @@ async function update_svg_color(score, color) {
     const svg = document.querySelector(`#color${score}`).parentElement.querySelector("svg");
     if (svg) {
         svg.style.color = color;
+        const bgColor = get_contrasting_text_color(color, highTreshold = 225);
+        svg.style.setProperty('--backgroundColor', bgColor);
     }
     png_settings.colors[score] = color;
 }
 
 
 async function setup_palette_settings() {
-    const colors = png_settings.colors;
-
     for (let score = 1; score <= 5; score++) {
         const cell = document.querySelector(`#color${score}`).parentElement;
         const input = document.getElementById(`color${score}`);
@@ -113,9 +113,6 @@ async function setup_palette_settings() {
         let old_svg = cell.querySelector("svg");
         if (!old_svg) {
             const svg = await load_colored_score_SVG(score);
-            svg.classList.add("color-icon");
-            svg.style.color = colors[score];
-
             input.addEventListener("input", () => {
                 update_svg_color(score, input.value);
             });
@@ -328,7 +325,7 @@ async function generate_pixels_PNG() {
     const direction = layout.includes("vertical") ? "col" : "row";
     const isWeek = layout.includes("weeks");
     const textColor = get_contrasting_text_color(colors.empty);
-    const lightTextColor = get_contrasting_text_color(colors.empty, less = true);
+    const lightTextColor = get_contrasting_text_color(colors.empty, highTreshold = 186, less = true);
 
     // create a map of pixels by date
     const pixel_map = new Map();

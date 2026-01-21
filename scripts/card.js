@@ -22,7 +22,13 @@ async function load_colored_score_SVG(score) {
     const text = await res.text();
     const doc = new DOMParser().parseFromString(text, "image/svg+xml");
     const svg = doc.querySelector("svg");
-    svg.style.color = png_settings.colors[score];
+    const scoreColor = png_settings.colors[score];
+    svg.classList.add("color-icon");
+    svg.style.color = scoreColor;
+    
+    const bgColor = get_contrasting_text_color(scoreColor, highTreshold = 225);
+    svg.style.setProperty('--backgroundColor', bgColor);
+    
     return svg;
 }
 
