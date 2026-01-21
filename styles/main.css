@@ -364,6 +364,14 @@ a {
     }
 }
 
+#savePaletteSettings {
+    display: none;
+}
+
+#resetPaletteSettings {
+    display: none;
+}
+
 
 .filter-stats-display {
     display: none;
@@ -394,6 +402,10 @@ a {
         & h2 {
             padding: 0.5rem;
         }
+    }
+
+    #paletteContainer {
+        padding: 1rem;
     }
 
     .grid-charts {
