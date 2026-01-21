@@ -46,10 +46,53 @@ function calculate_streaks() {
 }
 
 
+function calculate_best_day_of_year() {
+    const dayStats = {}; // { "MM-DD": { total: X, count: Y } }
+
+    current_data.forEach(entry => {
+        const avgScore = average(entry.scores);
+        if (!avgScore || !entry.date) { return; }
+
+        const date = new Date(entry.date);
+        const month = String(date.getMonth());
+        const day = String(date.getDate());
+        const dayKey = `${month}-${day}`;
+
+        if (!dayStats[dayKey]) {
+            dayStats[dayKey] = { total: 0, count: 0 };
+        }
+        dayStats[dayKey].total += avgScore;
+        dayStats[dayKey].count += 1;
+    });
+
+    let bestDay = null;
+    let bestAvg = 0;
+
+    Object.entries(dayStats).forEach(([dayKey, stats]) => {
+        const avg = stats.total / stats.count;
+        if (avg > bestAvg) {
+            bestAvg = avg;
+            bestDay = dayKey;
+        }
+    });
+
+    if (!bestDay) {
+        return { day: "N/A", score: 0 };
+    }
+
+    const [month, day] = bestDay.split('-').map(Number);
+    const monthName = new Date(0, month).toLocaleString(userLocale, { month: 'long' });
+    const formattedDay = `${day} ${monthName}`;
+
+    return { day: formattedDay, score: bestAvg };
+}
+
+
 function calculate_and_display_stats() {
     const allScores = current_data.flatMap(entry => entry.scores);
     const streaks = calculate_streaks();
     const moodCounts = {};
+    const bestDayInfos = calculate_best_day_of_year();
     averageScore = average(allScores);
     nbTotalDays = current_data.filter(entry => entry.scores.length > 0).length;
 
@@ -58,10 +101,10 @@ function calculate_and_display_stats() {
     });
 
     stats_array = [
-        { title: "Number of Pixels", value: `<p>${nbTotalDays}</p>` },
-        { title: "Average score", value: `<p>${averageScore.toFixed(2)}</p>` },
+        { title: "Number of Pixels", value: `<p>${nbTotalDays} | Avg score: ${averageScore.toFixed(2)}</p>` },
         { title: "Streaks", value: `<p>Last: ${streaks.currentStreak} | Best: ${streaks.bestStreak}</p>` },
-        { title: "Score distribution", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
+        { title: "Best day of the year", value: `<p>${bestDayInfos.day}, score: ${bestDayInfos.score.toFixed(2)}</p>` },
+        { title: "Score distribution (click)", value: `<canvas title="Click to enlarge" id="scoresPieChart" class="pie-chart" width="100" height="100"></canvas>` },
     ];
 
     stats_container.innerHTML = stats_array.map(({ title, value }, index) => `
