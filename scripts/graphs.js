@@ -98,7 +98,40 @@ async function create_mood_chart() {
             }
         }
     }
-
+    // add trend line
+    if (moodShowTrendLine) {
+      const firstX = current_data.filter(entry => entry.scores > 0 )[0];
+      const lastX = current_data[current_data.length - 1];
+      const startY =  trendScore.intercept;
+      const endY = trendScore.slope * date_baseline(firstX.date, lastX.date) + trendScore.intercept;
+    annotations["trend"] = {
+      type: "line",
+        xMin: firstX.date,
+        xMax: lastX.date,
+        yMin: startY,
+        yMax: endY,
+      borderColor: secondaryColor,
+      borderWidth: 2,
+      label: {
+        enabled: false,
+        content: `Trend: y=${trendScore.slope.toFixed(2)}x+${trendScore.intercept.toFixed(2)}`,
+        position: "top",
+        backgroundColor: "rgba(0,0,0,0.6)",
+        font: {
+          size: 10,
+          weight: "bold",
+        },
+      },
+      enter(ctx) {
+        ctx.element.options.label.enabled = true;
+        ctx.chart.draw();
+      },
+      leave(ctx) {
+        ctx.element.options.label.enabled = false;
+        ctx.chart.draw();
+      },
+    };
+  }
     // add year lines
     if (moodShowYears) {
         dates.forEach(dateStr => {

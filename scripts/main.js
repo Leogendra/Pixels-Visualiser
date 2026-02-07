@@ -17,6 +17,7 @@ const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
+const show_trend_line_checkbox = document.querySelector("#showTrendLine");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const show_pixel_card_checkbox = document.querySelector("#showPixelCardCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
@@ -73,11 +74,13 @@ let last_end_date = null;
 // Mood chart
 let moodAveragingValue = 1;
 let moodShowAverage = false;
+let moodShowTrendLine = false;
 let moodShowYears = false;
 let moodTimeOption = "scores";
 let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
+let trendScore = {};
 let nbTotalDays = 0;
 
 // Tags
@@ -558,6 +561,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sync_tag_charts_hover();
         create_month_chart();
         create_weekday_chart();
+    });
+
+    show_trend_line_checkbox.addEventListener("change", (e) => {
+      moodShowTrendLine = e.target.checked;
+      // add trend on all charts
+      create_mood_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {

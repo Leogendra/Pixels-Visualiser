@@ -89,11 +89,18 @@ function calculate_best_day_of_year() {
 
 
 function calculate_and_display_stats() {
+    const firstDate =(current_data
+        .filter(entry => entry.scores.length > 0)[0].date);
+    const scoresAndDates = current_data.filter(entry => entry.scores.length > 0).map(entry => ({
+        scores: entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length, // average score of the day
+        date: date_baseline(firstDate, entry.date) // intercept needs base line, using the first date as 0 to avoid precision issues with big timestamps
+    }));
     const allScores = current_data.flatMap(entry => entry.scores);
     const streaks = calculate_streaks();
     const moodCounts = {};
     const bestDayInfos = calculate_best_day_of_year();
     averageScore = average(allScores);
+    trendScore = calculate_trend_line(scoresAndDates.map(entry => ({ x: new Date(entry.date).getTime(), y: entry.scores })));
     nbTotalDays = current_data.filter(entry => entry.scores.length > 0).length;
 
     allScores.forEach(score => {
