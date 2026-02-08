@@ -30,6 +30,7 @@ const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
+const sortChartCheckbox = document.querySelector("#sortChartCheckbox");
 
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
@@ -95,6 +96,7 @@ let weekdays_stats = {};
 // Months
 let months_stats = {};
 let monthSeasonColors = false;
+let sortMonths = false;
 
 // Words
 let full_word_frequency = [];
@@ -620,6 +622,10 @@ document.addEventListener("DOMContentLoaded", () => {
         create_month_chart();
     });
 
+    sortChartCheckbox.addEventListener("change", (e) => {
+        sortMonths = e.target.checked;
+        create_month_chart();
+    });
 
     // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {

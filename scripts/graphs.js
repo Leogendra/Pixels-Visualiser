@@ -110,7 +110,7 @@ async function create_mood_chart() {
         xMax: lastX.date,
         yMin: startY,
         yMax: endY,
-      borderColor: secondaryColor,
+      borderColor: "rgba(0, 207, 0, 0.7)",
       borderWidth: 2,
       label: {
         enabled: false,
@@ -553,7 +553,7 @@ async function create_month_chart() {
         11: "winter",
     };
 
-    const month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
+    let month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
         const day = new Date(2025, monthIndex, 1);
         return day.toLocaleString(userLocale, { month: "long" });
     });
@@ -598,6 +598,13 @@ async function create_month_chart() {
 
     if (month_score_chart_instance) {
         month_score_chart_instance.destroy();
+    }
+
+    if(sortMonths) {
+    month_data.sort((a, b) => Number(b.avg) - Number(a.avg));
+    console.log("sorted month_data", month_data);
+    console.log("month_seasons", month_labels);
+    month_labels = month_data.map((month) => month.label);
     }
     month_score_chart_instance = new Chart(months_score, {
         type: "bar",
