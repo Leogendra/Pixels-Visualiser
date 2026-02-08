@@ -466,72 +466,12 @@ document.addEventListener("DOMContentLoaded", () => {
             delete_pixels_data();
         }
     });
-  const file_input = document.getElementById("fileInput");
 
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
         await handle_file_upload(file);
     });
-// #region tests
-  const test_data = [
-    {
-      date: "2021-2-1",
-      type: "MOOD",
-      scores: [3],
-      notes: "",
-      tags: [],
-    },
-    {
-      date: "2021-2-2",
-      type: "MOOD",
-      scores: [5],
-      notes: "",
-      tags: [],
-    },
-    {
-      date: "2021-2-3",
-      type: "MOOD",
-      scores: [4],
-      notes: "",
-      tags: [],
-    },
-    {
-      date: "2021-2-4",
-      type: "MOOD",
-      scores: [3],
-      notes: "",
-      tags: [],
-    },
-    {
-      date: "2021-2-5",
-      type: "MOOD",
-      scores: [3],
-      notes: "",
-      tags: [],
-    },
-    {
-      date: "2021-2-6",
-      type: "MOOD",
-      scores: [1],
-      notes: "",
-      tags: [],
-    },
-  ];
-  async function autoLoadFile() {
-    console.log("herer");
-    const blob = new Blob([JSON.stringify(test_data)], {
-      type: "application/json",
-    });
-    const file = new File([blob], "test.json");
 
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    file_input.files = dt.files;
-
-    file_input.dispatchEvent(new Event("change"));
-  }
-  autoLoadFile();
-  // #endregion tests
     body.addEventListener("dragover", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.add("dragover");

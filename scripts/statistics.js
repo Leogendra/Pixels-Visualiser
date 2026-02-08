@@ -326,8 +326,6 @@ function compute_months_stats() {
 }
 
 function compute_seasons_stats() {
-    console.log("Computing seasons stats...");
-    console.log(months_stats);
         const month_seasons = {
         0: "winter",
         1: "winter",
@@ -350,7 +348,6 @@ function compute_seasons_stats() {
         seasons_stats[season].total += stats.total/ stats.count; // add the average score of the month to the season total
         seasons_stats[season].count ++;
     });
-    console.log("Seasons stats", seasons_stats);
 }
 
 

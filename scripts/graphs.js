@@ -569,15 +569,14 @@ async function create_month_chart() {
         month_labels = ["Winter", "Spring", "Summer", "Autumn"];
         month_data=[];
         Object.entries(seasons_stats).forEach(([name, stats]) => {
-            month_data[Object.keys(seasons_stats).indexOf(name)] = {
-                index: Object.keys(seasons_stats).indexOf(name),
+            const index = Object.keys(seasons_stats).indexOf(name);
+            month_data[index] = {
+                index: index,
                 label: name,
                 avg:stats ? (stats.total / stats.count).toFixed(2) : 0
             }
         });
     }
-
-    console.log("month data", month_data);
     const annotations = {};
     if (moodShowAverage) {
         annotations["average"] = {
@@ -613,10 +612,9 @@ async function create_month_chart() {
     }
 
     if(sortMonths) {
-    month_data.sort((a, b) => Number(b.avg) - Number(a.avg));
-    console.log("sorted month_data", month_data);
-    console.log("month_seasons", month_labels);
-    month_labels = month_data.map((month) => month.label);
+    month_data_labels = month_data.map((data,i) => [data, month_labels[i]]).sort((a, b) => Number(b[0].avg) - Number(a[0].avg));
+    month_data = month_data_labels.map((data) => data[0]);
+    month_labels = month_data_labels.map((data) => data[1]);
     }
     month_score_chart_instance = new Chart(months_score, {
         type: "bar",
