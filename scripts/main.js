@@ -31,6 +31,7 @@ const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
 const sortChartCheckbox = document.querySelector("#sortChartCheckbox");
+const groupChartCheckbox = document.querySelector("#groupChartCheckbox");
 
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
@@ -95,8 +96,10 @@ let tagCategory = "All";
 let weekdays_stats = {};
 // Months
 let months_stats = {};
+let seasons_stats = {};
 let monthSeasonColors = false;
 let sortMonths = false;
+let groupMonths = false;
 
 // Words
 let full_word_frequency = [];
@@ -214,6 +217,7 @@ async function update_stats_and_graphics() {
             compute_tag_stats(),
             compute_weekdays_stats(),
             compute_months_stats(),
+            compute_seasons_stats(),
             get_word_frequency(),
 
             // Graphics
@@ -462,12 +466,72 @@ document.addEventListener("DOMContentLoaded", () => {
             delete_pixels_data();
         }
     });
+  const file_input = document.getElementById("fileInput");
 
     file_input.addEventListener("change", async (event) => {
         const file = event.target.files[0];
         await handle_file_upload(file);
     });
+// #region tests
+  const test_data = [
+    {
+      date: "2021-2-1",
+      type: "MOOD",
+      scores: [3],
+      notes: "",
+      tags: [],
+    },
+    {
+      date: "2021-2-2",
+      type: "MOOD",
+      scores: [5],
+      notes: "",
+      tags: [],
+    },
+    {
+      date: "2021-2-3",
+      type: "MOOD",
+      scores: [4],
+      notes: "",
+      tags: [],
+    },
+    {
+      date: "2021-2-4",
+      type: "MOOD",
+      scores: [3],
+      notes: "",
+      tags: [],
+    },
+    {
+      date: "2021-2-5",
+      type: "MOOD",
+      scores: [3],
+      notes: "",
+      tags: [],
+    },
+    {
+      date: "2021-2-6",
+      type: "MOOD",
+      scores: [1],
+      notes: "",
+      tags: [],
+    },
+  ];
+  async function autoLoadFile() {
+    console.log("herer");
+    const blob = new Blob([JSON.stringify(test_data)], {
+      type: "application/json",
+    });
+    const file = new File([blob], "test.json");
 
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    file_input.files = dt.files;
+
+    file_input.dispatchEvent(new Event("change"));
+  }
+  autoLoadFile();
+  // #endregion tests
     body.addEventListener("dragover", (e) => {
         e.preventDefault();
         drag_and_drop_zone.classList.add("dragover");
@@ -626,6 +690,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sortMonths = e.target.checked;
         create_month_chart();
     });
+
+      groupChartCheckbox.addEventListener("change", (e) => {
+      groupMonths = e.target.checked;
+      create_month_chart();
+    });
+
 
     // Word search
     words_percentage_checkbox.addEventListener("change", (e) => {

@@ -325,6 +325,34 @@ function compute_months_stats() {
     });
 }
 
+function compute_seasons_stats() {
+    console.log("Computing seasons stats...");
+    console.log(months_stats);
+        const month_seasons = {
+        0: "winter",
+        1: "winter",
+        2: "spring",
+        3: "spring",
+        4: "spring",
+        5: "summer",
+        6: "summer",
+        7: "summer",
+        8: "autumn",
+        9: "autumn",
+        10: "autumn",
+        11: "winter",
+    };
+    seasons_stats = {"winter":{total:0, count:0}, "spring":{total:0, count:0}, "summer":{total:0, count:0}, "autumn":{total:0, count:0} };
+    compute_months_stats();
+    Object.entries(months_stats).forEach(([monthIndex, stats]) => {
+        const season = month_seasons[monthIndex];
+        console.log(season, monthIndex);
+        seasons_stats[season].total += stats.total/ stats.count; // add the average score of the month to the season total
+        seasons_stats[season].count ++;
+    });
+    console.log("Seasons stats", seasons_stats);
+}
+
 
 function get_word_frequency() {
     const words_data = {}; // { word: { count: X, scores: [n, n, ...] } }

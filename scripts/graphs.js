@@ -552,20 +552,32 @@ async function create_month_chart() {
         10: "autumn",
         11: "winter",
     };
-
+    
     let month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
-        const day = new Date(2025, monthIndex, 1);
-        return day.toLocaleString(userLocale, { month: "long" });
+        return new Date(2025, monthIndex).toLocaleString(userLocale, { month: "long" });
     });
-    const all_month_indices = Array.from({ length: 12 }, (_, i) => i);
-
-    const month_data = all_month_indices
+    let all_month_indices = call_month_indices = Array.from({ length: 12 }, (_, i) => i);;
+    let month_data = all_month_indices
         .map(idx => ({
             index: idx,
             label: month_labels[idx],
             avg: months_stats[idx] ? (months_stats[idx].total / months_stats[idx].count).toFixed(2) : 0
         }));
 
+
+    if(groupMonths) {
+        month_labels = ["Winter", "Spring", "Summer", "Autumn"];
+        month_data=[];
+        Object.entries(seasons_stats).forEach(([name, stats]) => {
+            month_data[Object.keys(seasons_stats).indexOf(name)] = {
+                index: Object.keys(seasons_stats).indexOf(name),
+                label: name,
+                avg:stats ? (stats.total / stats.count).toFixed(2) : 0
+            }
+        });
+    }
+
+    console.log("month data", month_data);
     const annotations = {};
     if (moodShowAverage) {
         annotations["average"] = {
@@ -613,7 +625,15 @@ async function create_month_chart() {
             datasets: [{
                 label: "Months",
                 data: month_data.map(({ avg }) => avg),
-                backgroundColor: monthSeasonColors ? month_data.map(({ index }) => seasons_colors[month_seasons[index]]) : secondaryColor,
+                backgroundColor: ()=>{
+                    if(monthSeasonColors) { 
+                        if(groupMonths) {
+                            return month_data.map(({ label }) => seasons_colors[label.toLowerCase()])
+                        }
+                        return month_data.map(({ index }) => seasons_colors[month_seasons[index]]) 
+                    }
+                    else { return secondaryColor }
+                },
             },
             ]
         },
