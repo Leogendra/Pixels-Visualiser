@@ -55,6 +55,7 @@ async function store_settings() {
 
             moodAveragingValue,
             moodShowAverage,
+            moodShowTrendLine,
             moodShowYears,
             moodShowPixelCard,
             moodTimeOption,
@@ -63,6 +64,8 @@ async function store_settings() {
             nbMaxTags,
 
             monthSeasonColors,
+            sortMonths,
+            groupMonths,
 
             wordDisplayPercentage,
             wordOrderByScore,
@@ -108,6 +111,9 @@ async function load_settings() {
                 rolling_slider.value = moodAveragingValue;
                 rolling_slider_text_value.textContent = moodAveragingValue;
 
+                moodShowTrendLine = settings.moodShowTrendLine ?? moodShowTrendLine;
+                show_trend_line_checkbox.checked = moodShowTrendLine;
+
                 moodShowAverage = settings.moodShowAverage ?? moodShowAverage;
                 show_average_checkbox.checked = moodShowAverage;
 
@@ -130,6 +136,12 @@ async function load_settings() {
 
                 monthSeasonColors = settings.monthSeasonColors ?? monthSeasonColors;
                 season_colors_checkbox.checked = monthSeasonColors;
+
+                sortMonths = settings.sortMonths ?? sortMonths;
+                sort_months_checkbox.checked = sortMonths;
+
+                groupMonths = settings.groupMonths ?? groupMonths;
+                group_months_checkbox.checked = groupMonths;
 
 
                 wordDisplayPercentage = settings.wordDisplayPercentage ?? wordDisplayPercentage;
