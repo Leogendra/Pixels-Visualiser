@@ -87,6 +87,7 @@ This chart displays how daily scores change over time.
 Options:
 - `Rolling average`: smooth the line by averaging scores over N days (example: 7-day average on June 8 = average of June 2–8).
 - `Show average`: horizontal line showing the mean score for the selected period.
+- `Show trend line`: linear regression line showing overall trend.
 - `Show years`: vertical markers for each year start.
 - `Show Pixel`: when enabled, hovering a point shows the Pixel card; otherwise only clicking shows the card.
 - `Option to display`: 
@@ -121,6 +122,8 @@ View averages by weekday or month to spot patterns.
 Options:
 - `First day of week`: choose which day the week starts on.
 - `Season colors`: color months by season.
+- `Sort months`: sort months by average score instead of calendar order.
+- `Group months`: group months into seasons.
 
 <div align="center">
     <img src="assets/docs-screenshots/week-month.png" alt="Weekday and month charts" style="border-radius:5px;" />
