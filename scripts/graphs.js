@@ -98,7 +98,40 @@ async function create_mood_chart() {
             }
         }
     }
-
+    // add trend line
+    if (moodShowTrendLine) {
+        const firstX = current_data.filter(entry => entry.scores > 0)[0];
+        const lastX = current_data[current_data.length - 1];
+        const startY = trendScore.intercept;
+        const endY = trendScore.slope * date_baseline(firstX.date, lastX.date) + trendScore.intercept;
+        annotations["trend"] = {
+            type: "line",
+            xMin: firstX.date,
+            xMax: lastX.date,
+            yMin: startY,
+            yMax: endY,
+            borderColor: tertiaryColor,
+            borderWidth: 2,
+            label: {
+                enabled: false,
+                content: `Trend: y=${trendScore.slope.toFixed(2)}x+${trendScore.intercept.toFixed(2)}`,
+                position: "top",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                font: {
+                    size: 10,
+                    weight: "bold",
+                },
+            },
+            enter(ctx) {
+                ctx.element.options.label.enabled = true;
+                ctx.chart.draw();
+            },
+            leave(ctx) {
+                ctx.element.options.label.enabled = false;
+                ctx.chart.draw();
+            },
+        };
+    }
     // add year lines
     if (moodShowYears) {
         dates.forEach(dateStr => {
@@ -520,18 +553,37 @@ async function create_month_chart() {
         11: "winter",
     };
 
-    const month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
-        const day = new Date(2025, monthIndex, 1);
-        return day.toLocaleString(userLocale, { month: "long" });
+    let month_labels = Array.from({ length: 12 }, (_, monthIndex) => {
+        return new Date(2025, monthIndex).toLocaleString(userLocale, { month: "long" });
     });
-    const all_month_indices = Array.from({ length: 12 }, (_, i) => i);
-
-    const month_data = all_month_indices
+    let all_month_indices = Array.from({ length: 12 }, (_, i) => i);;
+    let month_data = all_month_indices
         .map(idx => ({
             index: idx,
             label: month_labels[idx],
             avg: months_stats[idx] ? (months_stats[idx].total / months_stats[idx].count).toFixed(2) : 0
         }));
+
+
+    if (groupMonths) {
+        month_labels = ["Winter", "Spring", "Summer", "Autumn"];
+        month_data = [];
+        Object.entries(seasons_stats).forEach(([name, stats]) => {
+            const index = Object.keys(seasons_stats).indexOf(name);
+            month_data[index] = {
+                index: index,
+                label: name,
+                avg: stats ? (stats.total / stats.count).toFixed(2) : 0
+            }
+        });
+    }
+
+    if (sortMonths) {
+        // sort month_data by avg and apply the same order to month_labels
+        const month_data_labels = month_data.map((data, i) => [data, month_labels[i]]).sort((a, b) => Number(b[0].avg) - Number(a[0].avg));
+        month_data = month_data_labels.map((data) => data[0]);
+        month_labels = month_data_labels.map((data) => data[1]);
+    }
 
     const annotations = {};
     if (moodShowAverage) {
@@ -566,6 +618,7 @@ async function create_month_chart() {
     if (month_score_chart_instance) {
         month_score_chart_instance.destroy();
     }
+
     month_score_chart_instance = new Chart(months_score, {
         type: "bar",
         data: {
@@ -573,7 +626,15 @@ async function create_month_chart() {
             datasets: [{
                 label: "Months",
                 data: month_data.map(({ avg }) => avg),
-                backgroundColor: monthSeasonColors ? month_data.map(({ index }) => seasons_colors[month_seasons[index]]) : secondaryColor,
+                backgroundColor: () => {
+                    if (monthSeasonColors) {
+                        if (groupMonths) {
+                            return month_data.map(({ label }) => seasons_colors[label.toLowerCase()])
+                        }
+                        return month_data.map(({ index }) => seasons_colors[month_seasons[index]])
+                    }
+                    else { return secondaryColor }
+                },
             },
             ]
         },

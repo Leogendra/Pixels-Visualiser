@@ -89,11 +89,17 @@ function calculate_best_day_of_year() {
 
 
 function calculate_and_display_stats() {
+    const firstDate = current_data.filter(entry => entry.scores.length > 0)[0].date;
+    const scoresAndDates = current_data.filter(entry => entry.scores.length > 0).map(entry => ({
+        scores: entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length, // average score of the day
+        date: date_baseline(firstDate, entry.date) // intercept needs base line, using the first date as 0 to avoid precision issues with big timestamps
+    }));
     const allScores = current_data.flatMap(entry => entry.scores);
     const streaks = calculate_streaks();
     const moodCounts = {};
     const bestDayInfos = calculate_best_day_of_year();
     averageScore = average(allScores);
+    trendScore = calculate_trend_line(scoresAndDates.map(entry => ({ x: new Date(entry.date).getTime(), y: entry.scores })));
     nbTotalDays = current_data.filter(entry => entry.scores.length > 0).length;
 
     allScores.forEach(score => {
@@ -315,6 +321,30 @@ function compute_months_stats() {
         }
         months_stats[monthIndex].total += avgScore;
         months_stats[monthIndex].count += 1;
+    });
+}
+
+function compute_seasons_stats() {
+    const month_seasons = {
+        0: "winter",
+        1: "winter",
+        2: "spring",
+        3: "spring",
+        4: "spring",
+        5: "summer",
+        6: "summer",
+        7: "summer",
+        8: "autumn",
+        9: "autumn",
+        10: "autumn",
+        11: "winter",
+    };
+    seasons_stats = { "winter": { total: 0, count: 0 }, "spring": { total: 0, count: 0 }, "summer": { total: 0, count: 0 }, "autumn": { total: 0, count: 0 } };
+    compute_months_stats();
+    Object.entries(months_stats).forEach(([monthIndex, stats]) => {
+        const season = month_seasons[monthIndex];
+        seasons_stats[season].total += stats.total / stats.count; // add the average score of the month to the season total
+        seasons_stats[season].count++;
     });
 }
 

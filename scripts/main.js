@@ -17,6 +17,7 @@ const stats_container = document.querySelector("#statsContainer");
 const rolling_slider = document.querySelector("#rollingSlider");
 const rolling_slider_text_value = document.querySelector("#rollingValue");
 const show_average_checkbox = document.querySelector("#showAverageCheckbox");
+const show_trend_line_checkbox = document.querySelector("#showTrendLine");
 const show_years_checkbox = document.querySelector("#showYearsCheckbox");
 const show_pixel_card_checkbox = document.querySelector("#showPixelCardCheckbox");
 const select_time_option = document.querySelector("#timeOptionSelect");
@@ -29,6 +30,8 @@ const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
+const sort_months_checkbox = document.querySelector("#sortMonthsCheckbox");
+const group_months_checkbox = document.querySelector("#groupMonthsCheckbox");
 
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
@@ -73,11 +76,13 @@ let last_end_date = null;
 // Mood chart
 let moodAveragingValue = 1;
 let moodShowAverage = false;
+let moodShowTrendLine = false;
 let moodShowYears = false;
 let moodTimeOption = "scores";
 let moodShowPixelCard = true;
 let cardWidth = 500;
 let averageScore = 0;
+let trendScore = {};
 let nbTotalDays = 0;
 
 // Tags
@@ -91,7 +96,10 @@ let tagCategory = "All";
 let weekdays_stats = {};
 // Months
 let months_stats = {};
+let seasons_stats = {};
 let monthSeasonColors = false;
+let sortMonths = false;
+let groupMonths = false;
 
 // Words
 let full_word_frequency = [];
@@ -209,6 +217,7 @@ async function update_stats_and_graphics() {
             compute_tag_stats(),
             compute_weekdays_stats(),
             compute_months_stats(),
+            compute_seasons_stats(),
             get_word_frequency(),
 
             // Graphics
@@ -560,6 +569,11 @@ document.addEventListener("DOMContentLoaded", () => {
         create_weekday_chart();
     });
 
+    show_trend_line_checkbox.addEventListener("change", (e) => {
+        moodShowTrendLine = e.target.checked;
+        create_mood_chart();
+    });
+
     show_years_checkbox.addEventListener("change", (e) => {
         moodShowYears = e.target.checked;
         create_mood_chart();
@@ -608,6 +622,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Months
     season_colors_checkbox.addEventListener("change", (e) => {
         monthSeasonColors = e.target.checked;
+        create_month_chart();
+    });
+
+    sort_months_checkbox.addEventListener("change", (e) => {
+        sortMonths = e.target.checked;
+        create_month_chart();
+    });
+
+    group_months_checkbox.addEventListener("change", (e) => {
+        groupMonths = e.target.checked;
         create_month_chart();
     });
 

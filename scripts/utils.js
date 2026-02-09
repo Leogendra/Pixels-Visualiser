@@ -145,6 +145,33 @@ function compute_regex(cnf_array) {
     });
 }
 
+function date_baseline(firstDate, secondDate ){
+    const oneDayMiliseconds = 1000 * 60 * 60 * 24;
+    return ((new Date(firstDate) - new Date(secondDate)) / oneDayMiliseconds);
+}
+
+function calculate_trend_line(points) {
+  const n = points.length;
+
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumXX = 0;
+
+  for (const p of points) {
+    sumX += p.x;
+    sumY += p.y;
+    sumXY += p.x * p.y;
+    sumXX += p.x * p.x;
+  }
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+
+  const intercept = (sumY - slope * sumX) / n;
+
+  return { slope, intercept };
+}
+
 
 //////////////// Dates ////////////////
 
