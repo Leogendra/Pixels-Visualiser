@@ -89,8 +89,7 @@ function calculate_best_day_of_year() {
 
 
 function calculate_and_display_stats() {
-    const firstDate =(current_data
-        .filter(entry => entry.scores.length > 0)[0].date);
+    const firstDate = current_data.filter(entry => entry.scores.length > 0)[0].date;
     const scoresAndDates = current_data.filter(entry => entry.scores.length > 0).map(entry => ({
         scores: entry.scores.reduce((a, b) => a + b, 0) / entry.scores.length, // average score of the day
         date: date_baseline(firstDate, entry.date) // intercept needs base line, using the first date as 0 to avoid precision issues with big timestamps
@@ -326,7 +325,7 @@ function compute_months_stats() {
 }
 
 function compute_seasons_stats() {
-        const month_seasons = {
+    const month_seasons = {
         0: "winter",
         1: "winter",
         2: "spring",
@@ -340,13 +339,12 @@ function compute_seasons_stats() {
         10: "autumn",
         11: "winter",
     };
-    seasons_stats = {"winter":{total:0, count:0}, "spring":{total:0, count:0}, "summer":{total:0, count:0}, "autumn":{total:0, count:0} };
+    seasons_stats = { "winter": { total: 0, count: 0 }, "spring": { total: 0, count: 0 }, "summer": { total: 0, count: 0 }, "autumn": { total: 0, count: 0 } };
     compute_months_stats();
     Object.entries(months_stats).forEach(([monthIndex, stats]) => {
         const season = month_seasons[monthIndex];
-        console.log(season, monthIndex);
-        seasons_stats[season].total += stats.total/ stats.count; // add the average score of the month to the season total
-        seasons_stats[season].count ++;
+        seasons_stats[season].total += stats.total / stats.count; // add the average score of the month to the season total
+        seasons_stats[season].count++;
     });
 }
 

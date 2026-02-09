@@ -30,8 +30,8 @@ const tag_frequency_checkbox = document.querySelector("#tagFrequencyCheckbox");
 
 const weekday_frequency_select = document.querySelector("#firstDayOfWeekSelect");
 const season_colors_checkbox = document.querySelector("#seasonColorsCheckbox");
-const sortChartCheckbox = document.querySelector("#sortChartCheckbox");
-const groupChartCheckbox = document.querySelector("#groupChartCheckbox");
+const sort_months_checkbox = document.querySelector("#sortMonthsCheckbox");
+const group_months_checkbox = document.querySelector("#groupMonthsCheckbox");
 
 const word_freq_container = document.querySelector("#wordFrequency");
 const words_percentage_checkbox = document.querySelector("#wordsPercentageCheckbox");
@@ -570,9 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     show_trend_line_checkbox.addEventListener("change", (e) => {
-      moodShowTrendLine = e.target.checked;
-      // add trend on all charts
-      create_mood_chart();
+        moodShowTrendLine = e.target.checked;
+        create_mood_chart();
     });
 
     show_years_checkbox.addEventListener("change", (e) => {
@@ -626,14 +625,14 @@ document.addEventListener("DOMContentLoaded", () => {
         create_month_chart();
     });
 
-    sortChartCheckbox.addEventListener("change", (e) => {
+    sort_months_checkbox.addEventListener("change", (e) => {
         sortMonths = e.target.checked;
         create_month_chart();
     });
 
-      groupChartCheckbox.addEventListener("change", (e) => {
-      groupMonths = e.target.checked;
-      create_month_chart();
+    group_months_checkbox.addEventListener("change", (e) => {
+        groupMonths = e.target.checked;
+        create_month_chart();
     });
 
 
