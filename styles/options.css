@@ -1,8 +1,8 @@
 /* Slider average */
 input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
@@ -44,7 +44,8 @@ input[type="color"] {
     border-radius: 1px;
 }
 
-input[type="color"], select {
+input[type="color"],
+select {
     cursor: pointer;
 }
 
@@ -127,6 +128,7 @@ input[type="color"], select {
     overflow: hidden;
     transition: all 0.3s;
 }
+
 .upload-section:hover .options-storage {
     opacity: 1;
     max-height: 100px;
@@ -219,7 +221,7 @@ input[type="color"], select {
         display: grid;
         align-items: center;
         grid-template-columns: 1fr 1fr;
-        min-width: 300px;
+        min-width: fit-content;
         gap: 5px 0px;
         background-color: var(--secondary-bg);
         padding: 0.8rem;
@@ -238,6 +240,12 @@ input[type="color"], select {
 
         & button {
             margin: 0;
+        }
+    }
+
+    @media (max-width: 800px) {
+        & .dialog-settings-group label {
+            font-size: 0.9rem;
         }
     }
 
@@ -280,7 +288,8 @@ input[type="color"], select {
     height: fit-content;
     position: relative;
 
-    & img, & canvas {
+    & img,
+    & canvas {
         display: block;
         height: auto;
         width: 100%;
@@ -299,5 +308,15 @@ input[type="color"], select {
 @media (max-width: 800px) {
     .input-nb.input-large {
         width: 150px;
+    }
+
+    .option-item {
+        font-size: 0.9rem;
+    }
+
+    .select {
+        min-width: 100px;
+        height: 30px;
+        font-size: 0.9rem;
     }
 }
